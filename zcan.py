@@ -120,6 +120,20 @@ class ZCANCANFDInit(Structure):
         ("dbit", BitConfig)   # Data bit timing
     ]
 
+class ZCAN_STAT(Structure):
+    """Controller status information"""
+    _fields_ = [
+        ("errInterrupt", c_ubyte),  # Error interrupt
+        ("regMode", c_ubyte),       # Mode register
+        ("regStatus", c_ubyte),     # Status register
+        ("regALCapture", c_ubyte),  # Arbitration Lost Capture
+        ("regECCapture", c_ubyte),  # Error Code Capture
+        ("regEWLimit", c_ubyte),    # Error Warning Limit
+        ("regRECounter", c_ubyte),  # RX Error Counter
+        ("regTECounter", c_ubyte),  # TX Error Counter
+        ("reserved", c_uint32)      # Reserved
+    ]
+
 class ZCAN:
     """Low level wrapper around ZLG USBCANFD driver"""
 
@@ -175,6 +189,7 @@ class ZCAN:
         Returns:
             bool: True if device opened successfully
         """
+        logger.debug(f"VCI_OpenDevice: {device_type}, {device_index}, {reserved}")
         result = self._lib.VCI_OpenDevice(device_type, device_index, reserved)
         return bool(result)
 
@@ -191,6 +206,7 @@ class ZCAN:
         Returns:
             bool: True if initialization successful
         """
+        logger.debug(f"VCI_InitCAN: {device_type}, {device_index}, {channel}, {bytes(memoryview(init_config)).hex(' ')}")
         result = self._lib.VCI_InitCAN(device_type, device_index, channel, byref(init_config))
         return bool(result)
 
@@ -205,6 +221,7 @@ class ZCAN:
         Returns:
             bool: True if start successful
         """
+        logger.debug(f"VCI_StartCAN: {device_type}, {device_index}, {channel}")
         result = self._lib.VCI_StartCAN(device_type, device_index, channel)
         return bool(result)
 
@@ -286,6 +303,7 @@ class ZCAN:
         Returns:
             bool: True if reference set successfully
         """
+        logger.debug(f"VCI_SetReference: {device_type}, {device_index}, {channel}, {ref_type}")
         result = self._lib.VCI_SetReference(device_type, device_index, channel,
                                           ref_type, data)
         return bool(result)
@@ -314,3 +332,15 @@ class ZCAN:
             device_type, device_index, channel, byref(error_msg)
         )
         return bool(result)
+
+    def read_channel_status(self, device_type: int, device_index: int,
+                          channel: int) -> Optional[ZCAN_STAT]:
+        """Read channel status information
+
+        Returns:
+            Optional[ZCAN_STAT]: Status structure if successful, None on failure
+        """
+        status = ZCAN_STAT()
+        ret = self._lib.VCI_ReadCANStatus(device_type, device_index,
+                                        channel, byref(status))
+        return status if ret == ZCANStatus.OK else None

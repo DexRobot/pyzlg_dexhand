@@ -1,3 +1,4 @@
+import time
 from typing import Optional, List, Tuple
 import logging
 from ctypes import c_uint8, c_uint32, c_void_p, sizeof, memset, byref, Structure
@@ -62,12 +63,7 @@ class TimingConfigs:
         # 1Mbps / 5Mbps
         (1_000_000, 5_000_000): CANFDTimingConfig(
             arb=BitTimingConfig(tseg1=14, tseg2=3, sjw=3, brp=2),
-            data=BitTimingConfig(tseg1=10, tseg2=2, sjw=2, brp=0)
-        ),
-        # 500kbps / 2Mbps
-        (500_000, 2_000_000): CANFDTimingConfig(
-            arb=BitTimingConfig(tseg1=10, tseg2=2, sjw=2, brp=7),
-            data=BitTimingConfig(tseg1=10, tseg2=2, sjw=2, brp=1)
+            data=BitTimingConfig(tseg1=1, tseg2=0, sjw=0, brp=2)
         ),
         # Additional combinations can be added here
     }
@@ -161,6 +157,11 @@ class ZCANWrapper:
             logger.error(f"Failed to start channel {channel}")
             return False
 
+        # Check channel status after initialization
+        if not self.monitor_channel_status(channel):
+            logger.error(f"Channel {channel} status check failed after initialization")
+            return False
+
         # Enable terminal resistance if requested
         if enable_resistance:
             resistance = c_uint32(1)
@@ -249,8 +250,11 @@ class ZCANWrapper:
             message.data[i] = b
 
         # Send message
+        t = time.time()
         sent = self.zcan.transmit_fd(self.device_type, self.device_index, channel,
                                     [message], 1)
+        logger.debug(f"Transmit time: {time.time() - t:.3f}s")
+
 
         if not sent:
             logger.error("TransmitFD failed")
@@ -368,3 +372,116 @@ class ZCANWrapper:
         )
 
         return config
+
+    def handle_error(self, channel: int) -> None:
+        """Read and log error information from the device"""
+        error_msg = ZCANErrorMessage()
+        if self.zcan.read_error_info(self.device_type, self.device_index, channel, error_msg):
+            logger.error("CAN Error Information:")
+            logger.error(f"Error code: {hex(error_msg.header.id)}")
+            logger.error(f"Error data: {[hex(x) for x in error_msg.data[:8]]}")
+            logger.error(f"Channel: {channel}")
+
+            # Add error recovery logic here if needed
+            self.reset_channel(channel)
+        else:
+            logger.error("Failed to read error information")
+
+    def reset_channel(self, channel: int) -> bool:
+        """Reset a CAN channel after errors"""
+        logger.info(f"Resetting channel {channel}")
+
+        # Stop the channel
+        if not self.zcan.reset_can(self.device_type, self.device_index, channel):
+            logger.error("Failed to reset channel")
+            return False
+
+        # Reconfigure the channel
+        return self.configure_channel(channel)
+
+    def monitor_channel_status(self, channel: int) -> bool:
+        """Monitor channel status and handle errors"""
+        status = self.zcan.read_channel_status(self.device_type, self.device_index,
+                                            channel)
+        if status is None:
+            logger.error("Failed to read channel status")
+            return False
+
+        # Log detailed status information
+        logger.debug(
+            f"Channel {channel} status:\n"
+            f"  Error Interrupt: 0x{status.errInterrupt:02x}\n"
+            f"  Register Status: 0x{status.regStatus:02x}\n"
+            f"  Register Mode: 0x{status.regMode:02x}\n"
+            f"  RX Errors: {status.regRECounter}\n"
+            f"  TX Errors: {status.regTECounter}\n"
+            f"  Error Warning Limit: {status.regEWLimit}\n"
+            f"  AL Capture: 0x{status.regALCapture:02x}\n"
+            f"  EC Capture: 0x{status.regECCapture:02x}"
+        )
+
+        # Check for errors
+        if status.errInterrupt != 0:
+            logger.error(f"Channel {channel} error interrupt: 0x{status.errInterrupt:02x}")
+            self.handle_error(channel)
+            return False
+
+        # Check for bus-off state
+        if status.regStatus & 0x80:
+            logger.error(f"Channel {channel} is bus-off")
+            self.handle_error(channel)
+            return False
+
+        # Check for error warning limit
+        if status.regRECounter > status.regEWLimit or status.regTECounter > status.regEWLimit:
+            logger.warning(
+                f"Channel {channel} error counters above warning limit\n"
+                f"  RX Errors: {status.regRECounter} (limit: {status.regEWLimit})\n"
+                f"  TX Errors: {status.regTECounter} (limit: {status.regEWLimit})"
+            )
+
+        return True
+
+    def dump_channel_state(self, channel: int):
+        """Dump complete channel state for debugging"""
+        logger.info(f"\n=== Channel {channel} State Dump ===")
+
+        # Get status
+        status = self.zcan.read_channel_status(self.device_type, self.device_index, channel)
+        if status:
+            logger.info(
+                f"Channel Status:\n"
+                f"  Mode: 0x{status.regMode:02x}\n"
+                f"  Status: 0x{status.regStatus:02x}\n"
+                f"  Error Interrupt: 0x{status.errInterrupt:02x}\n"
+                f"  RX Errors: {status.regRECounter}\n"
+                f"  TX Errors: {status.regTECounter}\n"
+                f"  AL Capture: 0x{status.regALCapture:02x}\n"
+                f"  EC Capture: 0x{status.regECCapture:02x}"
+            )
+        else:
+            logger.error("Failed to read channel status")
+
+        logger.info("=== End State Dump ===\n")
+
+    def dump_frame(self, message: ZCANFDMessage) -> None:
+        """Dump complete frame details for debugging"""
+        logger.debug(
+            f"\n=== CAN Frame Dump ===\n"
+            f"Header:\n"
+            f"  ID: 0x{message.header.id:x}\n"
+            f"  Channel: {message.header.channel}\n"
+            f"  Length: {message.header.len}\n"
+            f"  Timestamp: {message.header.timestamp}\n"
+            f"  Padding: {message.header.pad}\n"
+            f"Info flags:\n"
+            f"  fmt: {message.header.info.fmt}\n"      # Should be 1 for CANFD
+            f"  brs: {message.header.info.brs}\n"      # Should be 0 for no bit rate switch
+            f"  sdf: {message.header.info.sdf}\n"      # Should be 0 for data frame
+            f"  sef: {message.header.info.sef}\n"      # Should be 0 for standard frame
+            f"  err: {message.header.info.err}\n"
+            f"  est: {message.header.info.est}\n"
+            f"  txm: {message.header.info.txm}\n"      # Should be 0 for normal transmission
+            f"Data: {[hex(x) for x in message.data[:message.header.len]]}\n"
+            f"=== End Frame Dump ===\n"
+        )

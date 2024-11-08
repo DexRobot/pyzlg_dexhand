@@ -10,7 +10,7 @@ from dexhand_interface import (
 )
 from dexhand_logger import DexHandLogger
 
-logging.basicConfig(level=logging.DEBUG)
+logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 class DexHandTest:
@@ -48,6 +48,11 @@ class DexHandTest:
         Returns:
             bool: True if all hands initialized successfully
         """
+        if self.zcan is not None:
+            # Initialize shared ZCAN instance
+            if not self.zcan.open():
+                logger.error("Failed to open shared ZCAN instance")
+                return False
         for hand_name, hand in self.hands_dict.items():
             if not hand.init():
                 logger.error(f"Failed to initialize {hand_name} hand")
@@ -107,15 +112,19 @@ class DexHandTest:
         """
         # Move to start position
         for hand_name, hand in self.hands_dict.items():
+            t = time.time()
             success = hand.send_commands(
                 positions=start_pos,
                 enable_motors=enable_pattern,
                 control_mode=ControlMode.CASCADED_PID
             )
+            logger.info(f"Time taken to send command: {time.time() - t}")
             self.logger.log_command(start_pos, enable_pattern,
                                   ControlMode.CASCADED_PID, success, hand_name)
 
+            t = time.time()
             hand.clear_errors()
+            logger.info(f"Time taken to clear errors: {time.time() - t}")
 
             # Get and log feedback
             feedback = hand.receive_feedback()
@@ -135,15 +144,19 @@ class DexHandTest:
 
         # Move to end position
         for hand_name, hand in self.hands_dict.items():
+            t = time.time()
             success = hand.send_commands(
                 positions=end_pos,
                 enable_motors=enable_pattern,
                 control_mode=ControlMode.CASCADED_PID
             )
+            logger.info(f"Time taken to send command: {time.time() - t}")
             self.logger.log_command(end_pos, enable_pattern,
                                   ControlMode.CASCADED_PID, success, hand_name)
 
+            t = time.time()
             hand.clear_errors()
+            logger.info(f"Time taken to clear errors: {time.time() - t}")
 
             feedback = hand.receive_feedback()
             self.logger.log_feedback(feedback, hand_name)
@@ -156,8 +169,12 @@ class DexHandTest:
         for hand in self.hands_dict.values():
             hand.close()
 
+        if self.zcan is not None:
+            # Close shared ZCAN instance
+            self.zcan.close()
+
         # Close logger
-        self.logger.close()
+        # self.logger.close()
 
 def main():
     parser = argparse.ArgumentParser(description="Test dexterous hand control")
@@ -177,6 +194,11 @@ def main():
     try:
         if not test.initialize_hands():
             return
+
+        for hand in test.hands_dict.values():
+            hand.zcan.dump_channel_state(hand.config.channel)
+            for i in range(6):
+                hand.send_single_command(hand.config.ctrl_offset + 1 + i, np.random.randint(0, 3000), np.random.randint(0, 3000), 0x3)
 
         test.run_test_sequence(args.repeat, args.sleep_time)
 
