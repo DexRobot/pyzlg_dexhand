@@ -174,7 +174,7 @@ class DexHandTest:
             self.zcan.close()
 
         # Close logger
-        # self.logger.close()
+        self.logger.close()
 
 def main():
     parser = argparse.ArgumentParser(description="Test dexterous hand control")

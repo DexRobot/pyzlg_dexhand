@@ -164,6 +164,7 @@ class DexHandLogger:
         """
         try:
             import matplotlib.pyplot as plt
+            import numpy as np
         except ImportError:
             logger.error("matplotlib is required for plotting")
             return
@@ -178,13 +179,31 @@ class DexHandLogger:
             # Plot commands
             plt.figure(figsize=(12, 6))
             command_times = [entry.timestamp for entry in self.command_buffers[hand]]
+            command_array = np.array(command_times)
+
             for joint in range(12):
                 positions = [entry.positions[joint] for entry in self.command_buffers[hand]]
                 enables = [entry.enable_motors[joint] for entry in self.command_buffers[hand]]
-                # Use different line style for enabled vs disabled periods
-                plt.plot(command_times, positions,
-                        label=f'Joint {joint}',
-                        alpha=[0.3 if not e else 1.0 for e in enables])
+                positions_array = np.array(positions)
+                enables_array = np.array(enables)
+
+                # Plot enabled segments with full opacity
+                if np.any(enables_array):
+                    enabled_mask = enables_array
+                    plt.plot(command_array[enabled_mask],
+                            positions_array[enabled_mask],
+                            label=f'Joint {joint}',
+                            alpha=1.0)
+
+                # Plot disabled segments with reduced opacity
+                if np.any(~enables_array):
+                    disabled_mask = ~enables_array
+                    plt.plot(command_array[disabled_mask],
+                            positions_array[disabled_mask],
+                            alpha=0.3,
+                            linestyle='--',
+                            color=plt.gca().lines[-1].get_color() if np.any(enables_array) else None)
+
             plt.xlabel('Time (s)')
             plt.ylabel('Position Command')
             plt.title(f'{hand.title()} Hand Position Commands')
@@ -194,23 +213,28 @@ class DexHandLogger:
             if save:
                 plt.savefig(self.session_dir / f'{hand}_commands.png')
 
-            # Plot feedback
-            plt.figure(figsize=(12, 6))
-            feedback_times = [entry.timestamp for entry in self.feedback_buffers[hand]]
-            for joint in range(12):
-                positions = [entry.joint_positions[joint] for entry in self.feedback_buffers[hand]]
-                plt.plot(feedback_times, positions, label=f'Joint {joint}')
-            plt.xlabel('Time (s)')
-            plt.ylabel('Position Feedback')
-            plt.title(f'{hand.title()} Hand Position Feedback')
-            plt.legend()
-            plt.grid(True)
+            # TODO: feedback not working yet
+            # # Plot feedback
+            # plt.figure(figsize=(12, 6))
+            # feedback_times = [entry.timestamp for entry in self.feedback_buffers[hand]]
+            # for joint in range(12):
+            #     positions = [entry.joint_positions[joint] for entry in self.feedback_buffers[hand]]
+            #     plt.plot(feedback_times, positions, label=f'Joint {joint}')
+            # plt.xlabel('Time (s)')
+            # plt.ylabel('Position Feedback')
+            # plt.title(f'{hand.title()} Hand Position Feedback')
+            # plt.legend()
+            # plt.grid(True)
 
-            if save:
-                plt.savefig(self.session_dir / f'{hand}_feedback.png')
+            # if save:
+            #     plt.savefig(self.session_dir / f'{hand}_feedback.png')
+
+            # Close figures to free memory
+            plt.close('all')
 
         if show:
             plt.show()
+
 
     def close(self):
         """Close the logger and save any remaining data"""
