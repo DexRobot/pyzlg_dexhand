@@ -327,18 +327,24 @@ class DexHandBase:
                 enables[joint] = True
 
         # Handle finger spread inconsistency
+        # TODO: inconsistency between 0x44 and 0x55; 0x33 not verified yet
         if control_mode == ControlMode.PROTECT_HALL_POSITION:
             positions[DexJoint.FINGER_SPREAD] = -positions[DexJoint.FINGER_SPREAD]
 
         return self.send_commands(positions, enables, control_mode)
 
-    def reset_joints(self):
-        self.move_joints(thumb_dip=0, thumb_pip=0, thumb_rot=0,
-                         finger_spread=0,
-                         index_dip=0, index_pip=0,
-                         middle_dip=0, middle_pip=0,
-                         ring_dip=0, ring_pip=0,
-                         pinky_dip=0, pinky_pip=0,
+    def reset_joints(self, value: float=0.0):
+        """Reset all joints to a specified value (defaults to 0)
+
+        Args:
+            value: Position value to reset joints to (in degrees)
+        """
+        self.move_joints(thumb_dip=value, thumb_pip=value, thumb_rot=value,
+                         finger_spread=value,
+                         index_dip=value, index_pip=value,
+                         middle_dip=value, middle_pip=value,
+                         ring_dip=value, ring_pip=value,
+                         pinky_dip=value, pinky_pip=value,
                          control_mode=ControlMode.CASCADED_PID)
 
 class LeftDexHand(DexHandBase):

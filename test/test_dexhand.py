@@ -5,6 +5,8 @@ from typing import List, Optional, Union
 import argparse
 from pathlib import Path
 
+import sys
+sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 from dexhand_interface import (
     LeftDexHand, RightDexHand, ControlMode, JointMotor, ZCANWrapper
 )

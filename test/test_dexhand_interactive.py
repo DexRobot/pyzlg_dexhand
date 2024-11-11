@@ -1,6 +1,8 @@
 import argparse
 from typing import List
 from IPython import embed
+import sys
+sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 from dexhand_interface import LeftDexHand, RightDexHand, ControlMode, ZCANWrapper
 
 def initialize_hands(hand_names: List[str]) -> dict:
