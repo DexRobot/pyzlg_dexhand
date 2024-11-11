@@ -189,7 +189,8 @@ class ZCAN:
         Returns:
             bool: True if device opened successfully
         """
-        logger.debug(f"VCI_OpenDevice: {device_type}, {device_index}, {reserved}")
+        if logger.isEnabledFor(logging.DEBUG):
+            logger.debug(f"VCI_OpenDevice: {device_type}, {device_index}, {reserved}")
         result = self._lib.VCI_OpenDevice(device_type, device_index, reserved)
         return bool(result)
 
@@ -206,7 +207,8 @@ class ZCAN:
         Returns:
             bool: True if initialization successful
         """
-        logger.debug(f"VCI_InitCAN: {device_type}, {device_index}, {channel}, {bytes(memoryview(init_config)).hex(' ')}")
+        if logger.isEnabledFor(logging.DEBUG):
+            logger.debug(f"VCI_InitCAN: {device_type}, {device_index}, {channel}, {bytes(memoryview(init_config)).hex(' ')}")
         result = self._lib.VCI_InitCAN(device_type, device_index, channel, byref(init_config))
         return bool(result)
 
@@ -221,7 +223,8 @@ class ZCAN:
         Returns:
             bool: True if start successful
         """
-        logger.debug(f"VCI_StartCAN: {device_type}, {device_index}, {channel}")
+        if logger.isEnabledFor(logging.DEBUG):
+            logger.debug(f"VCI_StartCAN: {device_type}, {device_index}, {channel}")
         result = self._lib.VCI_StartCAN(device_type, device_index, channel)
         return bool(result)
 
@@ -303,7 +306,8 @@ class ZCAN:
         Returns:
             bool: True if reference set successfully
         """
-        logger.debug(f"VCI_SetReference: {device_type}, {device_index}, {channel}, {ref_type}")
+        if logger.isEnabledFor(logging.DEBUG):
+            logger.debug(f"VCI_SetReference: {device_type}, {device_index}, {channel}, {ref_type}")
         result = self._lib.VCI_SetReference(device_type, device_index, channel,
                                           ref_type, data)
         return bool(result)

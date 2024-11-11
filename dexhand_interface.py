@@ -24,6 +24,20 @@ class JointMotor(IntEnum):
     DISTAL = 0x02
     ALL = 0x03
 
+class DexJoint(IntEnum):
+    THUMB_DIP = 0
+    THUMB_PIP = 1
+    THUMB_ROT = 2
+    FINGER_SPREAD = 3
+    INDEX_DIP = 4
+    INDEX_PIP = 5
+    MIDDLE_DIP = 6
+    MIDDLE_PIP = 7
+    RING_DIP = 8
+    RING_PIP = 9
+    PINKY_DIP = 10
+    PINKY_PIP = 11
+
 @dataclass
 class HandConfig:
     """Configuration for CAN communication"""
@@ -167,11 +181,12 @@ class DexHandBase:
     def send_single_command(self, joint_id: int, proximal_pos: int, distal_pos: int,
                         motor_enable: int, control_mode: ControlMode = ControlMode.CASCADED_PID) -> bool:
         """Send command to a single joint (pair of motors)"""
-        logger.debug(
-            f"Sending command to joint {joint_id:x}:\n"
-            f"  Proximal: {proximal_pos}, Distal: {distal_pos}\n"
-            f"  Enable: {motor_enable:x}, Mode: {control_mode:x}"
-        )
+        if logger.isEnabledFor(logging.DEBUG):
+            logger.debug(
+                f"Sending command to joint {joint_id:x}:\n"
+                f"  Proximal: {proximal_pos}, Distal: {distal_pos}\n"
+                f"  Enable: {motor_enable:x}, Mode: {control_mode:x}"
+            )
 
         # Build message data
         data = bytearray(6)  # Should match working implementation size
@@ -182,10 +197,12 @@ class DexHandBase:
         data[4] = distal_pos & 0xFF
         data[5] = (distal_pos >> 8) & 0xFF
 
-        logger.debug(f"Message data: {[hex(x) for x in data]}")
+        if logger.isEnabledFor(logging.DEBUG):
+            logger.debug(f"Message data: {[hex(x) for x in data]}")
 
         success = self.zcan.send_fd_message(self.config.channel, joint_id, data)
-        logger.debug(f"Send result: {'Success' if success else 'Failed'}")
+        if logger.isEnabledFor(logging.DEBUG):
+            logger.debug(f"Send result: {'Success' if success else 'Failed'}")
         return success
 
     def clear_errors(self) -> bool:
@@ -257,6 +274,72 @@ class DexHandBase:
         # Only close ZCAN if we own it
         if self._owns_zcan:
             self.zcan.close()
+
+    def move_joints(self,
+                thumb_dip: Optional[float] = None, thumb_pip: Optional[float] = None, thumb_rot: Optional[float] = None,
+                finger_spread: Optional[float] = None,
+                index_dip: Optional[float] = None, index_pip: Optional[float] = None,
+                middle_dip: Optional[float] = None, middle_pip: Optional[float] = None,
+                ring_dip: Optional[float] = None, ring_pip: Optional[float] = None,
+                pinky_dip: Optional[float] = None, pinky_pip: Optional[float] = None,
+                control_mode: ControlMode = ControlMode.CASCADED_PID) -> bool:
+        """Move specified joints of the hand
+
+        Args:
+            thumb_dip: Angle of thumb DIP joint in degrees
+            thumb_pip: Angle of thumb PIP joint in degrees
+            thumb_rot: Angle of thumb rotation joint in degrees
+            finger_spread: Angle of finger spread
+            index_dip: Angle of index finger DIP joint in degrees
+            index_pip: Angle of index finger PIP joint in degrees
+            middle_dip: Angle of middle finger DIP joint in degrees
+            middle_pip: Angle of middle finger PIP joint in degrees
+            ring_dip: Angle of ring finger DIP joint in degrees
+            ring_pip: Angle of ring finger PIP joint in degrees
+            pinky_dip: Angle of pinky DIP joint in degrees
+            pinky_pip: Angle of pinky PIP joint in degrees
+            control_mode: Control mode to use
+
+        Returns:
+            bool: True if command sent successfully
+        """
+        positions = np.zeros(self.NUM_MOTORS)
+        enables = [False] * self.NUM_MOTORS
+
+        joint_angles = {
+            DexJoint.THUMB_DIP: thumb_dip,
+            DexJoint.THUMB_PIP: thumb_pip,
+            DexJoint.THUMB_ROT: thumb_rot,
+            DexJoint.FINGER_SPREAD: finger_spread,
+            DexJoint.INDEX_DIP: index_dip,
+            DexJoint.INDEX_PIP: index_pip,
+            DexJoint.MIDDLE_DIP: middle_dip,
+            DexJoint.MIDDLE_PIP: middle_pip,
+            DexJoint.RING_DIP: ring_dip,
+            DexJoint.RING_PIP: ring_pip,
+            DexJoint.PINKY_DIP: pinky_dip,
+            DexJoint.PINKY_PIP: pinky_pip
+        }
+
+        for joint, angle in joint_angles.items():
+            if angle is not None:
+                positions[joint] = int(angle * 100)  # Convert to hardware units
+                enables[joint] = True
+
+        # Handle finger spread inconsistency
+        if control_mode == ControlMode.PROTECT_HALL_POSITION:
+            positions[DexJoint.FINGER_SPREAD] = -positions[DexJoint.FINGER_SPREAD]
+
+        return self.send_commands(positions, enables, control_mode)
+
+    def reset_joints(self):
+        self.move_joints(thumb_dip=0, thumb_pip=0, thumb_rot=0,
+                         finger_spread=0,
+                         index_dip=0, index_pip=0,
+                         middle_dip=0, middle_pip=0,
+                         ring_dip=0, ring_pip=0,
+                         pinky_dip=0, pinky_pip=0,
+                         control_mode=ControlMode.CASCADED_PID)
 
 class LeftDexHand(DexHandBase):
     """Control interface for left dexterous hand"""

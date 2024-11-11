@@ -213,12 +213,13 @@ class ZCANWrapper:
     def send_fd_message(self, channel: int, id: int, data: bytes,
                     flags: Optional[ZCANMessageInfo] = None) -> bool:
         """Send a single CANFD message"""
-        logger.debug(
-            f"Preparing CANFD message:\n"
-            f"  Channel: {channel}\n"
-            f"  ID: {id:x}\n"
-            f"  Data ({len(data)} bytes): {[hex(x) for x in data]}"
-        )
+        if logger.isEnabledFor(logging.DEBUG):
+            logger.debug(
+                f"Preparing CANFD message:\n"
+                f"  Channel: {channel}\n"
+                f"  ID: {id:x}\n"
+                f"  Data ({len(data)} bytes): {[hex(x) for x in data]}"
+            )
 
         message = ZCANFDMessage()
         # Zero out the entire message first
@@ -239,11 +240,12 @@ class ZCANWrapper:
         message.header.channel = channel
         message.header.len = len(data)
 
-        logger.debug("Message flags set:")
-        logger.debug(f"  fmt={message.header.info.fmt}, brs={message.header.info.brs}")
-        logger.debug(f"  sdf={message.header.info.sdf}, sef={message.header.info.sef}")
-        logger.debug(f"  err={message.header.info.err}, est={message.header.info.est}")
-        logger.debug(f"  txm={message.header.info.txm}")
+        if logger.isEnabledFor(logging.DEBUG):
+            logger.debug("Message flags set:")
+            logger.debug(f"  fmt={message.header.info.fmt}, brs={message.header.info.brs}")
+            logger.debug(f"  sdf={message.header.info.sdf}, sef={message.header.info.sef}")
+            logger.debug(f"  err={message.header.info.err}, est={message.header.info.est}")
+            logger.debug(f"  txm={message.header.info.txm}")
 
         # Copy data
         for i, b in enumerate(data):
@@ -253,7 +255,8 @@ class ZCANWrapper:
         t = time.time()
         sent = self.zcan.transmit_fd(self.device_type, self.device_index, channel,
                                     [message], 1)
-        logger.debug(f"Transmit time: {time.time() - t:.3f}s")
+        if logger.isEnabledFor(logging.DEBUG):
+            logger.debug(f"Transmit time: {time.time() - t:.3f}s")
 
 
         if not sent:
@@ -362,14 +365,15 @@ class ZCANWrapper:
         config.dbit.smp = 0  # Sample point setting fixed at 0
         config.dbit.brp = timing.data.brp
 
-        logger.debug(
-            f"Creating CANFD init config for {arb_baudrate/1e6:.1f}M/{data_baudrate/1e6:.1f}M:\n"
-            f"  Clock: {timing.clock_hz/1e6:.1f}MHz\n"
-            f"  Arbitration: tseg1={timing.arb.tseg1}, tseg2={timing.arb.tseg2}, "
-            f"sjw={timing.arb.sjw}, brp={timing.arb.brp}\n"
-            f"  Data: tseg1={timing.data.tseg1}, tseg2={timing.data.tseg2}, "
-            f"sjw={timing.data.sjw}, brp={timing.data.brp}"
-        )
+        if logger.isEnabledFor(logging.DEBUG):
+            logger.debug(
+                f"Creating CANFD init config for {arb_baudrate/1e6:.1f}M/{data_baudrate/1e6:.1f}M:\n"
+                f"  Clock: {timing.clock_hz/1e6:.1f}MHz\n"
+                f"  Arbitration: tseg1={timing.arb.tseg1}, tseg2={timing.arb.tseg2}, "
+                f"sjw={timing.arb.sjw}, brp={timing.arb.brp}\n"
+                f"  Data: tseg1={timing.data.tseg1}, tseg2={timing.data.tseg2}, "
+                f"sjw={timing.data.sjw}, brp={timing.data.brp}"
+            )
 
         return config
 
@@ -408,17 +412,18 @@ class ZCANWrapper:
             return False
 
         # Log detailed status information
-        logger.debug(
-            f"Channel {channel} status:\n"
-            f"  Error Interrupt: 0x{status.errInterrupt:02x}\n"
-            f"  Register Status: 0x{status.regStatus:02x}\n"
-            f"  Register Mode: 0x{status.regMode:02x}\n"
-            f"  RX Errors: {status.regRECounter}\n"
-            f"  TX Errors: {status.regTECounter}\n"
-            f"  Error Warning Limit: {status.regEWLimit}\n"
-            f"  AL Capture: 0x{status.regALCapture:02x}\n"
-            f"  EC Capture: 0x{status.regECCapture:02x}"
-        )
+        if logger.isEnabledFor(logging.DEBUG):
+            logger.debug(
+                f"Channel {channel} status:\n"
+                f"  Error Interrupt: 0x{status.errInterrupt:02x}\n"
+                f"  Register Status: 0x{status.regStatus:02x}\n"
+                f"  Register Mode: 0x{status.regMode:02x}\n"
+                f"  RX Errors: {status.regRECounter}\n"
+                f"  TX Errors: {status.regTECounter}\n"
+                f"  Error Warning Limit: {status.regEWLimit}\n"
+                f"  AL Capture: 0x{status.regALCapture:02x}\n"
+                f"  EC Capture: 0x{status.regECCapture:02x}"
+            )
 
         # Check for errors
         if status.errInterrupt != 0:
@@ -466,22 +471,23 @@ class ZCANWrapper:
 
     def dump_frame(self, message: ZCANFDMessage) -> None:
         """Dump complete frame details for debugging"""
-        logger.debug(
-            f"\n=== CAN Frame Dump ===\n"
-            f"Header:\n"
-            f"  ID: 0x{message.header.id:x}\n"
-            f"  Channel: {message.header.channel}\n"
-            f"  Length: {message.header.len}\n"
-            f"  Timestamp: {message.header.timestamp}\n"
-            f"  Padding: {message.header.pad}\n"
-            f"Info flags:\n"
-            f"  fmt: {message.header.info.fmt}\n"      # Should be 1 for CANFD
-            f"  brs: {message.header.info.brs}\n"      # Should be 0 for no bit rate switch
-            f"  sdf: {message.header.info.sdf}\n"      # Should be 0 for data frame
-            f"  sef: {message.header.info.sef}\n"      # Should be 0 for standard frame
-            f"  err: {message.header.info.err}\n"
-            f"  est: {message.header.info.est}\n"
-            f"  txm: {message.header.info.txm}\n"      # Should be 0 for normal transmission
-            f"Data: {[hex(x) for x in message.data[:message.header.len]]}\n"
-            f"=== End Frame Dump ===\n"
-        )
+        if logger.isEnabledFor(logging.DEBUG):
+            logger.debug(
+                f"\n=== CAN Frame Dump ===\n"
+                f"Header:\n"
+                f"  ID: 0x{message.header.id:x}\n"
+                f"  Channel: {message.header.channel}\n"
+                f"  Length: {message.header.len}\n"
+                f"  Timestamp: {message.header.timestamp}\n"
+                f"  Padding: {message.header.pad}\n"
+                f"Info flags:\n"
+                f"  fmt: {message.header.info.fmt}\n"      # Should be 1 for CANFD
+                f"  brs: {message.header.info.brs}\n"      # Should be 0 for no bit rate switch
+                f"  sdf: {message.header.info.sdf}\n"      # Should be 0 for data frame
+                f"  sef: {message.header.info.sef}\n"      # Should be 0 for standard frame
+                f"  err: {message.header.info.err}\n"
+                f"  est: {message.header.info.est}\n"
+                f"  txm: {message.header.info.txm}\n"      # Should be 0 for normal transmission
+                f"Data: {[hex(x) for x in message.data[:message.header.len]]}\n"
+                f"=== End Frame Dump ===\n"
+            )
