@@ -6,6 +6,7 @@ import argparse
 from pathlib import Path
 
 import sys
+import os
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 from dexhand_interface import (
     LeftDexHand, RightDexHand, ControlMode, JointMotor, ZCANWrapper
