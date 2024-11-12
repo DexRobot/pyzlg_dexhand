@@ -1,6 +1,9 @@
 from typing import List, Dict, Optional, Tuple
 import logging
 from enum import IntEnum, auto
+import os
+import yaml
+from pathlib import Path
 import time
 import numpy as np
 from dataclasses import dataclass
@@ -45,6 +48,7 @@ class HandConfig:
     ctrl_offset: int
     ce_offset: int
     recv_offset: int
+    hall_scale: List[float]  # Scale coefficients for hall position modes
 
 @dataclass
 class MotorCommand:
@@ -73,24 +77,106 @@ class DexHandBase:
 
     NUM_MOTORS = 12
 
-    def __init__(self, config: HandConfig, zcan: Optional[ZCANWrapper] = None):
-        """Initialize dexterous hand interface
+    # Hardware units for hall position modes
+    COUNTS_PER_REV = 6
+    GEAR_RATIO = 25
+    RESOLUTION_BITS = 4
+    DEGREES = 360
+
+    def __init__(self, config_path: str, zcan: Optional[ZCANWrapper] = None):
+            """Initialize dexterous hand interface
+
+            Args:
+                config_path: Path to hand's YAML config file
+                zcan: Optional existing ZCANWrapper instance to share between hands
+            """
+            self.config = self._load_config(config_path)
+            self.zcan = zcan if zcan else ZCANWrapper()
+            self._owns_zcan = zcan is None
+
+            # Calculate hall scaling factors
+            self._init_hall_scaling()
+
+            # State tracking
+            self._last_positions = np.zeros(self.NUM_MOTORS)
+            self._motor_modes = np.zeros(self.NUM_MOTORS, dtype=int)
+            self._motor_positions = np.zeros(self.NUM_MOTORS, dtype=int)
+            self._motor_velocities = np.zeros(self.NUM_MOTORS, dtype=int)
+            self._motor_currents = np.zeros(self.NUM_MOTORS, dtype=int)
+            self._motor_errors = np.zeros(self.NUM_MOTORS, dtype=int)
+
+
+    def _load_config(self, config_path: str) -> HandConfig:
+        """Load hand configuration from YAML file
 
         Args:
-            config: CAN configuration for this hand
-            zcan: Optional existing ZCANWrapper instance to share between hands
-        """
-        self.config = config
-        self.zcan = zcan if zcan else ZCANWrapper()
-        self._owns_zcan = zcan is None  # Track if we created the ZCAN instance
+            config_path: Path to config file
 
-        # State tracking
-        self._last_positions = np.zeros(self.NUM_MOTORS)
-        self._motor_modes = np.zeros(self.NUM_MOTORS, dtype=int)
-        self._motor_positions = np.zeros(self.NUM_MOTORS, dtype=int)
-        self._motor_velocities = np.zeros(self.NUM_MOTORS, dtype=int)
-        self._motor_currents = np.zeros(self.NUM_MOTORS, dtype=int)
-        self._motor_errors = np.zeros(self.NUM_MOTORS, dtype=int)
+        Returns:
+            HandConfig object
+
+        Raises:
+            FileNotFoundError: If config file doesn't exist
+            ValueError: If config is invalid
+        """
+        path = Path(config_path)
+        if not path.exists():
+            raise FileNotFoundError(f"Config file not found: {config_path}")
+
+        with open(path) as f:
+            config = yaml.safe_load(f)
+
+        # Validate config
+        required_keys = {'channel', 'ctrl_offset', 'ce_offset', 'recv_offset', 'hall_scale'}
+        missing = required_keys - set(config.keys())
+        if missing:
+            raise ValueError(f"Missing required keys in config: {missing}")
+
+        if len(config['hall_scale']) != self.NUM_MOTORS:
+            raise ValueError(f"Expected {self.NUM_MOTORS} hall scale coefficients")
+
+        return HandConfig(**config)
+
+    def _init_hall_scaling(self):
+        """Initialize scaling factors for hall position modes (0x33/0x55)"""
+        # Calculate conversion factor for hall position modes
+        conversion_factor = (self.COUNTS_PER_REV *
+                           self.GEAR_RATIO *
+                           2**self.RESOLUTION_BITS /
+                           self.DEGREES)
+
+        # Pre-calculate hall scaling array
+        self._hall_scale = np.array([int(coeff * conversion_factor)
+                                   for coeff in self.config.hall_scale])
+
+        if logger.isEnabledFor(logging.DEBUG):
+            logger.debug(f"Hall position scaling: {self._hall_scale}")
+
+    def scale_positions(self, positions: List[float],
+                       control_mode: ControlMode) -> List[int]:
+        """Scale joint positions based on control mode
+
+        Args:
+            positions: List of joint positions in degrees
+            control_mode: Control mode to use
+
+        Returns:
+            List of scaled integer positions for hardware
+
+        Note:
+            Only hall position modes (0x33/0x55) need scaling
+        """
+        if len(positions) != self.NUM_MOTORS:
+            raise ValueError(f"Expected {self.NUM_MOTORS} positions, got {len(positions)}")
+
+        positions = np.array(positions)
+
+        if control_mode in (ControlMode.HALL_POSITION, ControlMode.PROTECT_HALL_POSITION):
+            return (positions * self._hall_scale).astype(int)
+        else:
+            # For cascaded PID mode, scale to 100x for hardware units
+            return (positions * 100).astype(int)
+
 
     def init(self, device_type: ZCANDeviceType = ZCANDeviceType.ZCAN_USBCANFD_200U,
              device_index: int = 0) -> bool:
@@ -133,46 +219,40 @@ class DexHandBase:
         """Send position commands to all motors
 
         Args:
-            positions: Array of 12 position commands
-            enable_motors: Optional boolean array indicating which motors to enable.
-                         If None, all motors are enabled.
-            control_mode: Control mode for all motors
+            positions: Array of joint positions in degrees
+            enable_motors: Optional boolean array indicating which motors to enable
+            control_mode: Control mode to use
 
         Returns:
             bool: True if all commands sent successfully
         """
-        if len(positions) != self.NUM_MOTORS:
-            raise ValueError(f"Expected {self.NUM_MOTORS} positions, got {len(positions)}")
+        scaled_positions = self.scale_positions(positions, control_mode)
 
-        # Default to enabling all motors
         if enable_motors is None:
             enable_motors = np.ones(self.NUM_MOTORS, dtype=bool)
         elif len(enable_motors) != self.NUM_MOTORS:
-            raise ValueError(f"Expected {self.NUM_MOTORS} enable flags, got {len(enable_motors)}")
+            raise ValueError(f"Expected {self.NUM_MOTORS} enable flags")
 
         failed_count = 0
         for i in range(0, self.NUM_MOTORS, 2):
-            # Determine which motors in this pair to enable
-            enable_flags = enable_motors[i:i+2]
-            if not any(enable_flags):
+            # Skip if both motors disabled
+            if not any(enable_motors[i:i+2]):
                 continue
 
-            motor_enable = (JointMotor.PROXIMAL if enable_flags[0] else 0) | \
-                         (JointMotor.DISTAL if enable_flags[1] else 0)
+            # Determine motor enable flags
+            motor_enable = (0x01 if enable_motors[i] else 0) | \
+                         (0x02 if enable_motors[i+1] else 0)
 
-            # Send command
             success = self.send_single_command(
                 joint_id=self.config.ctrl_offset + i//2 + 1,
-                proximal_pos=int(positions[i]),
-                distal_pos=int(positions[i+1]),
+                proximal_pos=scaled_positions[i],
+                distal_pos=scaled_positions[i+1],
                 control_mode=control_mode,
                 motor_enable=motor_enable
             )
 
             if success:
-                # Update last positions
-                self._last_positions[i] = positions[i]
-                self._last_positions[i+1] = positions[i+1]
+                self._last_positions[i:i+2] = positions[i:i+2]
             else:
                 failed_count += 1
 
@@ -189,16 +269,13 @@ class DexHandBase:
             )
 
         # Build message data
-        data = bytearray(6)  # Should match working implementation size
+        data = bytearray(6)
         data[0] = control_mode & 0xFF
         data[1] = motor_enable & 0xFF
         data[2] = proximal_pos & 0xFF
         data[3] = (proximal_pos >> 8) & 0xFF
         data[4] = distal_pos & 0xFF
         data[5] = (distal_pos >> 8) & 0xFF
-
-        if logger.isEnabledFor(logging.DEBUG):
-            logger.debug(f"Message data: {[hex(x) for x in data]}")
 
         success = self.zcan.send_fd_message(self.config.channel, joint_id, data)
         if logger.isEnabledFor(logging.DEBUG):
@@ -323,7 +400,7 @@ class DexHandBase:
 
         for joint, angle in joint_angles.items():
             if angle is not None:
-                positions[joint] = int(angle * 100)  # Convert to hardware units
+                positions[joint] = angle
                 enables[joint] = True
 
         # Handle finger spread inconsistency
@@ -350,25 +427,11 @@ class DexHandBase:
 class LeftDexHand(DexHandBase):
     """Control interface for left dexterous hand"""
     def __init__(self, zcan: Optional[ZCANWrapper] = None):
-        super().__init__(
-            HandConfig(
-                channel=0,
-                ctrl_offset=0x100,
-                ce_offset=0x00,
-                recv_offset=0x20
-            ),
-            zcan
-        )
+        config_path = os.path.join(os.path.dirname(__file__), "config/left_hand.yaml")
+        super().__init__(config_path, zcan)
 
 class RightDexHand(DexHandBase):
     """Control interface for right dexterous hand"""
     def __init__(self, zcan: Optional[ZCANWrapper] = None):
-        super().__init__(
-            HandConfig(
-                channel=1,
-                ctrl_offset=0x106,
-                ce_offset=0x06,
-                recv_offset=0x26
-            ),
-            zcan
-        )
+        config_path = os.path.join(os.path.dirname(__file__), "config/right_hand.yaml")
+        super().__init__(config_path, zcan)

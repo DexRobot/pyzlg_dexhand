@@ -20,7 +20,7 @@ class HardwareMapping(Enum):
     THUMB_SPREAD = (DexJoint.THUMB_PIP, False, ["f_joint1_2"])  # Only joint that doesn't flip sign
     THUMB_ROTATION = (DexJoint.THUMB_ROT, True, ["f_joint1_1"])
     FINGER_SPREAD = (DexJoint.FINGER_SPREAD, True, [
-        "f_joint2_1", "f_joint3_1", "f_joint4_1", "f_joint5_1"
+        "f_joint2_1", "f_joint4_1", "f_joint5_1"
     ])
     INDEX_DIP = (DexJoint.INDEX_DIP, True, ["f_joint2_3", "f_joint2_4"])
     INDEX_PIP = (DexJoint.INDEX_PIP, True, ["f_joint2_2"])
