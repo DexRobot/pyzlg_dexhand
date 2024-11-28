@@ -1,93 +1,149 @@
-# pyzlg_dexhand
+# DexHand Control Interface
 
+Python interface for controlling dexterous robotic hands over CANFD using ZLG USBCANFD adapters. Provides both direct control and ROS2 integration.
 
+## Prerequisites
 
-## Getting started
+- Linux environment
+- Python 3.8+
+- ZLG USBCANFD adapter (tested with USBCANFD-200U)
+- ROS2 (optional, for ROS interface)
 
-To make it easy for you to get started with GitLab, here's a list of recommended next steps.
+## Quickstart Guide
 
-Already a pro? Just edit this README.md and make it your own. Want to make it easy? [Use the template at the bottom](#editing-this-readme)!
+### 1. USB Setup
 
-## Add your files
+First, configure USB permissions for the CANFD adapter:
 
-- [ ] [Create](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#create-a-file) or [upload](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#upload-a-file) files
-- [ ] [Add files using the command line](https://docs.gitlab.com/ee/gitlab-basics/add-file.html#add-a-file-using-the-command-line) or push an existing Git repository with the following command:
-
+```bash
+# Run the setup script (only needed once after connecting adapter)
+./setup_usb_can.sh
 ```
-cd existing_repo
-git remote add origin http://192.168.1.31/all/pyzlg_dexhand.git
-git branch -M main
-git push -uf origin main
+
+### 2. Test Device Connection
+
+Use the basic test script to verify hardware communication:
+
+```bash
+# Test left hand only
+python test/test_dexhand.py --hands left
+
+# Test both hands
+python test/test_dexhand.py --hands left right
 ```
 
-## Integrate with your tools
+The test script will run through a sequence of movements to verify proper operation.
 
-- [ ] [Set up project integrations](http://192.168.1.31/all/pyzlg_dexhand/-/settings/integrations)
+### 3. Interactive Control
 
-## Collaborate with your team
+For manual testing and control, use the interactive interface:
 
-- [ ] [Invite team members and collaborators](https://docs.gitlab.com/ee/user/project/members/)
-- [ ] [Create a new merge request](https://docs.gitlab.com/ee/user/project/merge_requests/creating_merge_requests.html)
-- [ ] [Automatically close issues from merge requests](https://docs.gitlab.com/ee/user/project/issues/managing_issues.html#closing-issues-automatically)
-- [ ] [Enable merge request approvals](https://docs.gitlab.com/ee/user/project/merge_requests/approvals/)
-- [ ] [Set auto-merge](https://docs.gitlab.com/ee/user/project/merge_requests/merge_when_pipeline_succeeds.html)
+```bash
+# Start interactive control of left hand
+python test/test_dexhand_interactive.py --hands left
+```
 
-## Test and Deploy
+This launches an IPython shell with the hand interface loaded. Example commands:
 
-Use the built-in continuous integration in GitLab.
+```python
+# Move individual joints
+left_hand.move_joints(thumb_rot=30)
+left_hand.move_joints(finger_spread=20)
 
-- [ ] [Get started with GitLab CI/CD](https://docs.gitlab.com/ee/ci/quick_start/index.html)
-- [ ] [Analyze your code for known vulnerabilities with Static Application Security Testing (SAST)](https://docs.gitlab.com/ee/user/application_security/sast/)
-- [ ] [Deploy to Kubernetes, Amazon EC2, or Amazon ECS using Auto Deploy](https://docs.gitlab.com/ee/topics/autodevops/requirements.html)
-- [ ] [Use pull-based deployments for improved Kubernetes management](https://docs.gitlab.com/ee/user/clusters/agent/)
-- [ ] [Set up protected environments](https://docs.gitlab.com/ee/ci/environments/protected_environments.html)
+# Reset to default position
+left_hand.reset_joints()
 
-***
+# Clear any errors
+left_hand.clear_errors()
+```
 
-# Editing this README
+### 4. ROS2 Interface
 
-When you're ready to make this README your own, just edit this file and use the handy template below (or feel free to structure it however you want - this is just a starting point!). Thanks to [makeareadme.com](https://www.makeareadme.com/) for this template.
+For integration with ROS2 applications:
 
-## Suggestions for a good README
+```bash
+# Start ROS2 node for left hand
+python dexhand_ros2.py --hands left --rate 100 --mode cascaded_pid
 
-Every project is different, so consider which of these sections apply to yours. The sections used in the template are suggestions for most open source projects. Also keep in mind that while a README can be too long and detailed, too long is better than too short. If you think your README is too long, consider utilizing another form of documentation rather than cutting out information.
+# Test hand movements using ROS2 test node
+python test/dexhand_ros2_test.py --hands left --cycle-time 3.0
+```
 
-## Name
-Choose a self-explaining name for your project.
+The ROS2 node subscribes to `/joint_states` for commands and provides a `/reset_hands` service.
 
-## Description
-Let people know what your project can do specifically. Provide context and add a link to any reference visitors might be unfamiliar with. A list of Features or a Background subsection can also be added here. If there are alternatives to your project, this is a good place to list differentiating factors.
+## Architecture Overview
 
-## Badges
-On some READMEs, you may see small images that convey metadata, such as whether or not all the tests are passing for the project. You can use Shields to add some to your README. Many services also have instructions for adding a badge.
+The project is organized in multiple abstraction layers:
 
-## Visuals
-Depending on what you are making, it can be a good idea to include screenshots or even a video (you'll frequently see GIFs rather than actual videos). Tools like ttygif can help, but check out Asciinema for a more sophisticated method.
+### 1. ZCAN Layer (zcan.py)
+- Lowest level interface to ZLG CANFD adapter
+- Handles raw CANFD frame construction and transmission
+- Maps C driver functions to Python interface
+- Key classes: `ZCAN`, `ZCANMessage`, `ZCANFDMessage`
 
-## Installation
-Within a particular ecosystem, there may be a common way of installing things, such as using Yarn, NuGet, or Homebrew. However, consider the possibility that whoever is reading your README is a novice and would like more guidance. Listing specific steps helps remove ambiguity and gets people to using your project as quickly as possible. If it only runs in a specific context like a particular programming language version or operating system or has dependencies that have to be installed manually, also add a Requirements subsection.
+### 2. ZCAN Wrapper Layer (zcan_wrapper.py)
+- Provides high-level wrapper around ZCAN functionality
+- Handles device initialization and configuration
+- Manages message filtering and error handling
+- Converts between byte data and CANFD frames
+- Key class: `ZCANWrapper`
 
-## Usage
-Use examples liberally, and show the expected output if you can. It's helpful to have inline the smallest example of usage that you can demonstrate, while providing links to more sophisticated examples if they are too long to reasonably include in the README.
+### 3. DexHand Interface Layer (dexhand_interface.py)
+- Implements semantic hand control interface
+- Converts joint angles to CAN messages
+- Handles command scaling and feedback parsing
+- Provides both left and right hand implementations
+- Key classes: `DexHandBase`, `LeftDexHand`, `RightDexHand`
 
-## Support
-Tell people where they can go to for help. It can be any combination of an issue tracker, a chat room, an email address, etc.
+### 4. ROS2 Interface Layer (dexhand_ros2.py)
+- Provides ROS2 integration
+- Maps between ROS joint states and hand commands
+- Implements command filtering and rate limiting
+- Handles multiple hand coordination
+- Key class: `DexHandNode`
 
-## Roadmap
-If you have ideas for releases in the future, it is a good idea to list them in the README.
+## Control Modes
+
+The following control modes are supported:
+
+- `ZERO_TORQUE` (0x00): Motors disabled
+- `CURRENT` (0x11): Direct current control
+- `SPEED` (0x22): Velocity control
+- `HALL_POSITION` (0x33): Position control using hall sensors
+- `CASCADED_PID` (0x44): Cascaded position/velocity control
+- `PROTECT_HALL_POSITION` (0x55): Protected position control
+
+## Data Logging
+
+The system includes built-in logging functionality:
+
+```python
+# Initialize logger
+logger = DexHandLogger()
+
+# Log commands and feedback
+logger.log_command(positions, enables, control_mode, success, hand)
+logger.log_feedback(feedback_data, hand)
+
+# Generate plots
+logger.plot_session(show=True, save=True)
+```
+
+Logs are saved in `dexhand_logs/` with timestamps and can be visualized using the included plotting tools.
 
 ## Contributing
-State if you are open to contributions and what your requirements are for accepting them.
 
-For people who want to make changes to your project, it's helpful to have some documentation on how to get started. Perhaps there is a script that they should run or some environment variables that they need to set. Make these steps explicit. These instructions could also be useful to your future self.
+When contributing to this project:
 
-You can also document commands to lint the code or run tests. These steps help to ensure high code quality and reduce the likelihood that the changes inadvertently break something. Having instructions for running tests is especially helpful if it requires external setup, such as starting a Selenium server for testing in a browser.
-
-## Authors and acknowledgment
-Show your appreciation to those who have contributed to the project.
+1. Follow the existing code structure and abstraction layers
+2. Add appropriate error handling and logging
+3. Update tests as needed
+4. Document new features or changes
 
 ## License
-For open source projects, say how it is licensed.
 
-## Project status
-If you have run out of energy or time for your project, put a note at the top of the README saying that development has slowed down or stopped completely. Someone may choose to fork your project or volunteer to step in as a maintainer or owner, allowing your project to keep going. You can also make an explicit request for maintainers.
+This project is licensed under the Apache License 2.0 - see the LICENSE file for details.
+
+While this software is primarily designed for use with DexHand products, it is open source and we welcome contributions from the community. Whether you're fixing bugs, improving documentation, or adding new features, please feel free to submit pull requests.
+
+Note: This software is provided as-is. While we strive to maintain compatibility with DexHand products, use this software at your own risk.
