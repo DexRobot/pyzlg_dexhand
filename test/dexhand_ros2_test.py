@@ -44,22 +44,12 @@ class DexHandTestNode(Node):
         self.joint_names = []
         for hand in hands:
             prefix = 'l' if hand == 'left' else 'r'
-            # Thumb joints
-            self.joint_names.extend([
-                f'{prefix}_f_joint1_1',  # Thumb rotation
-                f'{prefix}_f_joint1_2',  # Thumb PIP
-                f'{prefix}_f_joint1_3',  # Thumb DIP
-            ])
-            # Finger spread
-            self.joint_names.extend([
-                f'{prefix}_f_joint{i}_1' for i in range(2, 6)  # Index to pinky spread
-            ])
-            # Finger flexion (PIP & DIP for each finger)
-            for finger in range(2, 6):  # Index to pinky
+            for finger in range(1, 6):
                 self.joint_names.extend([
-                    f'{prefix}_f_joint{finger}_2',  # PIP
-                    f'{prefix}_f_joint{finger}_3',  # DIP
-                    f'{prefix}_f_joint{finger}_4',  # DIP (coupled)
+                    f'{prefix}_f_joint{finger}_1',  # Finger spread
+                    f'{prefix}_f_joint{finger}_2',  # Finger PIP
+                    f'{prefix}_f_joint{finger}_3',  # Finger DIP
+                    f'{prefix}_f_joint{finger}_4',  # Finger DIP (coupled)
                 ])
 
         # Create publisher for commands
@@ -197,6 +187,7 @@ class DexHandTestNode(Node):
                         s = np.sin(t * np.pi)
                         positions[f'{prefix}_f_joint1_2'] = np.deg2rad(s * 30)  # Thumb PIP
                         positions[f'{prefix}_f_joint1_3'] = -np.deg2rad(s * 30)  # Thumb DIP
+                        positions[f'{prefix}_f_joint1_4'] = -np.deg2rad(s * 30)  # Thumb DIP
                         positions[f'{prefix}_f_joint2_2'] = -np.deg2rad(s * 90)  # Index
                         positions[f'{prefix}_f_joint2_3'] = -np.deg2rad(s * 90)
                         positions[f'{prefix}_f_joint2_4'] = -np.deg2rad(s * 90)
@@ -204,6 +195,7 @@ class DexHandTestNode(Node):
                         s = np.sin((t-1) * np.pi)
                         positions[f'{prefix}_f_joint1_2'] = np.deg2rad(s * 30)  # Thumb
                         positions[f'{prefix}_f_joint1_3'] = -np.deg2rad(s * 30)
+                        positions[f'{prefix}_f_joint1_4'] = -np.deg2rad(s * 30)
                         positions[f'{prefix}_f_joint3_2'] = -np.deg2rad(s * 90)  # Middle
                         positions[f'{prefix}_f_joint3_3'] = -np.deg2rad(s * 90)
                         positions[f'{prefix}_f_joint3_4'] = -np.deg2rad(s * 90)
@@ -211,6 +203,7 @@ class DexHandTestNode(Node):
                         s = np.sin((t-2) * np.pi)
                         positions[f'{prefix}_f_joint1_2'] = np.deg2rad(s * 30)  # Thumb
                         positions[f'{prefix}_f_joint1_3'] = -np.deg2rad(s * 30)
+                        positions[f'{prefix}_f_joint1_4'] = -np.deg2rad(s * 30)
                         positions[f'{prefix}_f_joint4_2'] = -np.deg2rad(s * 90)  # Ring
                         positions[f'{prefix}_f_joint4_3'] = -np.deg2rad(s * 90)
                         positions[f'{prefix}_f_joint4_4'] = -np.deg2rad(s * 90)
@@ -218,6 +211,7 @@ class DexHandTestNode(Node):
                         s = np.sin((t-3) * np.pi)
                         positions[f'{prefix}_f_joint1_2'] = np.deg2rad(s * 30)  # Thumb
                         positions[f'{prefix}_f_joint1_3'] = -np.deg2rad(s * 30)
+                        positions[f'{prefix}_f_joint1_4'] = -np.deg2rad(s * 30)
                         positions[f'{prefix}_f_joint5_2'] = -np.deg2rad(s * 90)  # Pinky
                         positions[f'{prefix}_f_joint5_3'] = -np.deg2rad(s * 90)
                         positions[f'{prefix}_f_joint5_4'] = -np.deg2rad(s * 90)
@@ -244,6 +238,7 @@ class DexHandTestNode(Node):
                     positions[f'{prefix}_f_joint1_1'] = -np.deg2rad(angle * 120)  # Rotation
                     positions[f'{prefix}_f_joint1_2'] = np.deg2rad(angle * 30)   # PIP
                     positions[f'{prefix}_f_joint1_3'] = -np.deg2rad(angle * 30)   # DIP
+                    positions[f'{prefix}_f_joint1_4'] = -np.deg2rad(angle * 30)   # DIP
 
             return positions
 
