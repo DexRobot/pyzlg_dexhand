@@ -73,7 +73,7 @@ The ROS2 node subscribes to `/joint_commands` for commands by default and provid
 
 ### 5. Python API
 
-For custom control and integration, refer to the interfaces provided by `dexhand_interface.py`.
+For custom control and integration, refer to the interfaces provided by `src/dexhand_interface.py`.
 
 ## Architecture Overview
 
