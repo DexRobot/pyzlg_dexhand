@@ -1,0 +1,12 @@
+# DexHand ROS2 Node Configuration
+
+# Hardware configuration
+hands: ['right']  # List of hands to control: 'left', 'right', or both
+
+# Control parameters
+rate: 100.0  # Command sending rate in Hz
+mode: 'cascaded_pid'  # Control mode: zero_torque, current, speed, hall_position, cascaded_pid, protect_hall_position
+alpha: 0.1  # Low-pass filter intensity (0-1)
+
+# ROS2 configuration
+topic: '/joint_commands'  # Topic to subscribe for joint commands

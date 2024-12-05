@@ -62,14 +62,18 @@ left_hand.clear_errors()
 For integration with ROS2 applications:
 
 ```bash
-# Start ROS2 node for left hand
-python dexhand_ros2.py --hands left --rate 100 --mode cascaded_pid
+# Start ROS2 node with the default configuration (see config/ros_node.yaml for the configuration options)
+python dexhand_ros2.py
 
 # Test hand movements using ROS2 test node
-python test/dexhand_ros2_test.py --hands left --cycle-time 3.0
+python test/dexhand_ros2_test.py --hands right --cycle-time 3.0
 ```
 
-The ROS2 node subscribes to `/joint_states` for commands and provides a `/reset_hands` service.
+The ROS2 node subscribes to `/joint_commands` for commands by default and provides a `/reset_hands` service.
+
+### 5. Python API
+
+For custom control and integration, refer to the interfaces provided by `dexhand_interface.py`.
 
 ## Architecture Overview
 

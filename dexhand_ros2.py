@@ -9,6 +9,8 @@ import numpy as np
 from typing import Dict, List, Optional
 from enum import Enum
 import time
+import yaml
+import os.path
 
 from dexhand_interface import (
     LeftDexHand, RightDexHand, ControlMode, DexJoint, ZCANWrapper
@@ -16,20 +18,18 @@ from dexhand_interface import (
 
 class HardwareMapping(Enum):
     """Mapping between URDF and hardware joints"""
-    THUMB_DIP = (DexJoint.THUMB_DIP, True, ["f_joint1_3", "f_joint1_4"])
-    THUMB_SPREAD = (DexJoint.THUMB_PIP, False, ["f_joint1_2"])  # Only joint that doesn't flip sign
-    THUMB_ROTATION = (DexJoint.THUMB_ROT, True, ["f_joint1_1"])
-    FINGER_SPREAD = (DexJoint.FINGER_SPREAD, True, [
-        "f_joint2_1", "f_joint4_1", "f_joint5_1"
-    ])
-    INDEX_DIP = (DexJoint.INDEX_DIP, True, ["f_joint2_3", "f_joint2_4"])
-    INDEX_PIP = (DexJoint.INDEX_PIP, True, ["f_joint2_2"])
-    MIDDLE_DIP = (DexJoint.MIDDLE_DIP, True, ["f_joint3_3", "f_joint3_4"])
-    MIDDLE_PIP = (DexJoint.MIDDLE_PIP, True, ["f_joint3_2"])
-    RING_DIP = (DexJoint.RING_DIP, True, ["f_joint4_3", "f_joint4_4"])
-    RING_PIP = (DexJoint.RING_PIP, True, ["f_joint4_2"])
-    PINKY_DIP = (DexJoint.PINKY_DIP, True, ["f_joint5_3", "f_joint5_4"])
-    PINKY_PIP = (DexJoint.PINKY_PIP, True, ["f_joint5_2"])
+    THUMB_DIP = (DexJoint.THUMB_DIP, ["f_joint1_3", "f_joint1_4"])
+    THUMB_SPREAD = (DexJoint.THUMB_PIP, ["f_joint1_2"])
+    THUMB_ROTATION = (DexJoint.THUMB_ROT, ["f_joint1_1"])
+    FINGER_SPREAD = (DexJoint.FINGER_SPREAD, ["f_joint2_1", "f_joint4_1", "f_joint5_1"])
+    INDEX_DIP = (DexJoint.INDEX_DIP, ["f_joint2_3", "f_joint2_4"])
+    INDEX_PIP = (DexJoint.INDEX_PIP, ["f_joint2_2"])
+    MIDDLE_DIP = (DexJoint.MIDDLE_DIP, ["f_joint3_3", "f_joint3_4"])
+    MIDDLE_PIP = (DexJoint.MIDDLE_PIP, ["f_joint3_2"])
+    RING_DIP = (DexJoint.RING_DIP, ["f_joint4_3", "f_joint4_4"])
+    RING_PIP = (DexJoint.RING_PIP, ["f_joint4_2"])
+    PINKY_DIP = (DexJoint.PINKY_DIP, ["f_joint5_3", "f_joint5_4"])
+    PINKY_PIP = (DexJoint.PINKY_PIP, ["f_joint5_2"])
 
 class JointMapping:
     """Maps between URDF joints and hardware joints"""
@@ -41,10 +41,10 @@ class JointMapping:
         # Create mapping from URDF joint names to hardware joints
         self.urdf_to_hw = {}
         for hw_mapping in HardwareMapping:
-            dex_joint, flip_sign, urdf_joints = hw_mapping.value
+            dex_joint, urdf_joints = hw_mapping.value
             for urdf_joint in urdf_joints:
                 full_name = f"{prefix}_{urdf_joint}"
-                self.urdf_to_hw[full_name] = (dex_joint, flip_sign)
+                self.urdf_to_hw[full_name] = dex_joint
 
         # Get all possible URDF joint names
         self.joint_names = sorted(list(self.urdf_to_hw.keys()))
@@ -54,12 +54,9 @@ class JointMapping:
         # Group joint values by hardware joint
         hw_joint_values = {dex_joint: [] for dex_joint in DexJoint}
 
-        # Collect and flip signs as needed
         for name, value in joint_values.items():
             if name in self.urdf_to_hw:
-                dex_joint, flip_sign = self.urdf_to_hw[name]
-                if flip_sign:
-                    value = -value
+                dex_joint = self.urdf_to_hw[name]
                 hw_joint_values[dex_joint].append(value)
 
         # Average values for each hardware joint
@@ -74,14 +71,20 @@ class JointMapping:
 class DexHandNode(Node):
     """ROS2 Node for controlling one or both DexHands"""
 
-    def __init__(self, hands: List[str], control_mode: str,
-                 send_rate: float, filter_alpha: float):
+    def __init__(self, config: dict):
         super().__init__('dexhand')
 
         # Initialize shared ZCAN
         self.zcan = ZCANWrapper()
         if not self.zcan.open():
             raise RuntimeError("Failed to open ZCAN device")
+
+        # Get configuration values
+        hands = config.get('hands', ['right'])
+        control_mode = config.get('mode', 'cascaded_pid')
+        send_rate = config.get('rate', 100.0)
+        filter_alpha = config.get('alpha', 0.1)
+        self.command_topic = config.get('topic', '/joint_commands')
 
         # Set up control mode
         self.control_mode_map = {
@@ -114,10 +117,10 @@ class DexHandNode(Node):
             self.last_commands[hand] = {}
 
 
-        # Initialize command subscriber
+        # Initialize command subscriber with configurable topic
         self.create_subscription(
             JointState,
-            '/joint_states',
+            self.command_topic,
             self.command_callback,
             10
         )
@@ -242,30 +245,25 @@ class DexHandNode(Node):
 def main():
     # Parse command line arguments
     parser = argparse.ArgumentParser(description='DexHand ROS2 Node')
-    parser.add_argument('--hands', nargs='+', choices=['left', 'right'],
-                      required=True, help='Which hands to control')
-    parser.add_argument('--rate', type=float, default=100.0,
-                      help='Command sending rate in Hz')
-    parser.add_argument('--mode', type=str, default='cascaded_pid',
-                      choices=['zero_torque', 'current', 'speed', 'hall_position',
-                              'cascaded_pid', 'protect_hall_position'],
-                      help='Control mode')
-    parser.add_argument('--alpha', type=float, default=0.1,
-                      help='Low-pass filter intensity (0-1)')
-
+    default_config = os.path.join(os.path.dirname(__file__), 'config', 'ros_node.yaml')
+    parser.add_argument('--config', type=str, default=default_config,
+                      help='Path to configuration file')
     args = parser.parse_args()
+
+    # Load configuration
+    try:
+        with open(args.config, 'r') as f:
+            config = yaml.safe_load(f)
+    except Exception as e:
+        print(f"Error loading config file: {e}")
+        return
 
     # Initialize ROS
     rclpy.init()
 
     try:
         # Create and spin node
-        node = DexHandNode(
-            hands=args.hands,
-            control_mode=args.mode,
-            send_rate=args.rate,
-            filter_alpha=args.alpha
-        )
+        node = DexHandNode(config=config)
 
         try:
             rclpy.spin(node)
