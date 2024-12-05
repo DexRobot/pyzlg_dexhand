@@ -2,6 +2,7 @@
 
 # Hardware configuration
 hands: ['right']  # List of hands to control: 'left', 'right', or both
+mock: False       # Use mock hardware instead of real hardware
 
 # Control parameters
 rate: 100.0  # Command sending rate in Hz

@@ -15,6 +15,7 @@ import os.path
 from dexhand_interface import (
     LeftDexHand, RightDexHand, ControlMode, DexJoint, ZCANWrapper
 )
+from zcan_wrapper import MockZCANWrapper
 
 class HardwareMapping(Enum):
     """Mapping between URDF and hardware joints"""
@@ -74,17 +75,18 @@ class DexHandNode(Node):
     def __init__(self, config: dict):
         super().__init__('dexhand')
 
-        # Initialize shared ZCAN
-        self.zcan = ZCANWrapper()
-        if not self.zcan.open():
-            raise RuntimeError("Failed to open ZCAN device")
-
         # Get configuration values
         hands = config.get('hands', ['right'])
         control_mode = config.get('mode', 'cascaded_pid')
         send_rate = config.get('rate', 100.0)
         filter_alpha = config.get('alpha', 0.1)
         self.command_topic = config.get('topic', '/joint_commands')
+        self.is_mock = config.get('mock', False)
+
+        # Initialize shared ZCAN
+        self.zcan = ZCANWrapper() if not self.is_mock else MockZCANWrapper()
+        if not self.zcan.open():
+            raise RuntimeError("Failed to open ZCAN device")
 
         # Set up control mode
         self.control_mode_map = {
