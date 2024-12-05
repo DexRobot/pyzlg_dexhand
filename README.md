@@ -9,6 +9,8 @@ Python interface for controlling dexterous robotic hands over CANFD using ZLG US
 - ZLG USBCANFD adapter (tested with USBCANFD-200U)
 - ROS2 (optional, for ROS interface)
 
+Run `pip install -r requirements.txt` to install the required Python packages except for ROS2 dependencies.
+
 ## Quickstart Guide
 
 ### 1. USB Setup
