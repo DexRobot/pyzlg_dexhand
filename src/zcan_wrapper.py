@@ -7,7 +7,7 @@ from pathlib import Path
 from dataclasses import dataclass
 from abc import ABC, abstractmethod
 from typing import Tuple, Dict
-from zcan import (
+from .zcan import (
     ZCAN, ZCANDeviceType, ZCANStatus, ZCANMessageType,
     ZCANMessageInfo, ZCANMessageHeader, ZCANMessage, ZCANFDMessage, ZCANCANFDInit, ZCANErrorMessage
 )
@@ -191,7 +191,7 @@ class ZCANWrapper(ZCANWrapperBase):
     CMD_CAN_TX_TIMEOUT = 0x44
     CMD_SET_SEND_QUEUE_EN = 0x103
 
-    def __init__(self, lib_path: str = "./lib/libusbcanfd.so"):
+    def __init__(self, lib_path: str = "../lib/libusbcanfd.so"):
         """Initialize ZCAN wrapper
 
         Args:

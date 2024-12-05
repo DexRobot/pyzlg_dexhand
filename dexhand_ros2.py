@@ -12,10 +12,10 @@ import time
 import yaml
 import os.path
 
-from dexhand_interface import (
+from src.dexhand_interface import (
     LeftDexHand, RightDexHand, ControlMode, DexJoint, ZCANWrapper
 )
-from zcan_wrapper import MockZCANWrapper
+from src.zcan_wrapper import MockZCANWrapper
 
 class HardwareMapping(Enum):
     """Mapping between URDF and hardware joints"""

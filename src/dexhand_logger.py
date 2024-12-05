@@ -8,7 +8,7 @@ import logging
 import os
 from pathlib import Path
 
-from dexhand_interface import (
+from .dexhand_interface import (
     MotorCommand, JointFeedback, ControlMode,
     LeftDexHand, RightDexHand
 )
