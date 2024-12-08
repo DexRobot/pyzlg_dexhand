@@ -427,7 +427,7 @@ class DexHandBase:
         """
         return {i: state.error_info for i, state in self.board_states.items()}
 
-    def clear_errors(self, clear_all=False):
+    def clear_errors(self, clear_all=True):
         """Clear all errors for the hand
 
         Args:
