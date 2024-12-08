@@ -4,7 +4,7 @@ from IPython import embed
 import sys
 import os
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
-from dexhand_interface import LeftDexHand, RightDexHand, ControlMode, ZCANWrapper
+from src.dexhand_interface import LeftDexHand, RightDexHand, ControlMode, ZCANWrapper
 
 def initialize_hands(hand_names: List[str]) -> dict:
     """Initialize specified hands and return a dictionary of instances"""

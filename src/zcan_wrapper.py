@@ -5,8 +5,9 @@ from ctypes import c_uint8, c_uint32, c_void_p, sizeof, memset, byref, Structure
 import time
 from pathlib import Path
 from dataclasses import dataclass
+from abc import ABC, abstractmethod
 from typing import Tuple, Dict
-from zcan import (
+from .zcan import (
     ZCAN, ZCANDeviceType, ZCANStatus, ZCANMessageType,
     ZCANMessageInfo, ZCANMessageHeader, ZCANMessage, ZCANFDMessage, ZCANCANFDInit, ZCANErrorMessage
 )
@@ -92,7 +93,97 @@ class TimingConfigs:
             )
         return cls.CONFIGS[key]
 
-class ZCANWrapper:
+class ZCANWrapperBase(ABC):
+    """Abstract base class for ZCAN wrapper implementations"""
+
+    @abstractmethod
+    def open(self, device_type: Optional[ZCANDeviceType] = None,
+             device_index: Optional[int] = None) -> bool:
+        """Open ZCAN device
+
+        Args:
+            device_type: Type of ZCAN device
+            device_index: Device index
+
+        Returns:
+            bool: True if device opened successfully
+        """
+        pass
+
+    @abstractmethod
+    def configure_channel(self, channel: int,
+                         arb_baudrate: int = 1000000,  # 1Mbps
+                         data_baudrate: int = 5000000,  # 5Mbps
+                         enable_resistance: bool = True,
+                         tx_timeout: int = 200) -> bool:
+        """Configure and start a CAN channel
+
+        Args:
+            channel: Channel number
+            arb_baudrate: Arbitration baudrate in Hz
+            data_baudrate: Data baudrate in Hz
+            enable_resistance: Enable terminal resistance
+            tx_timeout: TX timeout in ms
+
+        Returns:
+            bool: True if configuration successful
+        """
+        pass
+
+    @abstractmethod
+    def set_filter(self, channel: int, filters: List[ZCANFilterConfig]) -> bool:
+        """Set message filters for a channel
+
+        Args:
+            channel: Channel number
+            filters: List of filter configurations
+
+        Returns:
+            bool: True if filters set successfully
+        """
+        pass
+
+    @abstractmethod
+    def send_fd_message(self, channel: int, id: int, data: bytes,
+                       flags: Optional[ZCANMessageInfo] = None) -> bool:
+        """Send a CANFD message
+
+        Args:
+            channel: Channel number
+            id: Message ID
+            data: Message data bytes
+            flags: Optional message flags
+
+        Returns:
+            bool: True if message sent successfully
+        """
+        pass
+
+    @abstractmethod
+    def receive_fd_messages(self, channel: int, max_messages: int = 100,
+                          timeout_ms: int = 100) -> List[Tuple[int, bytes, int]]:
+        """Receive CANFD messages
+
+        Args:
+            channel: Channel number
+            max_messages: Maximum number of messages to receive
+            timeout_ms: Receive timeout in milliseconds
+
+        Returns:
+            List of (id, data, timestamp) tuples for received messages
+        """
+        pass
+
+    @abstractmethod
+    def close(self) -> bool:
+        """Close ZCAN device
+
+        Returns:
+            bool: True if device closed successfully
+        """
+        pass
+
+class ZCANWrapper(ZCANWrapperBase):
     """High level wrapper for ZCAN operations"""
     # Command references
     CMD_CAN_FILTER = 0x14
@@ -100,7 +191,7 @@ class ZCANWrapper:
     CMD_CAN_TX_TIMEOUT = 0x44
     CMD_SET_SEND_QUEUE_EN = 0x103
 
-    def __init__(self, lib_path: str = "./lib/libusbcanfd.so"):
+    def __init__(self, lib_path: str = "../lib/libusbcanfd.so"):
         """Initialize ZCAN wrapper
 
         Args:
@@ -491,3 +582,85 @@ class ZCANWrapper:
                 f"Data: {[hex(x) for x in message.data[:message.header.len]]}\n"
                 f"=== End Frame Dump ===\n"
             )
+
+
+class MockZCANWrapper(ZCANWrapperBase):
+    """Mock implementation for testing"""
+
+    def __init__(self):
+        """Initialize mock wrapper"""
+        self.is_open = False
+        self.channels = {}  # Track channel states
+        self.message_history = []  # Track sent messages for testing
+
+    def open(self, device_type: Optional[ZCANDeviceType] = None,
+             device_index: Optional[int] = None) -> bool:
+        logger.info("Mock ZCAN: Opening device")
+        self.is_open = True
+        return True
+
+    def configure_channel(self, channel: int,
+                         arb_baudrate: int = 1000000,
+                         data_baudrate: int = 5000000,
+                         enable_resistance: bool = True,
+                         tx_timeout: int = 200) -> bool:
+        logger.info(f"Mock ZCAN: Configuring channel {channel}")
+        self.channels[channel] = {
+            'arb_baudrate': arb_baudrate,
+            'data_baudrate': data_baudrate,
+            'resistance': enable_resistance,
+            'timeout': tx_timeout
+        }
+        return True
+
+    def set_filter(self, channel: int, filters: List[ZCANFilterConfig]) -> bool:
+        logger.info(f"Mock ZCAN: Setting filters for channel {channel}")
+        if channel in self.channels:
+            self.channels[channel]['filters'] = filters
+            return True
+        return False
+
+    def send_fd_message(self, channel: int, id: int, data: bytes,
+                       flags: Optional[ZCANMessageInfo] = None) -> bool:
+        if not self.is_open or channel not in self.channels:
+            return False
+
+        logger.info(
+            f"Mock ZCAN: Sending message:\n"
+            f"  Channel: {channel}\n"
+            f"  ID: 0x{id:x}\n"
+            f"  Data: {[hex(b) for b in data]}"
+        )
+
+        # Store message for testing
+        self.message_history.append({
+            'channel': channel,
+            'id': id,
+            'data': data,
+            'flags': flags
+        })
+        return True
+
+    def receive_fd_messages(self, channel: int, max_messages: int = 100,
+                          timeout_ms: int = 100) -> List[Tuple[int, bytes, int]]:
+        logger.info(f"Mock ZCAN: Receiving messages from channel {channel}")
+        # In mock implementation, we could return some test data here
+        return []
+
+    def close(self) -> bool:
+        logger.info("Mock ZCAN: Closing device")
+        self.is_open = False
+        self.channels.clear()
+        return True
+
+    def get_message_history(self) -> List[dict]:
+        """Get history of sent messages for testing
+
+        Returns:
+            List of dictionaries containing message details
+        """
+        return self.message_history
+
+    def clear_message_history(self):
+        """Clear message history"""
+        self.message_history.clear()

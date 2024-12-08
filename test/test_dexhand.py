@@ -8,10 +8,10 @@ from pathlib import Path
 import sys
 import os
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
-from dexhand_interface import (
+from src.dexhand_interface import (
     LeftDexHand, RightDexHand, ControlMode, JointMotor, ZCANWrapper
 )
-from dexhand_logger import DexHandLogger
+from src.dexhand_logger import DexHandLogger
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)

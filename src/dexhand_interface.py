@@ -7,7 +7,7 @@ from pathlib import Path
 import time
 import numpy as np
 from dataclasses import dataclass
-from zcan_wrapper import ZCANWrapper, ZCANDeviceType, ZCANFilterConfig
+from .zcan_wrapper import ZCANWrapper, ZCANDeviceType, ZCANFilterConfig
 
 logger = logging.getLogger(__name__)
 
@@ -427,11 +427,11 @@ class DexHandBase:
 class LeftDexHand(DexHandBase):
     """Control interface for left dexterous hand"""
     def __init__(self, zcan: Optional[ZCANWrapper] = None):
-        config_path = os.path.join(os.path.dirname(__file__), "config/left_hand.yaml")
+        config_path = os.path.join(os.path.dirname(__file__), "../config/left_hand.yaml")
         super().__init__(config_path, zcan)
 
 class RightDexHand(DexHandBase):
     """Control interface for right dexterous hand"""
     def __init__(self, zcan: Optional[ZCANWrapper] = None):
-        config_path = os.path.join(os.path.dirname(__file__), "config/right_hand.yaml")
+        config_path = os.path.join(os.path.dirname(__file__), "../config/right_hand.yaml")
         super().__init__(config_path, zcan)
