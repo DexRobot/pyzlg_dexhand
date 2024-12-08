@@ -7,11 +7,10 @@ from pathlib import Path
 
 import sys
 import os
-sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
-from src.dexhand_interface import (
+from pyzlg_dexhand.dexhand_interface import (
     LeftDexHand, RightDexHand, ControlMode, JointMotor, ZCANWrapper
 )
-from src.dexhand_logger import DexHandLogger
+from pyzlg_dexhand.dexhand_logger import DexHandLogger
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
