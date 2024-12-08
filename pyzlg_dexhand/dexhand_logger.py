@@ -9,30 +9,27 @@ import os
 from pathlib import Path
 
 from .dexhand_interface import (
-    MotorCommand, JointFeedback, ControlMode,
-    LeftDexHand, RightDexHand
+    MoveFeedback, StampedTactileFeedback, JointFeedback,
+    ControlMode
 )
 
 logger = logging.getLogger(__name__)
 
 @dataclass
 class CommandLogEntry:
-    """Log entry for a command sent to the hand"""
+    """Log entry for a hand command"""
     timestamp: float
-    positions: List[float]
-    enable_motors: List[bool]
-    control_mode: int
-    success: bool
+    command_type: str  # move_joints, reset_joints, etc.
+    joint_commands: Dict[str, float]  # Joint name to commanded position
+    control_mode: ControlMode
     hand: str  # 'left' or 'right'
 
 @dataclass
 class FeedbackLogEntry:
-    """Log entry for feedback received from the hand"""
+    """Log entry for hand feedback"""
     timestamp: float
-    joint_positions: List[float]
-    joint_velocities: List[float]
-    joint_currents: List[float]
-    errors: List[int]
+    joints: Dict[str, JointFeedback]  # Joint name to feedback
+    tactile: Dict[str, StampedTactileFeedback]  # Fingertip name to tactile data
     hand: str  # 'left' or 'right'
 
 class DexHandLogger:
@@ -57,7 +54,7 @@ class DexHandLogger:
             (self.session_dir / f"{hand}_commands.jsonl").touch()
             (self.session_dir / f"{hand}_feedback.jsonl").touch()
 
-        # Initialize in-memory buffers for each hand
+        # Initialize in-memory buffers
         self.command_buffers = {
             'left': [],
             'right': []
@@ -68,30 +65,21 @@ class DexHandLogger:
         }
 
         self.start_time = time.time()
-
         logger.info(f"Logging session started in {self.session_dir}")
 
-    def log_command(self,
-                   positions: np.ndarray,
-                   enable_motors: np.ndarray,
-                   control_mode: ControlMode,
-                   success: bool,
-                   hand: str):
-        """Log a command sent to the hand
+    def log_command(self, command_type: str, feedback: MoveFeedback, hand: str):
+        """Log a command and its feedback
 
         Args:
-            positions: Array of joint positions
-            enable_motors: Array of motor enable flags
-            control_mode: Control mode used
-            success: Whether command was sent successfully
+            command_type: Type of command (move_joints, reset_joints, etc)
+            feedback: MoveFeedback from the command
             hand: Which hand ('left' or 'right')
         """
         entry = CommandLogEntry(
-            timestamp=time.time() - self.start_time,
-            positions=positions.tolist(),
-            enable_motors=enable_motors.tolist(),
-            control_mode=int(control_mode),
-            success=success,
+            timestamp=feedback.command_timestamp,
+            command_type=command_type,
+            joint_commands={name: fb.angle for name, fb in feedback.joints.items()},
+            control_mode=ControlMode.CASCADED_PID,  # Default mode
             hand=hand
         )
 
@@ -103,36 +91,20 @@ class DexHandLogger:
             json.dump(asdict(entry), f)
             f.write('\n')
 
-    def log_feedback(self, feedback: Dict[int, JointFeedback], hand: str):
+        # Log feedback too
+        self.log_feedback(feedback, hand)
+
+    def log_feedback(self, feedback: MoveFeedback, hand: str):
         """Log feedback received from the hand
 
         Args:
-            feedback: Dictionary of joint feedback data
+            feedback: MoveFeedback from command
             hand: Which hand ('left' or 'right')
         """
-        # Extract arrays of values
-        joint_positions = []
-        joint_velocities = []
-        joint_currents = []
-        errors = []
-
-        for joint_id in sorted(feedback.keys()):
-            joint = feedback[joint_id]
-            # Proximal motor
-            joint_positions.append(joint.proximal.position)
-            joint_velocities.append(joint.proximal.velocity)
-            joint_currents.append(joint.proximal.current)
-            # Distal motor
-            joint_positions.append(joint.distal.position)
-            joint_velocities.append(joint.distal.velocity)
-            joint_currents.append(joint.distal.current)
-
         entry = FeedbackLogEntry(
             timestamp=time.time() - self.start_time,
-            joint_positions=joint_positions,
-            joint_velocities=joint_velocities,
-            joint_currents=joint_currents,
-            errors=errors,
+            joints=feedback.joints,
+            tactile=feedback.tactile,
             hand=hand
         )
 
@@ -141,7 +113,18 @@ class DexHandLogger:
 
         # Write to file
         with open(self.session_dir / f"{hand}_feedback.jsonl", 'a') as f:
-            json.dump(asdict(entry), f)
+            # Need to convert dataclass objects to dictionaries
+            serialized = {
+                'timestamp': entry.timestamp,
+                'joints': {
+                    name: asdict(fb) for name, fb in entry.joints.items()
+                },
+                'tactile': {
+                    name: asdict(fb) for name, fb in entry.tactile.items()
+                },
+                'hand': entry.hand
+            }
+            json.dump(serialized, f)
             f.write('\n')
 
     def save_metadata(self, metadata: Dict[str, Any]):
@@ -154,7 +137,8 @@ class DexHandLogger:
         with open(metadata_path, 'w') as f:
             json.dump(metadata, f, indent=2)
 
-    def plot_session(self, hands: Optional[List[str]] = None, show: bool = True, save: bool = True):
+    def plot_session(self, hands: Optional[List[str]] = None, show: bool = True,
+                    save: bool = True):
         """Plot command and feedback data from the session
 
         Args:
@@ -176,65 +160,71 @@ class DexHandLogger:
             if not self.command_buffers[hand] and not self.feedback_buffers[hand]:
                 continue
 
-            # Plot commands
-            plt.figure(figsize=(12, 6))
-            command_times = [entry.timestamp for entry in self.command_buffers[hand]]
-            command_array = np.array(command_times)
+            # Plot joint commands
+            plt.figure(figsize=(12, 8))
+            joint_data = {}
 
-            for joint in range(12):
-                positions = [entry.positions[joint] for entry in self.command_buffers[hand]]
-                enables = [entry.enable_motors[joint] for entry in self.command_buffers[hand]]
-                positions_array = np.array(positions)
-                enables_array = np.array(enables)
+            # Collect command data
+            for entry in self.command_buffers[hand]:
+                t = entry.timestamp - self.start_time
+                for joint, pos in entry.joint_commands.items():
+                    if joint not in joint_data:
+                        joint_data[joint] = {'times': [], 'positions': []}
+                    joint_data[joint]['times'].append(t)
+                    joint_data[joint]['positions'].append(pos)
 
-                # Plot enabled segments with full opacity
-                if np.any(enables_array):
-                    enabled_mask = enables_array
-                    plt.plot(command_array[enabled_mask],
-                            positions_array[enabled_mask],
-                            label=f'Joint {joint}',
-                            alpha=1.0)
-
-                # Plot disabled segments with reduced opacity
-                if np.any(~enables_array):
-                    disabled_mask = ~enables_array
-                    plt.plot(command_array[disabled_mask],
-                            positions_array[disabled_mask],
-                            alpha=0.3,
-                            linestyle='--',
-                            color=plt.gca().lines[-1].get_color() if np.any(enables_array) else None)
+            # Plot each joint
+            for joint, data in joint_data.items():
+                plt.plot(data['times'], data['positions'], label=joint)
 
             plt.xlabel('Time (s)')
-            plt.ylabel('Position Command')
-            plt.title(f'{hand.title()} Hand Position Commands')
+            plt.ylabel('Joint Angle (degrees)')
+            plt.title(f'{hand.title()} Hand Joint Commands')
             plt.legend()
             plt.grid(True)
 
             if save:
                 plt.savefig(self.session_dir / f'{hand}_commands.png')
 
-            # TODO: feedback not working yet
-            # # Plot feedback
-            # plt.figure(figsize=(12, 6))
-            # feedback_times = [entry.timestamp for entry in self.feedback_buffers[hand]]
-            # for joint in range(12):
-            #     positions = [entry.joint_positions[joint] for entry in self.feedback_buffers[hand]]
-            #     plt.plot(feedback_times, positions, label=f'Joint {joint}')
-            # plt.xlabel('Time (s)')
-            # plt.ylabel('Position Feedback')
-            # plt.title(f'{hand.title()} Hand Position Feedback')
-            # plt.legend()
-            # plt.grid(True)
+            # Plot tactile feedback
+            if any(entry.tactile for entry in self.feedback_buffers[hand]):
+                plt.figure(figsize=(12, 8))
+                tactile_data = {}
 
-            # if save:
-            #     plt.savefig(self.session_dir / f'{hand}_feedback.png')
+                # Collect tactile data
+                for entry in self.feedback_buffers[hand]:
+                    t = entry.timestamp
+                    for finger, data in entry.tactile.items():
+                        if finger not in tactile_data:
+                            tactile_data[finger] = {
+                                'times': [],
+                                'normal_force': [],
+                                'tangential_force': []
+                            }
+                        tactile_data[finger]['times'].append(t)
+                        tactile_data[finger]['normal_force'].append(data.normal_force)
+                        tactile_data[finger]['tangential_force'].append(data.tangential_force)
 
-            # Close figures to free memory
+                # Plot each finger's tactile data
+                for finger, data in tactile_data.items():
+                    plt.plot(data['times'], data['normal_force'],
+                            label=f'{finger} normal', linestyle='-')
+                    plt.plot(data['times'], data['tangential_force'],
+                            label=f'{finger} tangential', linestyle='--')
+
+                plt.xlabel('Time (s)')
+                plt.ylabel('Force (N)')
+                plt.title(f'{hand.title()} Hand Tactile Feedback')
+                plt.legend()
+                plt.grid(True)
+
+                if save:
+                    plt.savefig(self.session_dir / f'{hand}_tactile.png')
+
             plt.close('all')
 
         if show:
             plt.show()
-
 
     def close(self):
         """Close the logger and save any remaining data"""
