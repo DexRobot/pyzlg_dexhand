@@ -1,3 +1,3 @@
 # Configuration for right dexterous hand
-channel: 1
+channel: 0
 hall_scale: [2.1, 2.1, 1.8, 4.0, 2.2, 1.6, 2.2, 1.6, 2.2, 1.6, 2.2, 1.6]  # Scale coefficients for hall position modes (0x33/0x55)
