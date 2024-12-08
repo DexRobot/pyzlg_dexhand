@@ -175,7 +175,7 @@ class DexHandTestNode(Node):
             elif sequence == TestSequence.PINCH:
                 # Sequential thumb-to-finger pinching
                 t = t * 4  # Four fingers to pinch
-                thumb_rot = -np.deg2rad(120)  # Base thumb rotation in radians
+                thumb_rot = np.deg2rad(120)  # Base thumb rotation in radians
 
                 for hand in self.hands:
                     prefix = 'l' if hand == 'left' else 'r'

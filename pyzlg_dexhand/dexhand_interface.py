@@ -66,6 +66,22 @@ class DexHandBase:
     NUM_MOTORS = 12  # Total motors in hand
     NUM_BOARDS = 6   # Number of control boards
 
+    joint_names = [
+        'th_dip', 'th_mcp',     # Board 0: Thumb
+        'th_rot', 'ff_spr',     # Board 1: Thumb rotation & spread
+        'ff_dip', 'ff_mcp',     # Board 2: First finger
+        'mf_dip', 'mf_mcp',     # Board 3: Middle finger
+        'rf_dip', 'rf_mcp',     # Board 4: Ring finger
+        'lf_dip', 'lf_mcp'      # Board 5: Little finger
+    ]
+    finger_map = {
+        0: 'th',
+        2: 'ff',
+        3: 'mf',
+        4: 'rf',
+        5: 'lf'
+    }    # Map from board index to finger name
+
     def __init__(self, config_path: str, base_id: int, zcan: Optional[ZCANWrapper] = None):
         """Initialize dexterous hand interface
 
@@ -93,21 +109,6 @@ class DexHandBase:
             ) for i in range(self.NUM_BOARDS)
         }
 
-        self.joint_names = [
-            'th_dip', 'th_mcp',     # Board 0: Thumb
-            'th_rot', 'ff_spr',     # Board 1: Thumb rotation & spread
-            'ff_dip', 'ff_mcp',     # Board 2: First finger
-            'mf_dip', 'mf_mcp',     # Board 3: Middle finger
-            'rf_dip', 'rf_mcp',     # Board 4: Ring finger
-            'lf_dip', 'lf_mcp'      # Board 5: Little finger
-        ]
-        self.finger_map = {
-            'th': 0,
-            'ff': 2,
-            'mf': 3,
-            'rf': 4,
-            'lf': 5
-        }    # Map from finger name to board index
 
     def _load_config(self, config_path: str) -> HandConfig:
         """Load hand configuration from YAML file"""
