@@ -188,12 +188,15 @@ class DexHandBase:
 
         # Process all received messages
         for msg_id, data, timestamp in messages:
-            result = protocol.messages.process_message(msg_id, data)
+            try:
+                result = protocol.messages.process_message(msg_id, data)
 
-            if result.msg_type == MessageType.MOTION_FEEDBACK:
-                response.feedback = result.feedback
-            elif result.msg_type == MessageType.ERROR_MESSAGE:
-                response.error = result.error
+                if result.msg_type == MessageType.MOTION_FEEDBACK:
+                    response.feedback = result.feedback
+                elif result.msg_type == MessageType.ERROR_MESSAGE:
+                    response.error = result.error
+            except ValueError as e:
+                logger.error(f"Failed to process message: {e}")
 
         return response
 
@@ -483,6 +486,17 @@ class DexHandBase:
         return self.move_joints(
             send_disabled=True
         )
+
+    def clear_all_errors(self) -> Dict[int, bool]:
+        """Clear error state for all boards
+
+        Returns:
+            Dict mapping board index to whether error was cleared
+        """
+        cleared = {}
+        for board_idx in range(self.NUM_BOARDS):
+            cleared[board_idx] = self.clear_board_error(board_idx)
+        return cleared
 
     def close(self):
         """Close CAN communication"""
