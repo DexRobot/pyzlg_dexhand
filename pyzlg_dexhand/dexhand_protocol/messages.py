@@ -1,10 +1,11 @@
 from dataclasses import dataclass, asdict
 import struct
 from enum import IntEnum
-from typing import Optional
+from typing import Optional, Tuple
 import logging
 import numpy as np
 from . import MessageType, get_message_type
+from .commands import CommandType
 
 logger = logging.getLogger(__name__)
 
@@ -203,3 +204,23 @@ def _decode_error(data: bytes) -> ErrorInfo:
         error_code=error_code,
         description=description,
     )
+
+def verify_config_response(msg_id: int, data: bytes) -> Tuple[bool, Optional[CommandType]]:
+    """Verify a command response
+
+    Args:
+        command: Original command
+        msg_id: Response CAN ID
+        data: Response data
+
+    Returns:
+        boolean of whether response indicates success, and command type if applicable
+    """
+    if len(data) < 4:
+        return False, None
+    elif data[1] in (CommandType.CONFIG_FEEDBACK, CommandType.CLEAR_ERROR):
+        return (data[0] == 0x03 and
+                data[2] == 0x00 and
+                data[3] == 0x01), data[1]
+    else:
+        return False, None

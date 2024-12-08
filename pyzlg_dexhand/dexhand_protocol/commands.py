@@ -69,34 +69,6 @@ def encode_command(command: Command) -> tuple[MessageType, bytes]:
     else:
         raise ValueError(f"Unknown command type: {type(command)}")
 
-def verify_response(command: Command, msg_id: int, data: bytes) -> bool:
-    """Verify a command response
-
-    Args:
-        command: Original command
-        msg_id: Response CAN ID
-        data: Response data
-
-    Returns:
-        bool: True if response indicates success
-    """
-    if len(data) < 4:
-        return False
-
-    if isinstance(command, MotorCommand):
-        return False  # Motor commands don't have responses
-    elif isinstance(command, ClearErrorCommand):
-        return (data[0] == 0x03 and
-                data[1] == CommandType.CLEAR_ERROR and
-                data[2] == 0x00 and
-                data[3] == 0x01)
-    elif isinstance(command, FeedbackConfigCommand):
-        return (data[0] == 0x03 and
-                data[1] == CommandType.CONFIG_FEEDBACK and
-                data[2] == 0x00 and
-                data[3] == 0x01)
-    else:
-        return False
 
 def _encode_motor_command(command: MotorCommand) -> bytes:
     """Encode a motor control command (internal helper)"""

@@ -7,33 +7,95 @@ from datetime import datetime
 import logging
 import os
 from pathlib import Path
+import queue
+import threading
+from contextlib import contextmanager
 
 from .dexhand_interface import (
-    MoveFeedback, StampedTactileFeedback, JointFeedback,
-    ControlMode
+    ControlMode,
+    HandFeedback, StampedTactileFeedback, JointFeedback
 )
 
 logger = logging.getLogger(__name__)
 
 @dataclass
-class CommandLogEntry:
-    """Log entry for a hand command"""
+class LogEntry:
+    """Base class for log entries"""
     timestamp: float
+    hand: str
+    entry_type: str
+
+@dataclass
+class CommandLogEntry(LogEntry):
+    """Log entry for a hand command"""
     command_type: str  # move_joints, reset_joints, etc.
     joint_commands: Dict[str, float]  # Joint name to commanded position
     control_mode: ControlMode
-    hand: str  # 'left' or 'right'
 
 @dataclass
-class FeedbackLogEntry:
+class FeedbackLogEntry(LogEntry):
     """Log entry for hand feedback"""
-    timestamp: float
     joints: Dict[str, JointFeedback]  # Joint name to feedback
     tactile: Dict[str, StampedTactileFeedback]  # Fingertip name to tactile data
-    hand: str  # 'left' or 'right'
+
+class LogWriter(threading.Thread):
+    """Background thread for writing log entries to files"""
+
+    def __init__(self, session_dir: Path):
+        super().__init__(daemon=True)
+        self.session_dir = session_dir
+        self.queue = queue.Queue()
+        self.running = True
+
+        # Keep file handles open
+        self.files = {}
+        for hand in ['left', 'right']:
+            self.files[f"{hand}_commands"] = open(session_dir / f"{hand}_commands.jsonl", 'a')
+            self.files[f"{hand}_feedback"] = open(session_dir / f"{hand}_feedback.jsonl", 'a')
+
+    def run(self):
+        """Process log entries from queue"""
+        while self.running or not self.queue.empty():
+            try:
+                entry = self.queue.get(timeout=0.1)
+                self._write_entry(entry)
+                self.queue.task_done()
+            except queue.Empty:
+                continue
+            except Exception as e:
+                logger.error(f"Error writing log entry: {e}")
+
+    def _write_entry(self, entry: LogEntry):
+        """Write a single log entry to appropriate file"""
+        if isinstance(entry, CommandLogEntry):
+            file = self.files[f"{entry.hand}_commands"]
+        elif isinstance(entry, FeedbackLogEntry):
+            file = self.files[f"{entry.hand}_feedback"]
+        else:
+            logger.error(f"Unknown entry type: {type(entry)}")
+            return
+
+        try:
+            json.dump(asdict(entry), file)
+            file.write('\n')
+            file.flush()  # Ensure data is written
+        except Exception as e:
+            logger.error(f"Error writing to file: {e}")
+
+    def stop(self):
+        """Stop the writer thread and close files"""
+        self.running = False
+        self.join()  # Wait for queue to empty
+
+        # Close all files
+        for file in self.files.values():
+            try:
+                file.close()
+            except Exception as e:
+                logger.error(f"Error closing file: {e}")
 
 class DexHandLogger:
-    """Logger for dexterous hand commands and feedback"""
+    """Logger for dexterous hand commands and feedback with background writing"""
 
     def __init__(self, log_dir: str = "dexhand_logs"):
         """Initialize hand logger
@@ -49,12 +111,11 @@ class DexHandLogger:
         self.session_dir = self.log_dir / timestamp
         self.session_dir.mkdir()
 
-        # Initialize log files for each hand
-        for hand in ['left', 'right']:
-            (self.session_dir / f"{hand}_commands.jsonl").touch()
-            (self.session_dir / f"{hand}_feedback.jsonl").touch()
+        # Initialize log writer thread
+        self.writer = LogWriter(self.session_dir)
+        self.writer.start()
 
-        # Initialize in-memory buffers
+        # Initialize in-memory buffers with thread safety
         self.command_buffers = {
             'left': [],
             'right': []
@@ -63,69 +124,66 @@ class DexHandLogger:
             'left': [],
             'right': []
         }
+        self.buffer_lock = threading.Lock()
 
         self.start_time = time.time()
         logger.info(f"Logging session started in {self.session_dir}")
 
-    def log_command(self, command_type: str, feedback: MoveFeedback, hand: str):
-        """Log a command and its feedback
+    def log_command(self, command_type: str,
+                   joint_commands: Dict[str, float],
+                   control_mode: ControlMode,
+                   hand: str,
+                   feedback: Optional[HandFeedback] = None):
+        """Log a command without blocking
 
         Args:
             command_type: Type of command (move_joints, reset_joints, etc)
-            feedback: MoveFeedback from the command
+            joint_commands: Dictionary of joint name to commanded position
+            control_mode: Control mode used
             hand: Which hand ('left' or 'right')
+            feedback: Optional HandFeedback if feedback was collected
         """
         entry = CommandLogEntry(
-            timestamp=feedback.command_timestamp,
+            timestamp=time.time() - self.start_time,
+            hand=hand,
+            entry_type='command',
             command_type=command_type,
-            joint_commands={name: fb.angle for name, fb in feedback.joints.items()},
-            control_mode=ControlMode.CASCADED_PID,  # Default mode
-            hand=hand
+            joint_commands=joint_commands,
+            control_mode=control_mode
         )
 
-        # Add to buffer
-        self.command_buffers[hand].append(entry)
+        # Add to buffer thread-safely
+        with self.buffer_lock:
+            self.command_buffers[hand].append(entry)
 
-        # Write to file
-        with open(self.session_dir / f"{hand}_commands.jsonl", 'a') as f:
-            json.dump(asdict(entry), f)
-            f.write('\n')
+        # Queue for writing without blocking
+        self.writer.queue.put(entry)
 
-        # Log feedback too
-        self.log_feedback(feedback, hand)
+        # Also log feedback if provided
+        if feedback:
+            self.log_feedback(feedback, hand)
 
-    def log_feedback(self, feedback: MoveFeedback, hand: str):
-        """Log feedback received from the hand
+    def log_feedback(self, feedback: HandFeedback, hand: str):
+        """Log feedback without blocking
 
         Args:
-            feedback: MoveFeedback from command
+            feedback: HandFeedback from polling
             hand: Which hand ('left' or 'right')
         """
         entry = FeedbackLogEntry(
             timestamp=time.time() - self.start_time,
+            hand=hand,
+            entry_type='feedback',
             joints=feedback.joints,
-            tactile=feedback.tactile,
-            hand=hand
+            tactile=feedback.tactile
         )
 
-        # Add to buffer
-        self.feedback_buffers[hand].append(entry)
+        # Add to buffer thread-safely
+        with self.buffer_lock:
+            self.feedback_buffers[hand].append(entry)
 
-        # Write to file
-        with open(self.session_dir / f"{hand}_feedback.jsonl", 'a') as f:
-            # Need to convert dataclass objects to dictionaries
-            serialized = {
-                'timestamp': entry.timestamp,
-                'joints': {
-                    name: asdict(fb) for name, fb in entry.joints.items()
-                },
-                'tactile': {
-                    name: asdict(fb) for name, fb in entry.tactile.items()
-                },
-                'hand': entry.hand
-            }
-            json.dump(serialized, f)
-            f.write('\n')
+        # Queue for writing without blocking
+        self.writer.queue.put(entry)
 
     def save_metadata(self, metadata: Dict[str, Any]):
         """Save session metadata
@@ -134,12 +192,16 @@ class DexHandLogger:
             metadata: Dictionary of metadata to save
         """
         metadata_path = self.session_dir / "metadata.json"
+        # Write metadata directly since this isn't in the critical path
         with open(metadata_path, 'w') as f:
             json.dump(metadata, f, indent=2)
 
     def plot_session(self, hands: Optional[List[str]] = None, show: bool = True,
                     save: bool = True):
         """Plot command and feedback data from the session
+
+        This method should be called outside the control loop, typically
+        during analysis or after the session.
 
         Args:
             hands: Which hands to plot ('left', 'right', or both)
@@ -148,7 +210,6 @@ class DexHandLogger:
         """
         try:
             import matplotlib.pyplot as plt
-            import numpy as np
         except ImportError:
             logger.error("matplotlib is required for plotting")
             return
@@ -156,8 +217,19 @@ class DexHandLogger:
         if hands is None:
             hands = ['left', 'right']
 
+        # Get thread-safe copy of buffers
+        with self.buffer_lock:
+            command_buffers = {
+                hand: self.command_buffers[hand].copy()
+                for hand in hands
+            }
+            feedback_buffers = {
+                hand: self.feedback_buffers[hand].copy()
+                for hand in hands
+            }
+
         for hand in hands:
-            if not self.command_buffers[hand] and not self.feedback_buffers[hand]:
+            if not command_buffers[hand] and not feedback_buffers[hand]:
                 continue
 
             # Plot joint commands
@@ -165,8 +237,8 @@ class DexHandLogger:
             joint_data = {}
 
             # Collect command data
-            for entry in self.command_buffers[hand]:
-                t = entry.timestamp - self.start_time
+            for entry in command_buffers[hand]:
+                t = entry.timestamp
                 for joint, pos in entry.joint_commands.items():
                     if joint not in joint_data:
                         joint_data[joint] = {'times': [], 'positions': []}
@@ -175,24 +247,35 @@ class DexHandLogger:
 
             # Plot each joint
             for joint, data in joint_data.items():
-                plt.plot(data['times'], data['positions'], label=joint)
+                plt.plot(data['times'], data['positions'],
+                        label=f"{joint} (cmd)", linestyle='--')
+
+                # Plot matching feedback if available
+                fb_times = []
+                fb_pos = []
+                for entry in feedback_buffers[hand]:
+                    if joint in entry.joints:
+                        fb_times.append(entry.timestamp)
+                        fb_pos.append(entry.joints[joint].angle)
+                if fb_times:
+                    plt.plot(fb_times, fb_pos, label=f"{joint} (actual)")
 
             plt.xlabel('Time (s)')
             plt.ylabel('Joint Angle (degrees)')
-            plt.title(f'{hand.title()} Hand Joint Commands')
+            plt.title(f'{hand.title()} Hand Joint Commands and Feedback')
             plt.legend()
             plt.grid(True)
 
             if save:
-                plt.savefig(self.session_dir / f'{hand}_commands.png')
+                plt.savefig(self.session_dir / f'{hand}_joints.png')
 
             # Plot tactile feedback
-            if any(entry.tactile for entry in self.feedback_buffers[hand]):
+            if any(entry.tactile for entry in feedback_buffers[hand]):
                 plt.figure(figsize=(12, 8))
                 tactile_data = {}
 
                 # Collect tactile data
-                for entry in self.feedback_buffers[hand]:
+                for entry in feedback_buffers[hand]:
                     t = entry.timestamp
                     for finger, data in entry.tactile.items():
                         if finger not in tactile_data:
@@ -229,22 +312,26 @@ class DexHandLogger:
     def close(self):
         """Close the logger and save any remaining data"""
         # Save summary statistics
-        stats = {
-            'duration': time.time() - self.start_time,
-            'num_commands': {
-                'left': len(self.command_buffers['left']),
-                'right': len(self.command_buffers['right'])
-            },
-            'num_feedback': {
-                'left': len(self.feedback_buffers['left']),
-                'right': len(self.feedback_buffers['right'])
+        with self.buffer_lock:
+            stats = {
+                'duration': time.time() - self.start_time,
+                'num_commands': {
+                    'left': len(self.command_buffers['left']),
+                    'right': len(self.command_buffers['right'])
+                },
+                'num_feedback': {
+                    'left': len(self.feedback_buffers['left']),
+                    'right': len(self.feedback_buffers['right'])
+                }
             }
-        }
 
         self.save_metadata({
             'statistics': stats,
             'timestamp': datetime.now().isoformat()
         })
+
+        # Stop the writer thread and close files
+        self.writer.stop()
 
         logger.info(f"Logging session completed: {stats}")
 

@@ -3,7 +3,7 @@ from typing import List
 from IPython import embed
 import sys
 import os
-from pyzlg_dexhand.dexhand_interface import LeftDexHand, RightDexHand, ControlMode, ZCANWrapper
+from pyzlg_dexhand.dexhand_interface import LeftDexHand, RightDexHand, ControlMode, ZCANWrapper, FeedbackMode
 
 def initialize_hands(hand_names: List[str]) -> dict:
     """Initialize specified hands and return a dictionary of instances"""
@@ -50,6 +50,7 @@ def main():
     # Create globals dict for IPython
     globals_dict = {
         'ControlMode': ControlMode,
+        'FeedbackMode': FeedbackMode,
         'hands': hands,
     }
     for i, hand in enumerate(hands):

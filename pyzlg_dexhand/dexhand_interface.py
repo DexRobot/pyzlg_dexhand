@@ -11,8 +11,8 @@ import time
 from .zcan_wrapper import ZCANWrapper
 from . import dexhand_protocol as protocol
 from .dexhand_protocol import BoardID
-from .dexhand_protocol.commands import ControlMode, MotorCommand, ClearErrorCommand
-from .dexhand_protocol.messages import BoardFeedback, ErrorInfo, MessageType
+from .dexhand_protocol.commands import ControlMode, MotorCommand, ClearErrorCommand, FeedbackConfigCommand, FeedbackMode
+from .dexhand_protocol.messages import BoardFeedback, ErrorInfo, MessageType, ProcessedMessage
 
 
 logger = logging.getLogger(__name__)
@@ -24,21 +24,21 @@ class HandConfig:
     hall_scale: List[float]  # Scale coefficients for hall position modes
 
 @dataclass
+class BoardState:
+    """Feedback and Error collected for a single board."""
+    feedback_timestamp: float   # Timestamp of last feedback
+    status_timestamp: float     # Timestamp of last status (normal / error) update
+    is_normal: bool             # True if board is in normal state
+    feedback: Optional[BoardFeedback] = None  # Last feedback received
+    error_info: Optional[ErrorInfo] = None  # Error information if board is in error state
+
+
+@dataclass
 class JointFeedback:
     """Feedback for a specific joint command"""
     timestamp: float     # When feedback was received
     angle: float         # Joint angle in degrees
     encoder_position: Optional[int] = None       # Encoder position in raw units
-    error: Optional[str] = None  # Error message if any
-    error_cleared: Optional[bool] = None  # True if error was cleared
-
-@dataclass
-class BoardResponse:
-    """Complete response from a board including both feedback and errors"""
-    board_idx: int
-    feedback: Optional[BoardFeedback] = None
-    error: Optional[ErrorInfo] = None
-    comm_error: bool = False
 
 @dataclass
 class StampedTactileFeedback:
@@ -53,9 +53,9 @@ class StampedTactileFeedback:
     temperature: int         # Temperature in Celsius
 
 @dataclass
-class MoveFeedback:
-    """Complete feedback from a move_joints command"""
-    command_timestamp: float  # When command was sent
+class HandFeedback:
+    """Feedback data for whole hand"""
+    query_timestamp: float  # When feedback was requested
     joints: Dict[str, JointFeedback]  # Feedback per joint
     tactile: Dict[str, StampedTactileFeedback]  # Tactile data per fingertip
 
@@ -81,6 +81,33 @@ class DexHandBase:
 
         # Hall position scaling factors
         self._init_hall_scaling()
+
+        # Maintain state for each board
+        self.board_states: Dict[int, BoardState] = {
+            i: BoardState(
+                feedback_timestamp=0,
+                feedback=None,
+                status_timestamp=0,
+                is_normal=True,
+                error_info=None
+            ) for i in range(self.NUM_BOARDS)
+        }
+
+        self.joint_names = [
+            'th_dip', 'th_mcp',     # Board 0: Thumb
+            'th_rot', 'ff_spr',     # Board 1: Thumb rotation & spread
+            'ff_dip', 'ff_mcp',     # Board 2: First finger
+            'mf_dip', 'mf_mcp',     # Board 3: Middle finger
+            'rf_dip', 'rf_mcp',     # Board 4: Ring finger
+            'lf_dip', 'lf_mcp'      # Board 5: Little finger
+        ]
+        self.finger_map = {
+            'th': 0,
+            'ff': 2,
+            'mf': 3,
+            'rf': 4,
+            'lf': 5
+        }    # Map from finger name to board index
 
     def _load_config(self, config_path: str) -> HandConfig:
         """Load hand configuration from YAML file"""
@@ -139,27 +166,58 @@ class DexHandBase:
             raise ValueError(f"Invalid board index: {board_idx}")
         return msg_type + self.base_id + board_idx
 
-    def send_command_with_feedback(self,
-                                 board_idx: int,
-                                 motor1_pos: int,
-                                 motor2_pos: int,
-                                 motor_enable: int = 0x03,
-                                 control_mode: ControlMode = ControlMode.CASCADED_PID) -> BoardResponse:
-        """Send command to a board and get all feedback
+    def set_feedback_mode(self, mode: FeedbackMode, period_ms: int, enable: bool) -> bool:
+        """Configure feedback mode for all boards
+
+        Args:
+            mode: Feedback mode
+            period_ms: Period in milliseconds (if periodic)
+            enable: Enable flag
+
+        Returns:
+            bool: True if command sent successfully
+        """
+        # Create and encode command
+        command = FeedbackConfigCommand(
+            mode=mode,
+            period_ms=period_ms,
+            enable=enable
+        )
+
+        try:
+            msg_type, data = protocol.commands.encode_command(command)
+        except ValueError as e:
+            logger.error(f"Failed to encode feedback config command: {e}")
+            return False
+
+        # Send command to all boards
+        for board_idx in range(self.NUM_BOARDS):
+            command_id = self._get_command_id(msg_type, board_idx)
+            if not self.zcan.send_fd_message(self.config.channel, command_id, data):
+                logger.error(f"Failed to send feedback config command to board {board_idx}")
+                return False
+
+        return True
+
+
+    def _send_motion_command(self,
+                    board_idx: int,
+                    motor1_pos: int,
+                    motor2_pos: int,
+                    motor_enable: int = 0x03,
+                    control_mode: ControlMode = ControlMode.CASCADED_PID) -> bool:
+        """Send a motion command to a specific board
 
         Args:
             board_idx: Board index to command
-            motor1_pos: Position command for motor 1
-            motor2_pos: Position command for motor 2
-            motor_enable: Motor enable flags
+            motor1_pos: Position command for motor 1, in hardware units
+            motor2_pos: Position command for motor 2, in hardware units
+            motor_enable: Motor enable flags, 0x01 for motor 1, 0x02 for motor 2, 0x03 for both
             control_mode: Control mode
 
         Returns:
-            BoardResponse containing feedback and any errors
+            bool: True if command sent successfully
         """
-        # Prepare response object
-        response = BoardResponse(board_idx=board_idx)
-
         # Create and encode command
         command = MotorCommand(
             control_mode=control_mode,
@@ -172,42 +230,51 @@ class DexHandBase:
             msg_type, data = protocol.commands.encode_command(command)
         except ValueError as e:
             logger.error(f"Failed to encode command: {e}")
-            return False, None
+            return False
 
         # Send command
         command_id = self._get_command_id(MessageType.MOTION_COMMAND, board_idx)
         if not self.zcan.send_fd_message(self.config.channel, command_id, data):
-            response.comm_error = True
-            return response
+            logger.error("Failed to send command to ID {command_id}")
+            return False
 
-        # Get all feedback messages
+        return True
+
+    def _refresh_board_states(self):
+        """Receive CANFD frames to update the states for all boards.
+        """
+        # Get all messages
         messages = self.zcan.receive_fd_messages(self.config.channel)
-        if not messages:
-            response.comm_error = True
-            return response
 
         # Process all received messages
         for msg_id, data, timestamp in messages:
             try:
                 result = protocol.messages.process_message(msg_id, data)
+                board_idx = msg_id - result.msg_type - self.base_id
 
                 if result.msg_type == MessageType.MOTION_FEEDBACK:
-                    response.feedback = result.feedback
+                    self.board_states[board_idx].feedback_timestamp = timestamp
+                    self.board_states[board_idx].feedback = result.feedback
                 elif result.msg_type == MessageType.ERROR_MESSAGE:
-                    response.error = result.error
+                    self.board_states[board_idx].status_timestamp = timestamp
+                    self.board_states[board_idx].is_normal = False
+                    self.board_states[board_idx].error_info = result.error
+                elif result.msg_type == MessageType.CONFIG_RESPONSE:
+                    success, command_type = protocol.messages.verify_config_response(msg_id, data)
+                    if success and command_type == protocol.commands.CommandType.CLEAR_ERROR:
+                        self.board_states[board_idx].error_info = None
+                        self.board_states[board_idx].is_normal = True
             except ValueError as e:
                 logger.error(f"Failed to process message: {e}")
 
-        return response
-
-    def clear_board_error(self, board_idx: int) -> bool:
-        """Clear error state for a specific board
+    def _clear_board_error(self, board_idx: int) -> bool:
+        """Attempt to clear error state for a board
 
         Args:
             board_idx: Board index to clear error for
 
         Returns:
-            bool: True if error cleared successfully
+            bool: True if error clearance command sent successfully
         """
         # Create and encode clear error command
         clear_cmd = ClearErrorCommand()
@@ -219,15 +286,7 @@ class DexHandBase:
             logger.error(f"Failed to send error clear command to board {board_idx}")
             return False
 
-        # Check acknowledgment
-        messages = self.zcan.receive_fd_messages(self.config.channel)
-        if not messages:
-            logger.error(f"No response to error clear command from board {board_idx}")
-            return False
-
-        msg_id, resp_data, _ = messages[-1]
-        return protocol.commands.verify_response(clear_cmd, msg_id, resp_data)
-
+        return True
 
     def move_joints(self,
                 th_rot: Optional[float] = None,   # thumb rotation
@@ -242,9 +301,8 @@ class DexHandBase:
                 rf_dip: Optional[float] = None,   # ring finger coupled distal joints
                 lf_mcp: Optional[float] = None,   # little finger metacarpophalangeal
                 lf_dip: Optional[float] = None,   # little finger coupled distal joints
-                control_mode: ControlMode = ControlMode.CASCADED_PID,
-                send_disabled: bool = False) -> MoveFeedback:
-        """Move hand joints to specified angles and return feedback.
+                control_mode: ControlMode = ControlMode.CASCADED_PID):
+        """Move hand joints to specified angles.
 
         For each finger, there are two independent DOFs:
         - MCP (metacarpophalangeal) joint: Controls base joint flexion
@@ -253,13 +311,6 @@ class DexHandBase:
         Additional DOFs:
         - th_rot: Thumb rotation/opposition
         - ff_spr: Four-finger spread (abduction between fingers)
-
-        Tactile feedback available on fingertips:
-        - th (thumb)
-        - ff (index/first finger)
-        - mf (middle finger)
-        - rf (ring finger)
-        - lf (little finger)
 
         Args:
             th_rot: Thumb rotation angle in degrees
@@ -275,40 +326,11 @@ class DexHandBase:
             lf_mcp: Little MCP flexion
             lf_dip: Little coupled PIP-DIP flexion
             control_mode: Motor control mode
-            send_disabled: If True, send commands to all boards regardless of
-                        whether their motors are enabled. Useful for collecting
-                        feedback without moving the hand.
-
-        Returns:
-            MoveFeedback containing:
-            - command_timestamp: When the command was sent
-            - joints: Dict mapping joint name to JointFeedback with:
-                - timestamp: When feedback was sampled
-                - angle: Joint angle in degrees
-                - encoder_position: Joint position in hardware units
-                - error: Error message if any
-            - tactile: Dict mapping fingertip name to StampedTactileFeedback with:
-                - normal_force: Force perpendicular to surface (N)
-                - normal_force_delta: Change in normal force
-                - tangential_force: Force parallel to surface (N)
-                - tangential_force_delta: Change in tangential force
-                - direction: Force direction (degrees)
-                - proximity: Proximity sensor value
-                - temperature: Temperature in Celsius
         """
         # Record command start time
         command_timestamp = time.time()
 
         # Map joint angles to motor commands
-        joint_names = [
-            'th_dip', 'th_mcp',     # Board 0: Thumb
-            'th_rot', 'ff_spr',     # Board 1: Thumb rotation & spread
-            'ff_dip', 'ff_mcp',     # Board 2: First finger
-            'mf_dip', 'mf_mcp',     # Board 3: Middle finger
-            'rf_dip', 'rf_mcp',     # Board 4: Ring finger
-            'lf_dip', 'lf_mcp'      # Board 5: Little finger
-        ]
-
         motor_angles = [
             th_dip, th_mcp,      # Board 0
             th_rot, ff_spr,      # Board 1
@@ -322,118 +344,97 @@ class DexHandBase:
         scaled_positions = np.zeros(self.NUM_MOTORS)
         enables = [False] * self.NUM_MOTORS
 
-        for i, (angle, name) in enumerate(zip(motor_angles, joint_names)):
+        for i, (angle, name) in enumerate(zip(motor_angles, self.joint_names)):
             if angle is not None:
                 scaled_positions[i] = self._scale_angle(i, angle, control_mode)
                 enables[i] = True
 
-        # Send commands to each board and collect all responses
-        joint_feedback = {}
-        tactile_feedback = {}
-        board_responses: Dict[int, BoardResponse] = {}
-
-        # First pass: send commands and collect responses
         for board_idx in range(self.NUM_BOARDS):
             base_idx = board_idx * 2
-            if send_disabled or any(enables[base_idx:base_idx + 2]):
+            if any(enables[base_idx:base_idx + 2]):
                 motor_enable = 0x01 if enables[base_idx] else 0
                 motor_enable |= 0x02 if enables[base_idx + 1] else 0
-
-                response = self.send_command_with_feedback(
+                success = self._send_motion_command(
                     board_idx=board_idx,
                     motor1_pos=int(scaled_positions[base_idx]),
                     motor2_pos=int(scaled_positions[base_idx + 1]),
                     motor_enable=motor_enable,
-                    control_mode=control_mode
+                    control_mode=control_mode,
                 )
-                board_responses[board_idx] = response
+                if not success:
+                    logger.error(f"Failed to send command to board {board_idx}")
 
-        # Second pass: handle errors and process feedback
-        for board_idx, response in board_responses.items():
+    def get_feedback(self) -> HandFeedback:
+        """Get feedback from all joints and tactile sensors
+
+        Returns:
+            HandFeedback object.
+        """
+        # Record query start time
+        query_timestamp = time.time()
+
+        # Refresh board states to get feedback
+        self._refresh_board_states()
+
+        # Process feedback from all boards
+        joint_feedback = {}
+        tactile_feedback = {}
+        for board_idx, state in self.board_states.items():
             base_idx = board_idx * 2
             timestamp = time.time()
 
-            # Handle communication error
-            if response.comm_error:
-                error_msg = "Communication error"
+            if state.feedback is None:
+                # No feedback available
                 for i in range(2):
                     joint_idx = base_idx + i
-                    if send_disabled or enables[joint_idx]:
-                        joint_feedback[joint_names[joint_idx]] = JointFeedback(
-                            timestamp=timestamp,
-                            angle=float('nan'),
-                            encoder_position=None,
-                            error=error_msg,
-                            error_cleared=None  # No error to clear
-                        )
+                    joint_feedback[self.joint_names[joint_idx]] = JointFeedback(
+                        timestamp=timestamp,
+                        angle=float('nan'),
+                        encoder_position=None,
+                    )
                 continue
 
-            # Handle board error
-            if response.error is not None:
-                error_cleared = self.clear_board_error(board_idx)
-                error_msg = response.error.description
+            # Process joint feedback
+            motors = [state.feedback.motor1, state.feedback.motor2]
+            for i in range(2):
+                joint_idx = base_idx + i
+                joint_feedback[self.joint_names[joint_idx]] = JointFeedback(
+                    timestamp=timestamp,
+                    angle=motors[i].angle,
+                    encoder_position=motors[i].position,
+                )
 
-                # Even with error, we might have valid feedback
-                if response.feedback is not None:
-                    motors = [response.feedback.motor1, response.feedback.motor2]
-                    for i in range(2):
-                        joint_idx = base_idx + i
-                        if send_disabled or enables[joint_idx]:
-                            joint_feedback[joint_names[joint_idx]] = JointFeedback(
-                                timestamp=timestamp,
-                                angle=motors[i].angle,
-                                encoder_position=motors[i].position,
-                                error=error_msg,
-                                error_cleared=error_cleared
-                            )
-                else:
-                    # No feedback available
-                    for i in range(2):
-                        joint_idx = base_idx + i
-                        if send_disabled or enables[joint_idx]:
-                            joint_feedback[joint_names[joint_idx]] = JointFeedback(
-                                timestamp=timestamp,
-                                angle=float('nan'),
-                                encoder_position=None,
-                                error=error_msg,
-                                error_cleared=error_cleared
-                            )
-                continue
+            # Process tactile feedback if available
+            if state.feedback.tactile is not None:
+                if board_idx in self.finger_map:
+                    tactile_feedback[self.finger_map[board_idx]] = StampedTactileFeedback(
+                        timestamp=timestamp,
+                        **asdict(state.feedback.tactile)
+                    )
 
-            # Process normal feedback
-            if response.feedback is not None:
-                motors = [response.feedback.motor1, response.feedback.motor2]
-                for i in range(2):
-                    joint_idx = base_idx + i
-                    if send_disabled or enables[joint_idx]:
-                        joint_feedback[joint_names[joint_idx]] = JointFeedback(
-                            timestamp=timestamp,
-                            angle=motors[i].angle,
-                            encoder_position=motors[i].position,
-                            error=None,
-                            error_cleared=None  # No error to clear
-                        )
-
-                # Process tactile feedback if available
-                if response.feedback.tactile is not None:
-                    fingertip_map = {
-                        0: 'th',
-                        2: 'ff',
-                        3: 'mf',
-                        4: 'rf',
-                        5: 'lf'
-                    }
-                    if board_idx in fingertip_map:
-                        tactile_feedback[fingertip_map[board_idx]] = StampedTactileFeedback(
-                            timestamp=timestamp,
-                            **asdict(response.feedback.tactile)
-                        )
-
-        return MoveFeedback(
-            command_timestamp=command_timestamp,
+        return HandFeedback(
+            query_timestamp=query_timestamp,
             joints=joint_feedback,
             tactile=tactile_feedback
         )
+
+    def get_errors(self) -> Dict[int, Optional[ErrorInfo]]:
+        """Get error information for whole hand
+
+        Returns:
+            Dict mapping board index to ErrorInfo if an error is present
+        """
+        return {i: state.error_info for i, state in self.board_states.items()}
+
+    def clear_errors(self, clear_all=False):
+        """Clear all errors for the hand
+
+        Args:
+            clear_all: If True, attempt to clear errors for all boards even if not in error state
+        """
+        for board_idx in range(self.NUM_BOARDS):
+            if clear_all or not self.board_states[board_idx].is_normal:
+                self._clear_board_error(board_idx)
 
     def _scale_angle(self, motor_idx: int, angle: float, control_mode: ControlMode) -> int:
         """Scale angle based on control mode"""
@@ -443,15 +444,13 @@ class DexHandBase:
             # For cascaded PID mode, scale to 100x for hardware units
             return int(angle * 100)
 
-    def reset_joints(self) -> MoveFeedback:
+    def reset_joints(self):
         """Reset all joints to their zero positions.
 
         This is equivalent to setting all joint angles to 0 degrees.
         Uses CASCADED_PID control mode.
-
-        Returns: MoveFeedback containing the feedback from the reset command.
         """
-        return self.move_joints(
+        self.move_joints(
             th_rot=0, th_mcp=0, th_dip=0,
             ff_spr=0, ff_mcp=0, ff_dip=0,
             mf_mcp=0, mf_dip=0,
@@ -459,44 +458,6 @@ class DexHandBase:
             lf_mcp=0, lf_dip=0,
             control_mode=ControlMode.CASCADED_PID
         )
-
-    def get_feedback(self) -> MoveFeedback:
-        """Get current feedback from all joints and tactile sensors.
-
-        This sends a command with all motors disabled to collect feedback
-        without affecting hand motion.
-
-        Returns:
-            MoveFeedback containing:
-            - command_timestamp: When the feedback request was sent
-            - joints: Dict mapping joint name to JointFeedback with:
-                - timestamp: When feedback was sampled
-                - angle: Joint angle in degrees
-                - encoder_position: Joint position in hardware units
-                - error: Error message if any
-            - tactile: Dict mapping fingertip name to StampedTactileFeedback with:
-                - normal_force: Force perpendicular to surface (N)
-                - normal_force_delta: Change in normal force
-                - tangential_force: Force parallel to surface (N)
-                - tangential_force_delta: Change in tangential force
-                - direction: Force direction (degrees)
-                - proximity: Proximity sensor value
-                - temperature: Temperature in Celsius
-        """
-        return self.move_joints(
-            send_disabled=True
-        )
-
-    def clear_all_errors(self) -> Dict[int, bool]:
-        """Clear error state for all boards
-
-        Returns:
-            Dict mapping board index to whether error was cleared
-        """
-        cleared = {}
-        for board_idx in range(self.NUM_BOARDS):
-            cleared[board_idx] = self.clear_board_error(board_idx)
-        return cleared
 
     def close(self):
         """Close CAN communication"""
