@@ -114,11 +114,7 @@ class TestMessageDecoding:
     """Test message decoding according to protocol specification"""
 
     def test_feedback_decoding(self):
-        """Test feedback mefrom .dexhand_protocol import (
-    BoardFeedback, MotorFeedback, ErrorInfo, MessageType,
-    CommandType, MotorCommand, FeedbackConfig, ProtocolCommand,
-    ControlMode, BoardID
-)ssage decoding matches protocol specification"""
+        """Test feedback message decoding matches protocol specification"""
         # Construct feedback data according to protocol
         data = bytearray(46)  # Full message with encoders
 

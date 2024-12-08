@@ -417,11 +417,11 @@ class DexHandBase:
                 # Process tactile feedback if available
                 if response.feedback.tactile is not None:
                     fingertip_map = {
-                        0: 'thumb',
-                        2: 'index',
-                        3: 'middle',
-                        4: 'ring',
-                        5: 'pinky'
+                        0: 'th',
+                        2: 'ff',
+                        3: 'mf',
+                        4: 'rf',
+                        5: 'lf'
                     }
                     if board_idx in fingertip_map:
                         tactile_feedback[fingertip_map[board_idx]] = StampedTactileFeedback(

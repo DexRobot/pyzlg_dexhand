@@ -14,7 +14,7 @@ from pyzlg_dexhand.dexhand_protocol.commands import (
     ControlMode, CommandType
 )
 from pyzlg_dexhand.dexhand_protocol.messages import (
-    BoardFeedback, MotorFeedback, ErrorInfo, ProcessedMessage, BoardError
+    BoardFeedback, MotorFeedback, TactileFeedback, ErrorInfo, ProcessedMessage, BoardError
 )
 
 # Test data generators
@@ -25,8 +25,7 @@ def create_mock_feedback(timestamp=1000.0):
         motor2=MotorFeedback(-150, -250, -2000, -90.0),
         position_sensor1=45.0,
         position_sensor2=-90.0,
-        tactile=StampedTactileFeedback(
-            timestamp=timestamp,
+        tactile=TactileFeedback(
             normal_force=1.5,
             normal_force_delta=100,
             tangential_force=0.5,
