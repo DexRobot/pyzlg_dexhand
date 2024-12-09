@@ -12,25 +12,25 @@ import time
 import yaml
 import os.path
 
-from src.dexhand_interface import (
-    LeftDexHand, RightDexHand, ControlMode, DexJoint, ZCANWrapper
+from pyzlg_dexhand.dexhand_interface import (
+    DexHandBase, LeftDexHand, RightDexHand, ControlMode, ZCANWrapper
 )
-from src.zcan_wrapper import MockZCANWrapper
+from pyzlg_dexhand.zcan_wrapper import MockZCANWrapper
 
 class HardwareMapping(Enum):
     """Mapping between URDF and hardware joints"""
-    THUMB_DIP = (DexJoint.THUMB_DIP, ["f_joint1_3", "f_joint1_4"])
-    THUMB_SPREAD = (DexJoint.THUMB_PIP, ["f_joint1_2"])
-    THUMB_ROTATION = (DexJoint.THUMB_ROT, ["f_joint1_1"])
-    FINGER_SPREAD = (DexJoint.FINGER_SPREAD, ["f_joint2_1", "f_joint4_1", "f_joint5_1"])
-    INDEX_DIP = (DexJoint.INDEX_DIP, ["f_joint2_3", "f_joint2_4"])
-    INDEX_PIP = (DexJoint.INDEX_PIP, ["f_joint2_2"])
-    MIDDLE_DIP = (DexJoint.MIDDLE_DIP, ["f_joint3_3", "f_joint3_4"])
-    MIDDLE_PIP = (DexJoint.MIDDLE_PIP, ["f_joint3_2"])
-    RING_DIP = (DexJoint.RING_DIP, ["f_joint4_3", "f_joint4_4"])
-    RING_PIP = (DexJoint.RING_PIP, ["f_joint4_2"])
-    PINKY_DIP = (DexJoint.PINKY_DIP, ["f_joint5_3", "f_joint5_4"])
-    PINKY_PIP = (DexJoint.PINKY_PIP, ["f_joint5_2"])
+    th_dip = ("th_dip", ["f_joint1_3", "f_joint1_4"])
+    th_mcp = ("th_mcp", ["f_joint1_2"])
+    th_rot = ("th_rot", ["f_joint1_1"])
+    ff_spr = ("ff_spr", ["f_joint2_1", "f_joint4_1", "f_joint5_1"])
+    ff_dip = ("ff_dip", ["f_joint2_3", "f_joint2_4"])
+    ff_mcp = ("ff_mcp", ["f_joint2_2"])
+    mf_dip = ("mf_dip", ["f_joint3_3", "f_joint3_4"])
+    mf_mcp = ("mf_mcp", ["f_joint3_2"])
+    rf_dip = ("rf_dip", ["f_joint4_3", "f_joint4_4"])
+    rc_mcp = ("rf_mcp", ["f_joint4_2"])
+    lf_dip = ("lf_dip", ["f_joint5_3", "f_joint5_4"])
+    lf_mcp = ("lf_mcp", ["f_joint5_2"])
 
 class JointMapping:
     """Maps between URDF joints and hardware joints"""
@@ -50,10 +50,10 @@ class JointMapping:
         # Get all possible URDF joint names
         self.joint_names = sorted(list(self.urdf_to_hw.keys()))
 
-    def map_command(self, joint_values: Dict[str, float]) -> Dict[DexJoint, float]:
+    def map_command(self, joint_values: Dict[str, float]) -> Dict[str, float]:
         """Map URDF joint values to hardware commands"""
         # Group joint values by hardware joint
-        hw_joint_values = {dex_joint: [] for dex_joint in DexJoint}
+        hw_joint_values = {dex_joint: [] for dex_joint in DexHandBase.joint_names}
 
         for name, value in joint_values.items():
             if name in self.urdf_to_hw:
@@ -62,7 +62,7 @@ class JointMapping:
 
         # Average values for each hardware joint
         command = {}
-        for dex_joint in DexJoint:
+        for dex_joint in DexHandBase.joint_names:
             values = hw_joint_values[dex_joint]
             if values:
                 command[dex_joint] = float(np.rad2deg(sum(values) / len(values)))
@@ -185,23 +185,23 @@ class DexHandNode(Node):
 
                 # Use move_joints interface
                 hand_interface.move_joints(
-                    thumb_dip=command.get(DexJoint.THUMB_DIP),
-                    thumb_pip=command.get(DexJoint.THUMB_PIP),
-                    thumb_rot=command.get(DexJoint.THUMB_ROT),
-                    finger_spread=command.get(DexJoint.FINGER_SPREAD),
-                    index_dip=command.get(DexJoint.INDEX_DIP),
-                    index_pip=command.get(DexJoint.INDEX_PIP),
-                    middle_dip=command.get(DexJoint.MIDDLE_DIP),
-                    middle_pip=command.get(DexJoint.MIDDLE_PIP),
-                    ring_dip=command.get(DexJoint.RING_DIP),
-                    ring_pip=command.get(DexJoint.RING_PIP),
-                    pinky_dip=command.get(DexJoint.PINKY_DIP),
-                    pinky_pip=command.get(DexJoint.PINKY_PIP),
+                    th_dip=command.get("th_dip"),
+                    th_mcp=command.get("th_mcp"),
+                    th_rot=command.get("th_rot"),
+                    ff_spr=command.get("ff_spr"),
+                    ff_dip=command.get("ff_dip"),
+                    ff_mcp=command.get("ff_mcp"),
+                    mf_dip=command.get("mf_dip"),
+                    mf_mcp=command.get("mf_mcp"),
+                    rf_dip=command.get("rf_dip"),
+                    rf_mcp=command.get("rf_mcp"),
+                    lf_dip=command.get("lf_dip"),
+                    lf_mcp=command.get("lf_mcp"),
                     control_mode=self.control_mode
                 )
 
                 # Clear errors
-                hand_interface.clear_errors()
+                hand_interface.clear_errors(clear_all=True)
 
         except Exception as e:
             self.get_logger().error(f'Error sending commands: {str(e)}')
@@ -213,7 +213,7 @@ class DexHandNode(Node):
 
             # First bend all joints to 30 degrees
             for hand in self.hands.values():
-                hand.reset_joints(30.0)
+                hand.move_joints(th_dip=30, th_mcp=30, th_rot=30, ff_spr=30, ff_dip=30, ff_mcp=30, mf_dip=30, mf_mcp=30, rf_dip=30, rf_mcp=30, lf_dip=30, lf_mcp=30)
                 hand.clear_errors()
 
             # Wait a moment
@@ -221,7 +221,7 @@ class DexHandNode(Node):
 
             # Then straighten to 0 degrees
             for hand in self.hands.values():
-                hand.reset_joints(0.0)
+                hand.reset_joints()
                 hand.clear_errors()
 
             # Clear command history
@@ -247,7 +247,7 @@ class DexHandNode(Node):
 def main():
     # Parse command line arguments
     parser = argparse.ArgumentParser(description='DexHand ROS2 Node')
-    default_config = os.path.join(os.path.dirname(__file__), 'config', 'ros_node.yaml')
+    default_config = os.path.join(os.path.dirname(__file__), '../../config', 'ros_node.yaml')
     parser.add_argument('--config', type=str, default=default_config,
                       help='Path to configuration file')
     args = parser.parse_args()

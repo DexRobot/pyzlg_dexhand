@@ -1,7 +1,0 @@
-# Core dependencies
-numpy>=1.20.0
-PyYAML>=5.4.0
-ipython>=7.0.0  # For interactive testing interface
-
-# Logging and debugging
-matplotlib>=3.4.0  # For plotting sensor data and movements

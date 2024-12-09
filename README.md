@@ -1,6 +1,16 @@
-# DexHand Control Interface
+# DexHand Python Interface
 
 Python interface for controlling dexterous robotic hands over CANFD using ZLG USBCANFD adapters. Provides both direct control and ROS2 integration.
+
+## Overview
+
+This package provides:
+
+- CANFD communication interface for DexHand hardware
+- Joint-space control interface with feedback processing
+- Built-in data logging and visualization tools
+- ROS2 interface implementation
+- Hardware testing utilities
 
 ## Prerequisites
 
@@ -9,147 +19,183 @@ Python interface for controlling dexterous robotic hands over CANFD using ZLG US
 - ZLG USBCANFD adapter (tested with USBCANFD-200U)
 - ROS2 (optional, for ROS interface)
 
-Run `pip install -r requirements.txt` to install the required Python packages except for ROS2 dependencies.
+## Installation
 
-## Quickstart Guide
-
-### 1. USB Setup
-
-First, configure USB permissions for the CANFD adapter:
-
+1. Install the package:
 ```bash
-# Run the setup script (only needed once after connecting adapter)
-./setup_usb_can.sh
+pip install -e .
 ```
 
-### 2. Test Device Connection
-
-Use the basic test script to verify hardware communication:
-
+2. Configure USB permissions:
 ```bash
-# Test left hand only
-python test/test_dexhand.py --hands left
-
-# Test both hands
-python test/test_dexhand.py --hands left right
+sudo ./tools/setup_usb_can.sh
 ```
 
-The test script will run through a sequence of movements to verify proper operation.
+The setup script will:
+- Create a canbus group
+- Add your user to the group
+- Set up udev rules for the USBCANFD adapter
+- Configure appropriate permissions
 
-### 3. Interactive Control
+You may need to log out and back in for the changes to take effect.
 
-For manual testing and control, use the interactive interface:
+## Usage Examples
+
+### 1. Hardware Testing
+
+Run hardware tests:
 
 ```bash
-# Start interactive control of left hand
-python test/test_dexhand_interactive.py --hands left
+python tools/hardware_test/test_dexhand.py --hands right
 ```
 
-This launches an IPython shell with the hand interface loaded. Example commands:
+This should move the hand through a series of predefined motions.
+
+### 2. Interactive Testing
+
+Launch interactive control interface:
+
+```bash
+python tools/hardware_test/test_dexhand_interactive.py --hands right
+```
+
+This provides an IPython shell with initialized hand objects and helper functions.
+
+Example commands:
+```
+right_hand.move_joints(th_rot=30)  # Rotate thumb
+right_hand.move_joints(ff_mcp=60, ff_dip=60)  # Curl index finger
+right_hand.move_joints(ff_spr=20, control_mode=ControlMode.PROTECT_HALL_POSITION)  # Spread all fingers, with alternative control mode
+right_hand.get_feedback()
+right_hand.reset_joints()
+right_hand.clear_errors()    # Clear all error states
+```
+
+You can explore the API with tab completion and help commands.
+
+
+### 3. ROS2 Integration
+
+```bash
+# Start node with default config
+python examples/ros2_demo/dexhand_ros2.py
+
+# Test movements with an example publisher
+python examples/ros2_demo/dexhand_ros2_test.py --hands right --cycle-time 3.0
+```
+
+### 4. Programming Interface
+
+Example code:
 
 ```python
-# Move individual joints
-left_hand.move_joints(thumb_rot=30)
-left_hand.move_joints(finger_spread=20)
+from pyzlg_dexhand import LeftDexHand, RightDexHand, ControlMode
 
-# Reset to default position
-left_hand.reset_joints()
+# Initialize hand
+hand = RightDexHand()
+hand.init()
 
-# Clear any errors
-left_hand.clear_errors()
+# Move thumb
+hand.move_joints(
+    th_rot=30,  # Thumb rotation (0-150 degrees)
+    th_mcp=45,  # Thumb MCP flexion (0-90 degrees)
+    th_dip=45,  # Thumb coupled distal flexion
+    control_mode=ControlMode.CASCADED_PID
+)
+
+# Get feedback
+feedback = hand.get_feedback()
+print(f"Thumb angle: {feedback.joints['th_rot'].angle}")
+print(f"Tactile force: {feedback.tactile['th'].normal_force}")
 ```
 
-### 4. ROS2 Interface
+## Architecture
 
-For integration with ROS2 applications:
+### Core Components
 
-```bash
-# Start ROS2 node with the default configuration (see config/ros_node.yaml for the configuration options)
-python dexhand_ros2.py
+#### 1. ZCAN Layer (zcan.py)
 
-# Test hand movements using ROS2 test node
-python test/dexhand_ros2_test.py --hands right --cycle-time 3.0
+- Raw CANFD frame handling
+- Hardware initialization
+- Error handling
+- Message filtering
+
+#### 2. Protocol Layer (dexhand_protocol/)
+
+- Command encoding/decoding
+- Message parsing
+- Error detection
+- Feedback processing
+
+#### 3. Interface Layer (dexhand_interface.py)
+
+- High-level control API
+- Joint space mapping
+- Feedback processing
+- Error recovery
+
+### Applications
+
+The package includes example applications built using the core interface:
+
+- ROS2 interface (examples/ros2_demo/)
+- Hardware testing tools (tools/hardware_test/)
+- Interactive testing shell
+
+## Data Logging
+
+Built-in logging for analysis and debugging:
+
+```python
+from pyzlg_dexhand import DexHandLogger
+
+# Initialize logger
+logger = DexHandLogger()
+
+# Log commands and feedback
+logger.log_command(command_type, joint_commands, control_mode, hand)
+logger.log_feedback(feedback_data, hand)
+
+# Generate analysis
+logger.plot_session(show=True, save=True)
 ```
 
-The ROS2 node subscribes to `/joint_commands` for commands by default and provides a `/reset_hands` service.
-
-### 5. Python API
-
-For custom control and integration, refer to the interfaces provided by `src/dexhand_interface.py`.
-
-## Architecture Overview
-
-The project is organized in multiple abstraction layers:
-
-### 1. ZCAN Layer (zcan.py)
-- Lowest level interface to ZLG CANFD adapter
-- Handles raw CANFD frame construction and transmission
-- Maps C driver functions to Python interface
-- Key classes: `ZCAN`, `ZCANMessage`, `ZCANFDMessage`
-
-### 2. ZCAN Wrapper Layer (zcan_wrapper.py)
-- Provides high-level wrapper around ZCAN functionality
-- Handles device initialization and configuration
-- Manages message filtering and error handling
-- Converts between byte data and CANFD frames
-- Key class: `ZCANWrapper`
-
-### 3. DexHand Interface Layer (dexhand_interface.py)
-- Implements semantic hand control interface
-- Converts joint angles to CAN messages
-- Handles command scaling and feedback parsing
-- Provides both left and right hand implementations
-- Key classes: `DexHandBase`, `LeftDexHand`, `RightDexHand`
-
-### 4. ROS2 Interface Layer (dexhand_ros2.py)
-- Provides ROS2 integration
-- Maps between ROS joint states and hand commands
-- Implements command filtering and rate limiting
-- Handles multiple hand coordination
-- Key class: `DexHandNode`
+Logs include:
+- Joint commands and feedback
+- Tactile sensor data
+- Error states
+- Timing information
 
 ## Control Modes
 
-The following control modes are supported:
+Supported control modes:
 
 - `ZERO_TORQUE` (0x00): Motors disabled
 - `CURRENT` (0x11): Direct current control
 - `SPEED` (0x22): Velocity control
 - `HALL_POSITION` (0x33): Position control using hall sensors
 - `CASCADED_PID` (0x44): Cascaded position/velocity control
-- `PROTECT_HALL_POSITION` (0x55): Protected position control
+- `PROTECT_HALL_POSITION` (0x55): Protected position control with limits
 
-## Data Logging
+## Configuration
 
-The system includes built-in logging functionality:
+Configuration files in `config/`:
 
-```python
-# Initialize logger
-logger = DexHandLogger()
-
-# Log commands and feedback
-logger.log_command(positions, enables, control_mode, success, hand)
-logger.log_feedback(feedback_data, hand)
-
-# Generate plots
-logger.plot_session(show=True, save=True)
-```
-
-Logs are saved in `dexhand_logs/` with timestamps and can be visualized using the included plotting tools.
+- `left_hand.yaml`: Left hand parameters
+- `right_hand.yaml`: Right hand parameters
+- `ros_node.yaml`: ROS2 node settings
 
 ## Contributing
 
-When contributing to this project:
-
-1. Follow the existing code structure and abstraction layers
-2. Add appropriate error handling and logging
-3. Update tests as needed
-4. Document new features or changes
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/improvement`)
+3. Follow the existing code structure and documentation
+4. Add appropriate error handling and logging
+5. Update tests as needed
+6. Submit a pull request
 
 ## License
 
 This project is licensed under the Apache License 2.0 - see the LICENSE file for details.
-
-While this software is primarily designed for use with DexHand products, it is open source and we welcome contributions from the community. Whether you're fixing bugs, improving documentation, or adding new features, please feel free to submit pull requests.
 
 Note: This software is provided as-is. While we strive to maintain compatibility with DexHand products, use this software at your own risk.
