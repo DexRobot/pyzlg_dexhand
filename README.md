@@ -181,9 +181,7 @@ Supported control modes:
 
 Configuration files in `config/`:
 
-- `left_hand.yaml`: Left hand parameters
-- `right_hand.yaml`: Right hand parameters
-- `ros_node.yaml`: ROS2 node settings
+- `config.yaml`: Left/Right hand parameters, ROS2 node settings, and ZCAN configuration
 
 ## Contributing
 

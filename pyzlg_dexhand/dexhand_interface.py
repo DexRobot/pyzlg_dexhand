@@ -11,50 +11,72 @@ import time
 from .zcan_wrapper import ZCANWrapper
 from . import dexhand_protocol as protocol
 from .dexhand_protocol import BoardID
-from .dexhand_protocol.commands import ControlMode, MotorCommand, ClearErrorCommand, FeedbackConfigCommand, FeedbackMode
-from .dexhand_protocol.messages import BoardFeedback, ErrorInfo, MessageType, ProcessedMessage
+from .dexhand_protocol.commands import (
+    ControlMode,
+    MotorCommand,
+    ClearErrorCommand,
+    FeedbackConfigCommand,
+    FeedbackMode,
+)
+from .dexhand_protocol.messages import (
+    BoardFeedback,
+    ErrorInfo,
+    MessageType,
+    ProcessedMessage,
+)
 
 
 logger = logging.getLogger(__name__)
 
+
 @dataclass
 class HandConfig:
     """Configuration for hand hardware"""
-    channel: int             # CAN channel number
+
+    channel: int  # CAN channel number
     hall_scale: List[float]  # Scale coefficients for hall position modes
+
 
 @dataclass
 class BoardState:
     """Feedback and Error collected for a single board."""
-    feedback_timestamp: float   # Timestamp of last feedback
-    status_timestamp: float     # Timestamp of last status (normal / error) update
-    is_normal: bool             # True if board is in normal state
+
+    feedback_timestamp: float  # Timestamp of last feedback
+    status_timestamp: float  # Timestamp of last status (normal / error) update
+    is_normal: bool  # True if board is in normal state
     feedback: Optional[BoardFeedback] = None  # Last feedback received
-    error_info: Optional[ErrorInfo] = None  # Error information if board is in error state
+    error_info: Optional[ErrorInfo] = (
+        None  # Error information if board is in error state
+    )
 
 
 @dataclass
 class JointFeedback:
     """Feedback for a specific joint command"""
-    timestamp: float     # When feedback was received
-    angle: float         # Joint angle in degrees
-    encoder_position: Optional[int] = None       # Encoder position in raw units
+
+    timestamp: float  # When feedback was received
+    angle: float  # Joint angle in degrees
+    encoder_position: Optional[int] = None  # Encoder position in raw units
+
 
 @dataclass
 class StampedTactileFeedback:
     """Timestamped tactile feedback for a fingertip"""
-    timestamp: float           # When feedback was received
-    normal_force: float       # Normal force in N
-    normal_force_delta: int   # Change in normal force (raw units)
-    tangential_force: float   # Tangential force in N
+
+    timestamp: float  # When feedback was received
+    normal_force: float  # Normal force in N
+    normal_force_delta: int  # Change in normal force (raw units)
+    tangential_force: float  # Tangential force in N
     tangential_force_delta: int  # Change in tangential force (raw units)
-    direction: int            # Force direction (0-359 degrees, fingertip is 0)
-    proximity: int           # Proximity value (raw units)
-    temperature: int         # Temperature in Celsius
+    direction: int  # Force direction (0-359 degrees, fingertip is 0)
+    proximity: int  # Proximity value (raw units)
+    temperature: int  # Temperature in Celsius
+
 
 @dataclass
 class HandFeedback:
     """Feedback data for whole hand"""
+
     query_timestamp: float  # When feedback was requested
     joints: Dict[str, JointFeedback]  # Feedback per joint
     tactile: Dict[str, StampedTactileFeedback]  # Tactile data per fingertip
@@ -64,25 +86,31 @@ class DexHandBase:
     """Base class for dexterous hand control"""
 
     NUM_MOTORS = 12  # Total motors in hand
-    NUM_BOARDS = 6   # Number of control boards
+    NUM_BOARDS = 6  # Number of control boards
 
     joint_names = [
-        'th_dip', 'th_mcp',     # Board 0: Thumb
-        'th_rot', 'ff_spr',     # Board 1: Thumb rotation & spread
-        'ff_dip', 'ff_mcp',     # Board 2: First finger
-        'mf_dip', 'mf_mcp',     # Board 3: Middle finger
-        'rf_dip', 'rf_mcp',     # Board 4: Ring finger
-        'lf_dip', 'lf_mcp'      # Board 5: Little finger
+        "th_dip",
+        "th_mcp",  # Board 0: Thumb
+        "th_rot",
+        "ff_spr",  # Board 1: Thumb rotation & spread
+        "ff_dip",
+        "ff_mcp",  # Board 2: First finger
+        "mf_dip",
+        "mf_mcp",  # Board 3: Middle finger
+        "rf_dip",
+        "rf_mcp",  # Board 4: Ring finger
+        "lf_dip",
+        "lf_mcp",  # Board 5: Little finger
     ]
     finger_map = {
-        0: 'th',
-        2: 'ff',
-        3: 'mf',
-        4: 'rf',
-        5: 'lf'
-    }    # Map from board index to finger name
+        0: "th",
+        2: "ff",
+        3: "mf",
+        4: "rf",
+        5: "lf",
+    }  # Map from board index to finger name
 
-    def __init__(self, config_path: str, base_id: int, zcan: Optional[ZCANWrapper] = None):
+    def __init__(self, config: dict, base_id: int, zcan: Optional[ZCANWrapper] = None):
         """Initialize dexterous hand interface
 
         Args:
@@ -90,7 +118,10 @@ class DexHandBase:
             base_id: Base board ID (0x01 for left, 0x07 for right)
             zcan: Optional existing ZCANWrapper instance to share between hands
         """
-        self.config = self._load_config(config_path)
+        print(config)
+        self.config = HandConfig(
+            channel=config["channel"], hall_scale=config["hall_scale"]
+        )
         self.base_id = base_id
         self.zcan = zcan if zcan else ZCANWrapper()
         self._owns_zcan = zcan is None
@@ -105,30 +136,30 @@ class DexHandBase:
                 feedback=None,
                 status_timestamp=0,
                 is_normal=True,
-                error_info=None
-            ) for i in range(self.NUM_BOARDS)
+                error_info=None,
+            )
+            for i in range(self.NUM_BOARDS)
         }
 
+    # def _load_config(self, config_path: str) -> HandConfig:
+    #     """Load hand configuration from YAML file"""
+    #     path = Path(config_path)
+    #     if not path.exists():
+    #         raise FileNotFoundError(f"Config file not found: {config_path}")
 
-    def _load_config(self, config_path: str) -> HandConfig:
-        """Load hand configuration from YAML file"""
-        path = Path(config_path)
-        if not path.exists():
-            raise FileNotFoundError(f"Config file not found: {config_path}")
+    #     with open(path) as f:
+    #         config = yaml.safe_load(f)
 
-        with open(path) as f:
-            config = yaml.safe_load(f)
+    #     # Validate config
+    #     required_keys = {"channel", "hall_scale"}
+    #     missing = required_keys - set(config.keys())
+    #     if missing:
+    #         raise ValueError(f"Missing required keys in config: {missing}")
 
-        # Validate config
-        required_keys = {'channel', 'hall_scale'}
-        missing = required_keys - set(config.keys())
-        if missing:
-            raise ValueError(f"Missing required keys in config: {missing}")
+    #     if len(config["hall_scale"]) != self.NUM_MOTORS:
+    #         raise ValueError(f"Expected {self.NUM_MOTORS} hall scale coefficients")
 
-        if len(config['hall_scale']) != self.NUM_MOTORS:
-            raise ValueError(f"Expected {self.NUM_MOTORS} hall scale coefficients")
-
-        return HandConfig(**config)
+    #     return HandConfig(**config)
 
     def _init_hall_scaling(self):
         """Initialize scaling factors for hall position modes"""
@@ -167,7 +198,9 @@ class DexHandBase:
             raise ValueError(f"Invalid board index: {board_idx}")
         return msg_type + self.base_id + board_idx
 
-    def set_feedback_mode(self, mode: FeedbackMode, period_ms: int, enable: bool) -> bool:
+    def set_feedback_mode(
+        self, mode: FeedbackMode, period_ms: int, enable: bool
+    ) -> bool:
         """Configure feedback mode for all boards
 
         Args:
@@ -179,11 +212,7 @@ class DexHandBase:
             bool: True if command sent successfully
         """
         # Create and encode command
-        command = FeedbackConfigCommand(
-            mode=mode,
-            period_ms=period_ms,
-            enable=enable
-        )
+        command = FeedbackConfigCommand(mode=mode, period_ms=period_ms, enable=enable)
 
         try:
             msg_type, data = protocol.commands.encode_command(command)
@@ -195,18 +224,21 @@ class DexHandBase:
         for board_idx in range(self.NUM_BOARDS):
             command_id = self._get_command_id(msg_type, board_idx)
             if not self.zcan.send_fd_message(self.config.channel, command_id, data):
-                logger.error(f"Failed to send feedback config command to board {board_idx}")
+                logger.error(
+                    f"Failed to send feedback config command to board {board_idx}"
+                )
                 return False
 
         return True
 
-
-    def _send_motion_command(self,
-                    board_idx: int,
-                    motor1_pos: int,
-                    motor2_pos: int,
-                    motor_enable: int = 0x03,
-                    control_mode: ControlMode = ControlMode.CASCADED_PID) -> bool:
+    def _send_motion_command(
+        self,
+        board_idx: int,
+        motor1_pos: int,
+        motor2_pos: int,
+        motor_enable: int = 0x03,
+        control_mode: ControlMode = ControlMode.CASCADED_PID,
+    ) -> bool:
         """Send a motion command to a specific board
 
         Args:
@@ -224,7 +256,7 @@ class DexHandBase:
             control_mode=control_mode,
             motor_enable=motor_enable,
             motor1_pos=motor1_pos,
-            motor2_pos=motor2_pos
+            motor2_pos=motor2_pos,
         )
 
         try:
@@ -242,8 +274,7 @@ class DexHandBase:
         return True
 
     def _refresh_board_states(self):
-        """Receive CANFD frames to update the states for all boards.
-        """
+        """Receive CANFD frames to update the states for all boards."""
         # Get all messages
         messages = self.zcan.receive_fd_messages(self.config.channel)
 
@@ -261,8 +292,13 @@ class DexHandBase:
                     self.board_states[board_idx].is_normal = False
                     self.board_states[board_idx].error_info = result.error
                 elif result.msg_type == MessageType.CONFIG_RESPONSE:
-                    success, command_type = protocol.messages.verify_config_response(msg_id, data)
-                    if success and command_type == protocol.commands.CommandType.CLEAR_ERROR:
+                    success, command_type = protocol.messages.verify_config_response(
+                        msg_id, data
+                    )
+                    if (
+                        success
+                        and command_type == protocol.commands.CommandType.CLEAR_ERROR
+                    ):
                         self.board_states[board_idx].error_info = None
                         self.board_states[board_idx].is_normal = True
             except ValueError as e:
@@ -289,20 +325,22 @@ class DexHandBase:
 
         return True
 
-    def move_joints(self,
-                th_rot: Optional[float] = None,   # thumb rotation
-                th_mcp: Optional[float] = None,   # thumb metacarpophalangeal
-                th_dip: Optional[float] = None,   # thumb coupled distal joints
-                ff_spr: Optional[float] = None,   # four-finger spread
-                ff_mcp: Optional[float] = None,   # first finger metacarpophalangeal
-                ff_dip: Optional[float] = None,   # first finger coupled distal joints
-                mf_mcp: Optional[float] = None,   # middle finger metacarpophalangeal
-                mf_dip: Optional[float] = None,   # middle finger coupled distal joints
-                rf_mcp: Optional[float] = None,   # ring finger metacarpophalangeal
-                rf_dip: Optional[float] = None,   # ring finger coupled distal joints
-                lf_mcp: Optional[float] = None,   # little finger metacarpophalangeal
-                lf_dip: Optional[float] = None,   # little finger coupled distal joints
-                control_mode: ControlMode = ControlMode.CASCADED_PID):
+    def move_joints(
+        self,
+        th_rot: Optional[float] = None,  # thumb rotation
+        th_mcp: Optional[float] = None,  # thumb metacarpophalangeal
+        th_dip: Optional[float] = None,  # thumb coupled distal joints
+        ff_spr: Optional[float] = None,  # four-finger spread
+        ff_mcp: Optional[float] = None,  # first finger metacarpophalangeal
+        ff_dip: Optional[float] = None,  # first finger coupled distal joints
+        mf_mcp: Optional[float] = None,  # middle finger metacarpophalangeal
+        mf_dip: Optional[float] = None,  # middle finger coupled distal joints
+        rf_mcp: Optional[float] = None,  # ring finger metacarpophalangeal
+        rf_dip: Optional[float] = None,  # ring finger coupled distal joints
+        lf_mcp: Optional[float] = None,  # little finger metacarpophalangeal
+        lf_dip: Optional[float] = None,  # little finger coupled distal joints
+        control_mode: ControlMode = ControlMode.CASCADED_PID,
+    ):
         """Move hand joints to specified angles.
 
         For each finger, there are two independent DOFs:
@@ -333,12 +371,18 @@ class DexHandBase:
 
         # Map joint angles to motor commands
         motor_angles = [
-            th_dip, th_mcp,      # Board 0
-            th_rot, ff_spr,      # Board 1
-            ff_dip, ff_mcp,      # Board 2
-            mf_dip, mf_mcp,      # Board 3
-            rf_dip, rf_mcp,      # Board 4
-            lf_dip, lf_mcp       # Board 5
+            th_dip,
+            th_mcp,  # Board 0
+            th_rot,
+            ff_spr,  # Board 1
+            ff_dip,
+            ff_mcp,  # Board 2
+            mf_dip,
+            mf_mcp,  # Board 3
+            rf_dip,
+            rf_mcp,  # Board 4
+            lf_dip,
+            lf_mcp,  # Board 5
         ]
 
         # Scale angles and create enable mask
@@ -352,7 +396,7 @@ class DexHandBase:
 
         for board_idx in range(self.NUM_BOARDS):
             base_idx = board_idx * 2
-            if any(enables[base_idx:base_idx + 2]):
+            if any(enables[base_idx : base_idx + 2]):
                 motor_enable = 0x01 if enables[base_idx] else 0
                 motor_enable |= 0x02 if enables[base_idx + 1] else 0
                 success = self._send_motion_command(
@@ -390,7 +434,7 @@ class DexHandBase:
                     joint_idx = base_idx + i
                     joint_feedback[self.joint_names[joint_idx]] = JointFeedback(
                         timestamp=timestamp,
-                        angle=float('nan'),
+                        angle=float("nan"),
                         encoder_position=None,
                     )
                 continue
@@ -408,15 +452,16 @@ class DexHandBase:
             # Process tactile feedback if available
             if state.feedback.tactile is not None:
                 if board_idx in self.finger_map:
-                    tactile_feedback[self.finger_map[board_idx]] = StampedTactileFeedback(
-                        timestamp=timestamp,
-                        **asdict(state.feedback.tactile)
+                    tactile_feedback[self.finger_map[board_idx]] = (
+                        StampedTactileFeedback(
+                            timestamp=timestamp, **asdict(state.feedback.tactile)
+                        )
                     )
 
         return HandFeedback(
             query_timestamp=query_timestamp,
             joints=joint_feedback,
-            tactile=tactile_feedback
+            tactile=tactile_feedback,
         )
 
     def get_errors(self) -> Dict[int, Optional[ErrorInfo]]:
@@ -437,9 +482,14 @@ class DexHandBase:
             if clear_all or not self.board_states[board_idx].is_normal:
                 self._clear_board_error(board_idx)
 
-    def _scale_angle(self, motor_idx: int, angle: float, control_mode: ControlMode) -> int:
+    def _scale_angle(
+        self, motor_idx: int, angle: float, control_mode: ControlMode
+    ) -> int:
         """Scale angle based on control mode"""
-        if control_mode in (ControlMode.HALL_POSITION, ControlMode.PROTECT_HALL_POSITION):
+        if control_mode in (
+            ControlMode.HALL_POSITION,
+            ControlMode.PROTECT_HALL_POSITION,
+        ):
             return int(angle * self._hall_scale[motor_idx])
         else:
             # For cascaded PID mode, scale to 100x for hardware units
@@ -452,12 +502,19 @@ class DexHandBase:
         Uses CASCADED_PID control mode.
         """
         self.move_joints(
-            th_rot=0, th_mcp=0, th_dip=0,
-            ff_spr=0, ff_mcp=0, ff_dip=0,
-            mf_mcp=0, mf_dip=0,
-            rf_mcp=0, rf_dip=0,
-            lf_mcp=0, lf_dip=0,
-            control_mode=ControlMode.CASCADED_PID
+            th_rot=0,
+            th_mcp=0,
+            th_dip=0,
+            ff_spr=0,
+            ff_mcp=0,
+            ff_dip=0,
+            mf_mcp=0,
+            mf_dip=0,
+            rf_mcp=0,
+            rf_dip=0,
+            lf_mcp=0,
+            lf_dip=0,
+            control_mode=ControlMode.CASCADED_PID,
         )
 
     def close(self):
@@ -465,14 +522,34 @@ class DexHandBase:
         if self._owns_zcan:
             self.zcan.close()
 
+
 class LeftDexHand(DexHandBase):
     """Control interface for left dexterous hand"""
+
     def __init__(self, zcan: Optional[ZCANWrapper] = None):
-        config_path = os.path.join(os.path.dirname(__file__), "../config/left_hand.yaml")
-        super().__init__(config_path, BoardID.LEFT_HAND_BASE, zcan)
+        config_path = os.path.join(
+            os.path.dirname(__file__), "../config", "config.yaml"
+        )
+        with open(config_path, "r") as f:
+            config = yaml.safe_load(f)
+        super().__init__(
+            config["DexHand"]["left_hand"],
+            BoardID.LEFT_HAND_BASE,
+            zcan,
+        )
+
 
 class RightDexHand(DexHandBase):
     """Control interface for right dexterous hand"""
+
     def __init__(self, zcan: Optional[ZCANWrapper] = None):
-        config_path = os.path.join(os.path.dirname(__file__), "../config/right_hand.yaml")
-        super().__init__(config_path, BoardID.RIGHT_HAND_BASE, zcan)
+        config_path = os.path.join(
+            os.path.dirname(__file__), "../config", "config.yaml"
+        )
+        with open(config_path, "r") as f:
+            config = yaml.safe_load(f)
+        super().__init__(
+            config["DexHand"]["right_hand"],
+            BoardID.RIGHT_HAND_BASE,
+            zcan,
+        )
