@@ -594,7 +594,6 @@ class DexHandTester:
                 joint_results[joint_name].append(result)
 
             for joint_name, results in joint_results.items():
-                print(joint_name)
                 f.write(f"\n{joint_name}:\n")
 
                 # Forward movement

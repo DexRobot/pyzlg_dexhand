@@ -183,6 +183,8 @@ Configuration files in `config/`:
 
 - `config.yaml`: Left/Right hand parameters, ROS2 node settings, and ZCAN configuration
 
+> Please change the right Channel ID to match your hardware setup.
+
 ## Contributing
 
 1. Fork the repository

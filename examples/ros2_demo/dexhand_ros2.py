@@ -265,19 +265,11 @@ class DexHandNode(Node):
 
 
 def main():
-    # Parse command line arguments
-    parser = argparse.ArgumentParser(description="DexHand ROS2 Node")
-    default_config = os.path.join(
-        os.path.dirname(__file__), "../../config", "ros_node.yaml"
-    )
-    parser.add_argument(
-        "--config", type=str, default=default_config, help="Path to configuration file"
-    )
-    args = parser.parse_args()
+    config_path = os.path.join(os.path.dirname(__file__), "../../config", "config.yaml")
 
     # Load configuration
     try:
-        with open(args.config, "r") as f:
+        with open(config_path, "r") as f:
             config = yaml.safe_load(f)
     except Exception as e:
         print(f"Error loading config file: {e}")

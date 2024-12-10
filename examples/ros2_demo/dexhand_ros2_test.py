@@ -1,4 +1,6 @@
 #!/usr/bin/env python3
+import os
+import yaml
 import rclpy
 from rclpy.node import Node
 from sensor_msgs.msg import JointState
@@ -298,27 +300,23 @@ class DexHandTestNode(Node):
 
 
 def main():
-    parser = argparse.ArgumentParser(description="DexHand Test Node")
-    parser.add_argument(
-        "--hands",
-        nargs="+",
-        choices=["left", "right"],
-        required=True,
-        help="Which hands to test",
-    )
-    parser.add_argument(
-        "--cycle-time",
-        type=float,
-        default=3.0,
-        help="Time for each movement cycle (seconds)",
-    )
+    config_path = os.path.join(os.path.dirname(__file__), "../../config", "config.yaml")
 
-    args = parser.parse_args()
+    # Load configuration
+    try:
+        with open(config_path, "r") as f:
+            config = yaml.safe_load(f)
+    except Exception as e:
+        print(f"Error loading config file: {e}")
+        return
 
     rclpy.init()
 
     try:
-        node = DexHandTestNode(hands=args.hands, cycle_time=args.cycle_time)
+        node = DexHandTestNode(
+            hands=config["DexHand"]["ROS_Node"]["hands"],
+            cycle_time=config["DexHand"]["ROS_Node"]["cycle_time"],
+        )
         rclpy.spin(node)
     except KeyboardInterrupt:
         pass

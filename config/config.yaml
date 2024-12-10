@@ -7,9 +7,9 @@ DexHand:
     channel: 0
     hall_scale: [2.1, 2.1, 1.8, 4.0, 2.2, 1.6, 2.2, 1.6, 2.2, 1.6, 2.2, 1.6]  # Scale coefficients for hall position modes (0x33/0x55)
 
-  # TODO: Wait for testing
   ROS_Node:
-    hands: ['right']  # List of hands to control: 'left', 'right', or both
+    hands: ['left']  # List of hands to control: 'left', 'right', or both
+    cycle_time: 3.0   # Time for each movement cycle (seconds)
     mock: False       # Use mock hardware instead of real hardware
 
     # Control parameters

@@ -118,7 +118,6 @@ class DexHandBase:
             base_id: Base board ID (0x01 for left, 0x07 for right)
             zcan: Optional existing ZCANWrapper instance to share between hands
         """
-        print(config)
         self.config = HandConfig(
             channel=config["channel"], hall_scale=config["hall_scale"]
         )
@@ -140,26 +139,6 @@ class DexHandBase:
             )
             for i in range(self.NUM_BOARDS)
         }
-
-    # def _load_config(self, config_path: str) -> HandConfig:
-    #     """Load hand configuration from YAML file"""
-    #     path = Path(config_path)
-    #     if not path.exists():
-    #         raise FileNotFoundError(f"Config file not found: {config_path}")
-
-    #     with open(path) as f:
-    #         config = yaml.safe_load(f)
-
-    #     # Validate config
-    #     required_keys = {"channel", "hall_scale"}
-    #     missing = required_keys - set(config.keys())
-    #     if missing:
-    #         raise ValueError(f"Missing required keys in config: {missing}")
-
-    #     if len(config["hall_scale"]) != self.NUM_MOTORS:
-    #         raise ValueError(f"Expected {self.NUM_MOTORS} hall scale coefficients")
-
-    #     return HandConfig(**config)
 
     def _init_hall_scaling(self):
         """Initialize scaling factors for hall position modes"""
