@@ -1,0 +1,24 @@
+DexHand:
+  # Configuration for left/right dexterous hand
+  left_hand:
+    channel: 0
+    hall_scale: [2.1, 2.1, 1.8, 4.0, 2.2, 1.6, 2.2, 1.6, 2.2, 1.6, 2.2, 1.6]  # Scale coefficients for hall position modes (0x33/0x55)
+  right_hand:
+    channel: 0
+    hall_scale: [2.1, 2.1, 1.8, 4.0, 2.2, 1.6, 2.2, 1.6, 2.2, 1.6, 2.2, 1.6]  # Scale coefficients for hall position modes (0x33/0x55)
+
+  ROS_Node:
+    hands: ['left']  # List of hands to control: 'left', 'right', or both
+    cycle_time: 3.0   # Time for each movement cycle (seconds)
+    mock: False       # Use mock hardware instead of real hardware
+
+    # Control parameters
+    rate: 100.0  # Command sending rate in Hz
+    mode: 'cascaded_pid'  # Control mode: zero_torque, current, speed, hall_position, cascaded_pid, protect_hall_position
+    alpha: 0.1  # Low-pass filter intensity (0-1)
+
+    # ROS2 configuration
+    topic: '/joint_commands'  # Topic to subscribe for joint commands
+
+  ZCANDeviceType: "ZCAN_USBCANFD_100U"  # ZCAN_USBCANFD_100U/ZCAN_USBCANFD_200U
+

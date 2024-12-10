@@ -1,9 +1,18 @@
+import os
+import sys
+import yaml
 import argparse
 from typing import List
 from IPython import embed
-import sys
-import os
-from pyzlg_dexhand.dexhand_interface import LeftDexHand, RightDexHand, ControlMode, ZCANWrapper, FeedbackMode
+
+from pyzlg_dexhand.dexhand_interface import (
+    LeftDexHand,
+    RightDexHand,
+    ControlMode,
+    ZCANWrapper,
+    FeedbackMode,
+)
+
 
 def initialize_hands(hand_names: List[str]) -> dict:
     """Initialize specified hands and return a dictionary of instances"""
@@ -18,9 +27,9 @@ def initialize_hands(hand_names: List[str]) -> dict:
             return {}
 
     for name in hand_names:
-        if name == 'left':
+        if name == "left":
             hand = LeftDexHand(zcan)
-        elif name == 'right':
+        elif name == "right":
             hand = RightDexHand(zcan)
         else:
             raise ValueError(f"Unknown hand name: {name}")
@@ -34,12 +43,17 @@ def initialize_hands(hand_names: List[str]) -> dict:
 
     return hands_dict
 
+
 def main():
     parser = argparse.ArgumentParser(description="Interactive dexterous hand control")
-    parser.add_argument('--hands', nargs='+', choices=['left', 'right'], default=['left'],
-                        help='Which hands to initialize (default: left)')
+    parser.add_argument(
+        "--hands",
+        nargs="+",
+        choices=["left", "right"],
+        default=["left"],
+        help="Which hands to initialize (default: left)",
+    )
     args = parser.parse_args()
-
     # Initialize hands
     hands = initialize_hands(args.hands)
 
@@ -49,12 +63,12 @@ def main():
 
     # Create globals dict for IPython
     globals_dict = {
-        'ControlMode': ControlMode,
-        'FeedbackMode': FeedbackMode,
-        'hands': hands,
+        "ControlMode": ControlMode,
+        "FeedbackMode": FeedbackMode,
+        "hands": hands,
     }
     for i, hand in enumerate(hands):
-        globals_dict[f'{args.hands[i]}_hand'] = hands[hand]
+        globals_dict[f"{args.hands[i]}_hand"] = hands[hand]
 
     print("Hands initialized. Entering IPython shell...")
     print("Available globals:")
@@ -80,14 +94,26 @@ def main():
 
     print("\nExample Commands:")
     print("  Move joints:")
-    print(f"    {args.hands[i]}_hand.move_joints(th_rot=30, th_mcp=45)        # Move thumb")
-    print(f"    {args.hands[i]}_hand.move_joints(ff_spr=20)                   # Spread fingers")
-    print(f"    {args.hands[i]}_hand.move_joints(ff_mcp=90, ff_dip=90, control_mode=ControlMode.PROTECT_HALL_POSITION)       # Curl index finger using the protected hall position control mode")
+    print(
+        f"    {args.hands[i]}_hand.move_joints(th_rot=30, th_mcp=45)        # Move thumb"
+    )
+    print(
+        f"    {args.hands[i]}_hand.move_joints(ff_spr=20)                   # Spread fingers"
+    )
+    print(
+        f"    {args.hands[i]}_hand.move_joints(ff_mcp=90, ff_dip=90, control_mode=ControlMode.PROTECT_HALL_POSITION)       # Curl index finger using the protected hall position control mode"
+    )
 
     print("\n  Other commands:")
-    print(f"    {args.hands[i]}_hand.reset_joints()           # Move all joints to zero position")
-    print(f"    {args.hands[i]}_hand.get_feedback()           # Get current joint and tactile feedback")
-    print(f"    {args.hands[i]}_hand.clear_all_errors()           # Clear any error states")
+    print(
+        f"    {args.hands[i]}_hand.reset_joints()           # Move all joints to zero position"
+    )
+    print(
+        f"    {args.hands[i]}_hand.get_feedback()           # Get current joint and tactile feedback"
+    )
+    print(
+        f"    {args.hands[i]}_hand.clear_all_errors()           # Clear any error states"
+    )
 
     embed(user_ns=globals_dict)
 
@@ -97,5 +123,6 @@ def main():
         hand.close()
     print("Exiting")
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     main()

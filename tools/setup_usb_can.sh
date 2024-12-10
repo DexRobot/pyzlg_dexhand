@@ -38,8 +38,20 @@ fi
 
 # Create/update udev rule
 UDEV_RULE_FILE="/etc/udev/rules.d/99-zlg-can.rules"
-UDEV_RULE='# ZLG USBCANFD-200U
-SUBSYSTEM=="usb", ATTRS{idVendor}=="3068", ATTRS{idProduct}=="0009", GROUP="canbus", MODE="0660"'
+
+# Detect the CAN device model
+CAN_DEVICE_MODEL=""
+if lsusb | grep -q "USBCANFD-100U"; then
+    CAN_DEVICE_MODEL="USBCANFD-100U"
+    echo "Detected ZLG USBCAN device model: USBCANFD-100U"
+elif lsusb | grep -q "USBCANFD-200U"; then
+    CAN_DEVICE_MODEL="USBCANFD-200U"
+    echo "Detected ZLG USBCAN device model: USBCANFD-200U"
+else
+    echo "WARNING: No ZLG USBCAN device currently connected"
+    echo "Permissions will be applied when device is plugged in"
+    exit 0
+fi
 
 if [ ! -f "$UDEV_RULE_FILE" ] || ! grep -q "idVendor.*3068" "$UDEV_RULE_FILE"; then
     echo "Creating udev rule..."

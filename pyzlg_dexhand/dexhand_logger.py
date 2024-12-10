@@ -13,30 +13,39 @@ from contextlib import contextmanager
 
 from .dexhand_interface import (
     ControlMode,
-    HandFeedback, StampedTactileFeedback, JointFeedback
+    HandFeedback,
+    StampedTactileFeedback,
+    JointFeedback,
 )
 
 logger = logging.getLogger(__name__)
 
+
 @dataclass
 class LogEntry:
     """Base class for log entries"""
+
     timestamp: float
     hand: str
     entry_type: str
 
+
 @dataclass
 class CommandLogEntry(LogEntry):
     """Log entry for a hand command"""
+
     command_type: str  # move_joints, reset_joints, etc.
     joint_commands: Dict[str, float]  # Joint name to commanded position
     control_mode: ControlMode
 
+
 @dataclass
 class FeedbackLogEntry(LogEntry):
     """Log entry for hand feedback"""
+
     joints: Dict[str, JointFeedback]  # Joint name to feedback
     tactile: Dict[str, StampedTactileFeedback]  # Fingertip name to tactile data
+
 
 class LogWriter(threading.Thread):
     """Background thread for writing log entries to files"""
@@ -49,9 +58,13 @@ class LogWriter(threading.Thread):
 
         # Keep file handles open
         self.files = {}
-        for hand in ['left', 'right']:
-            self.files[f"{hand}_commands"] = open(session_dir / f"{hand}_commands.jsonl", 'a')
-            self.files[f"{hand}_feedback"] = open(session_dir / f"{hand}_feedback.jsonl", 'a')
+        for hand in ["left", "right"]:
+            self.files[f"{hand}_commands"] = open(
+                session_dir / f"{hand}_commands.jsonl", "a"
+            )
+            self.files[f"{hand}_feedback"] = open(
+                session_dir / f"{hand}_feedback.jsonl", "a"
+            )
 
     def run(self):
         """Process log entries from queue"""
@@ -77,7 +90,7 @@ class LogWriter(threading.Thread):
 
         try:
             json.dump(asdict(entry), file)
-            file.write('\n')
+            file.write("\n")
             file.flush()  # Ensure data is written
         except Exception as e:
             logger.error(f"Error writing to file: {e}")
@@ -93,6 +106,7 @@ class LogWriter(threading.Thread):
                 file.close()
             except Exception as e:
                 logger.error(f"Error closing file: {e}")
+
 
 class DexHandLogger:
     """Logger for dexterous hand commands and feedback with background writing"""
@@ -116,24 +130,21 @@ class DexHandLogger:
         self.writer.start()
 
         # Initialize in-memory buffers with thread safety
-        self.command_buffers = {
-            'left': [],
-            'right': []
-        }
-        self.feedback_buffers = {
-            'left': [],
-            'right': []
-        }
+        self.command_buffers = {"left": [], "right": []}
+        self.feedback_buffers = {"left": [], "right": []}
         self.buffer_lock = threading.Lock()
 
         self.start_time = time.time()
         logger.info(f"Logging session started in {self.session_dir}")
 
-    def log_command(self, command_type: str,
-                   joint_commands: Dict[str, float],
-                   control_mode: ControlMode,
-                   hand: str,
-                   feedback: Optional[HandFeedback] = None):
+    def log_command(
+        self,
+        command_type: str,
+        joint_commands: Dict[str, float],
+        control_mode: ControlMode,
+        hand: str,
+        feedback: Optional[HandFeedback] = None,
+    ):
         """Log a command without blocking
 
         Args:
@@ -146,10 +157,10 @@ class DexHandLogger:
         entry = CommandLogEntry(
             timestamp=time.time() - self.start_time,
             hand=hand,
-            entry_type='command',
+            entry_type="command",
             command_type=command_type,
             joint_commands=joint_commands,
-            control_mode=control_mode
+            control_mode=control_mode,
         )
 
         # Add to buffer thread-safely
@@ -173,9 +184,9 @@ class DexHandLogger:
         entry = FeedbackLogEntry(
             timestamp=time.time() - self.start_time,
             hand=hand,
-            entry_type='feedback',
+            entry_type="feedback",
             joints=feedback.joints,
-            tactile=feedback.tactile
+            tactile=feedback.tactile,
         )
 
         # Add to buffer thread-safely
@@ -193,11 +204,12 @@ class DexHandLogger:
         """
         metadata_path = self.session_dir / "metadata.json"
         # Write metadata directly since this isn't in the critical path
-        with open(metadata_path, 'w') as f:
+        with open(metadata_path, "w") as f:
             json.dump(metadata, f, indent=2)
 
-    def plot_session(self, hands: Optional[List[str]] = None, show: bool = True,
-                    save: bool = True):
+    def plot_session(
+        self, hands: Optional[List[str]] = None, show: bool = True, save: bool = True
+    ):
         """Plot command and feedback data from the session
 
         This method should be called outside the control loop, typically
@@ -215,17 +227,15 @@ class DexHandLogger:
             return
 
         if hands is None:
-            hands = ['left', 'right']
+            hands = ["left", "right"]
 
         # Get thread-safe copy of buffers
         with self.buffer_lock:
             command_buffers = {
-                hand: self.command_buffers[hand].copy()
-                for hand in hands
+                hand: self.command_buffers[hand].copy() for hand in hands
             }
             feedback_buffers = {
-                hand: self.feedback_buffers[hand].copy()
-                for hand in hands
+                hand: self.feedback_buffers[hand].copy() for hand in hands
             }
 
         for hand in hands:
@@ -241,14 +251,18 @@ class DexHandLogger:
                 t = entry.timestamp
                 for joint, pos in entry.joint_commands.items():
                     if joint not in joint_data:
-                        joint_data[joint] = {'times': [], 'positions': []}
-                    joint_data[joint]['times'].append(t)
-                    joint_data[joint]['positions'].append(pos)
+                        joint_data[joint] = {"times": [], "positions": []}
+                    joint_data[joint]["times"].append(t)
+                    joint_data[joint]["positions"].append(pos)
 
             # Plot each joint
             for joint, data in joint_data.items():
-                plt.plot(data['times'], data['positions'],
-                        label=f"{joint} (cmd)", linestyle='--')
+                plt.plot(
+                    data["times"],
+                    data["positions"],
+                    label=f"{joint} (cmd)",
+                    linestyle="--",
+                )
 
                 # Plot matching feedback if available
                 fb_times = []
@@ -260,14 +274,14 @@ class DexHandLogger:
                 if fb_times:
                     plt.plot(fb_times, fb_pos, label=f"{joint} (actual)")
 
-            plt.xlabel('Time (s)')
-            plt.ylabel('Joint Angle (degrees)')
-            plt.title(f'{hand.title()} Hand Joint Commands and Feedback')
+            plt.xlabel("Time (s)")
+            plt.ylabel("Joint Angle (degrees)")
+            plt.title(f"{hand.title()} Hand Joint Commands and Feedback")
             plt.legend()
             plt.grid(True)
 
             if save:
-                plt.savefig(self.session_dir / f'{hand}_joints.png')
+                plt.savefig(self.session_dir / f"{hand}_joints.png")
 
             # Plot tactile feedback
             if any(entry.tactile for entry in feedback_buffers[hand]):
@@ -280,31 +294,41 @@ class DexHandLogger:
                     for finger, data in entry.tactile.items():
                         if finger not in tactile_data:
                             tactile_data[finger] = {
-                                'times': [],
-                                'normal_force': [],
-                                'tangential_force': []
+                                "times": [],
+                                "normal_force": [],
+                                "tangential_force": [],
                             }
-                        tactile_data[finger]['times'].append(t)
-                        tactile_data[finger]['normal_force'].append(data.normal_force)
-                        tactile_data[finger]['tangential_force'].append(data.tangential_force)
+                        tactile_data[finger]["times"].append(t)
+                        tactile_data[finger]["normal_force"].append(data.normal_force)
+                        tactile_data[finger]["tangential_force"].append(
+                            data.tangential_force
+                        )
 
                 # Plot each finger's tactile data
                 for finger, data in tactile_data.items():
-                    plt.plot(data['times'], data['normal_force'],
-                            label=f'{finger} normal', linestyle='-')
-                    plt.plot(data['times'], data['tangential_force'],
-                            label=f'{finger} tangential', linestyle='--')
+                    plt.plot(
+                        data["times"],
+                        data["normal_force"],
+                        label=f"{finger} normal",
+                        linestyle="-",
+                    )
+                    plt.plot(
+                        data["times"],
+                        data["tangential_force"],
+                        label=f"{finger} tangential",
+                        linestyle="--",
+                    )
 
-                plt.xlabel('Time (s)')
-                plt.ylabel('Force (N)')
-                plt.title(f'{hand.title()} Hand Tactile Feedback')
+                plt.xlabel("Time (s)")
+                plt.ylabel("Force (N)")
+                plt.title(f"{hand.title()} Hand Tactile Feedback")
                 plt.legend()
                 plt.grid(True)
 
                 if save:
-                    plt.savefig(self.session_dir / f'{hand}_tactile.png')
+                    plt.savefig(self.session_dir / f"{hand}_tactile.png")
 
-            plt.close('all')
+            plt.close("all")
 
         if show:
             plt.show()
@@ -314,21 +338,20 @@ class DexHandLogger:
         # Save summary statistics
         with self.buffer_lock:
             stats = {
-                'duration': time.time() - self.start_time,
-                'num_commands': {
-                    'left': len(self.command_buffers['left']),
-                    'right': len(self.command_buffers['right'])
+                "duration": time.time() - self.start_time,
+                "num_commands": {
+                    "left": len(self.command_buffers["left"]),
+                    "right": len(self.command_buffers["right"]),
                 },
-                'num_feedback': {
-                    'left': len(self.feedback_buffers['left']),
-                    'right': len(self.feedback_buffers['right'])
-                }
+                "num_feedback": {
+                    "left": len(self.feedback_buffers["left"]),
+                    "right": len(self.feedback_buffers["right"]),
+                },
             }
 
-        self.save_metadata({
-            'statistics': stats,
-            'timestamp': datetime.now().isoformat()
-        })
+        self.save_metadata(
+            {"statistics": stats, "timestamp": datetime.now().isoformat()}
+        )
 
         # Stop the writer thread and close files
         self.writer.stop()

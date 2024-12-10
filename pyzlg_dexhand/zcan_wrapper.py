@@ -1,4 +1,6 @@
+import os
 import time
+import yaml
 from typing import Optional, List, Tuple
 import logging
 from ctypes import c_uint8, c_uint32, c_void_p, sizeof, memset, byref, Structure
@@ -8,46 +10,61 @@ from dataclasses import dataclass
 from abc import ABC, abstractmethod
 from typing import Tuple, Dict
 from .zcan import (
-    ZCAN, ZCANDeviceType, ZCANStatus, ZCANMessageType,
-    ZCANMessageInfo, ZCANMessageHeader, ZCANMessage, ZCANFDMessage, ZCANCANFDInit, ZCANErrorMessage
+    ZCAN,
+    ZCANDeviceType,
+    ZCANStatus,
+    ZCANMessageType,
+    ZCANMessageInfo,
+    ZCANMessageHeader,
+    ZCANMessage,
+    ZCANFDMessage,
+    ZCANCANFDInit,
+    ZCANErrorMessage,
 )
 
 logger = logging.getLogger(__name__)
 
+
 @dataclass
 class ZCANFilterConfig:
     """Configuration for CAN message filtering"""
+
     type: int  # 0-std_frame, 1-ext_frame
     start_id: int
     end_id: int
 
+
 class ZCANFilter(Structure):
     """Low level filter configuration structure"""
+
     _fields_ = [
         ("type", c_uint8),
         ("pad", c_uint8 * 3),
         ("start_id", c_uint32),
-        ("end_id", c_uint32)
+        ("end_id", c_uint32),
     ]
+
 
 class ZCANFilterTable(Structure):
     """Table of CAN filters"""
-    _fields_ = [
-        ("size", c_uint32),
-        ("table", ZCANFilter * 64)
-    ]
+
+    _fields_ = [("size", c_uint32), ("table", ZCANFilter * 64)]
+
 
 @dataclass(frozen=True)
 class BitTimingConfig:
     """Bit timing configuration values"""
+
     tseg1: int
     tseg2: int
     sjw: int
     brp: int
 
+
 @dataclass(frozen=True)
 class CANFDTimingConfig:
     """Complete timing configuration for CANFD"""
+
     arb: BitTimingConfig  # Arbitration phase timing
     data: BitTimingConfig  # Data phase timing
 
@@ -55,6 +72,7 @@ class CANFDTimingConfig:
     def clock_hz(self) -> int:
         """Clock frequency in Hz"""
         return 60_000_000  # 60MHz fixed clock
+
 
 class TimingConfigs:
     """Predefined timing configurations for supported baudrate combinations"""
@@ -64,7 +82,7 @@ class TimingConfigs:
         # 1Mbps / 5Mbps
         (1_000_000, 5_000_000): CANFDTimingConfig(
             arb=BitTimingConfig(tseg1=14, tseg2=3, sjw=3, brp=2),
-            data=BitTimingConfig(tseg1=1, tseg2=0, sjw=0, brp=2)
+            data=BitTimingConfig(tseg1=1, tseg2=0, sjw=0, brp=2),
         ),
         # Additional combinations can be added here
     }
@@ -85,20 +103,25 @@ class TimingConfigs:
         """
         key = (arb_baudrate, data_baudrate)
         if key not in cls.CONFIGS:
-            supported = ", ".join(f"{arb/1e6:.1f}M/{data/1e6:.1f}M"
-                                for arb, data in cls.CONFIGS.keys())
+            supported = ", ".join(
+                f"{arb/1e6:.1f}M/{data/1e6:.1f}M" for arb, data in cls.CONFIGS.keys()
+            )
             raise ValueError(
                 f"Unsupported baudrate combination: {arb_baudrate/1e6:.1f}M/{data_baudrate/1e6:.1f}M. "
                 f"Supported combinations are: {supported}"
             )
         return cls.CONFIGS[key]
 
+
 class ZCANWrapperBase(ABC):
     """Abstract base class for ZCAN wrapper implementations"""
 
     @abstractmethod
-    def open(self, device_type: Optional[ZCANDeviceType] = None,
-             device_index: Optional[int] = None) -> bool:
+    def open(
+        self,
+        device_type: Optional[ZCANDeviceType] = None,
+        device_index: Optional[int] = None,
+    ) -> bool:
         """Open ZCAN device
 
         Args:
@@ -111,11 +134,14 @@ class ZCANWrapperBase(ABC):
         pass
 
     @abstractmethod
-    def configure_channel(self, channel: int,
-                         arb_baudrate: int = 1000000,  # 1Mbps
-                         data_baudrate: int = 5000000,  # 5Mbps
-                         enable_resistance: bool = True,
-                         tx_timeout: int = 200) -> bool:
+    def configure_channel(
+        self,
+        channel: int,
+        arb_baudrate: int = 1000000,  # 1Mbps
+        data_baudrate: int = 5000000,  # 5Mbps
+        enable_resistance: bool = True,
+        tx_timeout: int = 200,
+    ) -> bool:
         """Configure and start a CAN channel
 
         Args:
@@ -144,8 +170,13 @@ class ZCANWrapperBase(ABC):
         pass
 
     @abstractmethod
-    def send_fd_message(self, channel: int, id: int, data: bytes,
-                       flags: Optional[ZCANMessageInfo] = None) -> bool:
+    def send_fd_message(
+        self,
+        channel: int,
+        id: int,
+        data: bytes,
+        flags: Optional[ZCANMessageInfo] = None,
+    ) -> bool:
         """Send a CANFD message
 
         Args:
@@ -160,8 +191,9 @@ class ZCANWrapperBase(ABC):
         pass
 
     @abstractmethod
-    def receive_fd_messages(self, channel: int, max_messages: int = 100,
-                          timeout_ms: int = 100) -> List[Tuple[int, bytes, int]]:
+    def receive_fd_messages(
+        self, channel: int, max_messages: int = 100, timeout_ms: int = 100
+    ) -> List[Tuple[int, bytes, int]]:
         """Receive CANFD messages
 
         Args:
@@ -183,8 +215,10 @@ class ZCANWrapperBase(ABC):
         """
         pass
 
+
 class ZCANWrapper(ZCANWrapperBase):
     """High level wrapper for ZCAN operations"""
+
     # Command references
     CMD_CAN_FILTER = 0x14
     CMD_CAN_TRES = 0x18  # Terminal resistor
@@ -199,11 +233,25 @@ class ZCANWrapper(ZCANWrapperBase):
         """
         lib_path_abs = Path(__file__).parent / lib_path
         self.zcan = ZCAN(lib_path_abs)
-        self.device_type = ZCANDeviceType.ZCAN_USBCANFD_200U
+        config_path = os.path.join(
+            os.path.dirname(__file__), "../config", "config.yaml"
+        )
+        with open(config_path, "r") as f:
+            config = yaml.safe_load(f)
+            self.zcan_device_type = config["DexHand"]["ZCANDeviceType"]
+        if self.zcan_device_type == "ZCAN_USBCANFD_200U":
+            self.device_type = ZCANDeviceType.ZCAN_USBCANFD_200U
+        elif self.zcan_device_type == "ZCAN_USBCANFD_100U":
+            self.device_type = ZCANDeviceType.ZCAN_USBCANFD_100U
+        else:
+            raise ValueError("Unsupported ZCAN device type")
         self.device_index = 0
 
-    def open(self, device_type: Optional[ZCANDeviceType] = None,
-             device_index: Optional[int] = None) -> bool:
+    def open(
+        self,
+        device_type: Optional[ZCANDeviceType] = None,
+        device_index: Optional[int] = None,
+    ) -> bool:
         """Open ZCAN device
 
         Args:
@@ -220,11 +268,14 @@ class ZCANWrapper(ZCANWrapperBase):
 
         return self.zcan.open_device(self.device_type, self.device_index)
 
-    def configure_channel(self, channel: int,
-                         arb_baudrate: int = 1000000,  # 1Mbps
-                         data_baudrate: int = 5000000,  # 5Mbps
-                         enable_resistance: bool = True,
-                         tx_timeout: int = 200) -> bool:
+    def configure_channel(
+        self,
+        channel: int,
+        arb_baudrate: int = 1000000,  # 1Mbps
+        data_baudrate: int = 5000000,  # 5Mbps
+        enable_resistance: bool = True,
+        tx_timeout: int = 200,
+    ) -> bool:
         """Configure and start a CAN channel
 
         Args:
@@ -239,7 +290,9 @@ class ZCANWrapper(ZCANWrapperBase):
         """
         # Initialize channel
         init_config = self._create_init_config(arb_baudrate, data_baudrate)
-        if not self.zcan.init_can(self.device_type, self.device_index, channel, init_config):
+        if not self.zcan.init_can(
+            self.device_type, self.device_index, channel, init_config
+        ):
             logger.error(f"Failed to initialize channel {channel}")
             return False
 
@@ -256,22 +309,37 @@ class ZCANWrapper(ZCANWrapperBase):
         # Enable terminal resistance if requested
         if enable_resistance:
             resistance = c_uint32(1)
-            if not self.zcan.set_reference(self.device_type, self.device_index, channel,
-                                         self.CMD_CAN_TRES, byref(resistance)):
+            if not self.zcan.set_reference(
+                self.device_type,
+                self.device_index,
+                channel,
+                self.CMD_CAN_TRES,
+                byref(resistance),
+            ):
                 logger.error(f"Failed to enable resistance on channel {channel}")
                 return False
 
         # Set TX timeout
         timeout = c_uint32(tx_timeout)
-        if not self.zcan.set_reference(self.device_type, self.device_index, channel,
-                                     self.CMD_CAN_TX_TIMEOUT, byref(timeout)):
+        if not self.zcan.set_reference(
+            self.device_type,
+            self.device_index,
+            channel,
+            self.CMD_CAN_TX_TIMEOUT,
+            byref(timeout),
+        ):
             logger.error(f"Failed to set TX timeout on channel {channel}")
             return False
 
         # Enable queue send
         queue_enable = c_uint32(1)
-        if not self.zcan.set_reference(self.device_type, self.device_index, channel,
-                                     self.CMD_SET_SEND_QUEUE_EN, byref(queue_enable)):
+        if not self.zcan.set_reference(
+            self.device_type,
+            self.device_index,
+            channel,
+            self.CMD_SET_SEND_QUEUE_EN,
+            byref(queue_enable),
+        ):
             logger.error(f"Failed to enable send queue on channel {channel}")
             return False
 
@@ -296,13 +364,22 @@ class ZCANWrapper(ZCANWrapperBase):
             filter_table.table[i].start_id = filter_config.start_id
             filter_table.table[i].end_id = filter_config.end_id
 
-        result = self.zcan.set_reference(self.device_type, self.device_index, channel,
-                                       self.CMD_CAN_FILTER, byref(filter_table))
+        result = self.zcan.set_reference(
+            self.device_type,
+            self.device_index,
+            channel,
+            self.CMD_CAN_FILTER,
+            byref(filter_table),
+        )
         return bool(result)
 
-
-    def send_fd_message(self, channel: int, id: int, data: bytes,
-                    flags: Optional[ZCANMessageInfo] = None) -> bool:
+    def send_fd_message(
+        self,
+        channel: int,
+        id: int,
+        data: bytes,
+        flags: Optional[ZCANMessageInfo] = None,
+    ) -> bool:
         """Send a single CANFD message"""
         if logger.isEnabledFor(logging.DEBUG):
             logger.debug(
@@ -317,25 +394,31 @@ class ZCANWrapper(ZCANWrapperBase):
         memset(byref(message), 0, sizeof(message))
 
         # Set header fields exactly as in working implementation
-        message.header.info.fmt = 1    # CANFD format
-        message.header.info.brs = 0    # No bit rate switch
-        message.header.info.est = 0    # No error state
-        message.header.info.err = 0    # No error
-        message.header.info.sdf = 0    # Data frame
-        message.header.info.sef = 0    # Standard frame
-        message.header.info.txm = 0    # Normal transmission
+        message.header.info.fmt = 1  # CANFD format
+        message.header.info.brs = 0  # No bit rate switch
+        message.header.info.est = 0  # No error state
+        message.header.info.err = 0  # No error
+        message.header.info.sdf = 0  # Data frame
+        message.header.info.sef = 0  # Standard frame
+        message.header.info.txm = 0  # Normal transmission
 
-        message.header.ts = 0         # Timestamp
-        message.header.pad = 0        # Padding
+        message.header.ts = 0  # Timestamp
+        message.header.pad = 0  # Padding
         message.header.id = id
         message.header.channel = channel
         message.header.len = len(data)
 
         if logger.isEnabledFor(logging.DEBUG):
             logger.debug("Message flags set:")
-            logger.debug(f"  fmt={message.header.info.fmt}, brs={message.header.info.brs}")
-            logger.debug(f"  sdf={message.header.info.sdf}, sef={message.header.info.sef}")
-            logger.debug(f"  err={message.header.info.err}, est={message.header.info.est}")
+            logger.debug(
+                f"  fmt={message.header.info.fmt}, brs={message.header.info.brs}"
+            )
+            logger.debug(
+                f"  sdf={message.header.info.sdf}, sef={message.header.info.sef}"
+            )
+            logger.debug(
+                f"  err={message.header.info.err}, est={message.header.info.est}"
+            )
             logger.debug(f"  txm={message.header.info.txm}")
 
         # Copy data
@@ -344,23 +427,28 @@ class ZCANWrapper(ZCANWrapperBase):
 
         # Send message
         t = time.time()
-        sent = self.zcan.transmit_fd(self.device_type, self.device_index, channel,
-                                    [message], 1)
+        sent = self.zcan.transmit_fd(
+            self.device_type, self.device_index, channel, [message], 1
+        )
         if logger.isEnabledFor(logging.DEBUG):
             logger.debug(f"Transmit time: {time.time() - t:.3f}s")
-
 
         if not sent:
             logger.error("TransmitFD failed")
             error_msg = ZCANErrorMessage()
-            if self.zcan.read_error_info(self.device_type, self.device_index,
-                                    channel, error_msg):
+            if self.zcan.read_error_info(
+                self.device_type, self.device_index, channel, error_msg
+            ):
                 logger.error(f"Error info: {[hex(x) for x in error_msg.data[:8]]}")
 
         return sent == 1
 
-    def send_fd_messages(self, channel: int, messages: List[Tuple[int, bytes]],
-                      flags: Optional[ZCANMessageInfo] = None) -> int:
+    def send_fd_messages(
+        self,
+        channel: int,
+        messages: List[Tuple[int, bytes]],
+        flags: Optional[ZCANMessageInfo] = None,
+    ) -> int:
         """Send multiple CANFD messages
 
         Args:
@@ -390,11 +478,13 @@ class ZCANWrapper(ZCANWrapperBase):
 
             fd_messages.append(message)
 
-        return self.zcan.transmit_fd(self.device_type, self.device_index, channel,
-                                   fd_messages, len(fd_messages))
+        return self.zcan.transmit_fd(
+            self.device_type, self.device_index, channel, fd_messages, len(fd_messages)
+        )
 
-    def receive_fd_messages(self, channel: int, max_messages: int = 100,
-                        timeout_ms: int = 100) -> List[Tuple[int, bytes, int]]:
+    def receive_fd_messages(
+        self, channel: int, max_messages: int = 100, timeout_ms: int = 100
+    ) -> List[Tuple[int, bytes, int]]:
         """Receive CANFD messages
 
         Args:
@@ -405,12 +495,13 @@ class ZCANWrapper(ZCANWrapperBase):
         Returns:
             List of (id, data, timestamp) tuples for received messages
         """
-        messages, count = self.zcan.receive_fd(self.device_type, self.device_index,
-                                             channel, max_messages, timeout_ms)
+        messages, count = self.zcan.receive_fd(
+            self.device_type, self.device_index, channel, max_messages, timeout_ms
+        )
 
         result = []
         for msg in messages[:count]:
-            data = bytes(msg.data[:msg.header.len])
+            data = bytes(msg.data[: msg.header.len])
             result.append((msg.header.id, data, msg.header.timestamp))
 
         return result
@@ -423,7 +514,9 @@ class ZCANWrapper(ZCANWrapperBase):
         """
         return self.zcan.close_device(self.device_type, self.device_index)
 
-    def _create_init_config(self, arb_baudrate: int, data_baudrate: int) -> ZCANCANFDInit:
+    def _create_init_config(
+        self, arb_baudrate: int, data_baudrate: int
+    ) -> ZCANCANFDInit:
         """Create initialization config structure for CANFD
 
         Args:
@@ -471,7 +564,9 @@ class ZCANWrapper(ZCANWrapperBase):
     def handle_error(self, channel: int) -> None:
         """Read and log error information from the device"""
         error_msg = ZCANErrorMessage()
-        if self.zcan.read_error_info(self.device_type, self.device_index, channel, error_msg):
+        if self.zcan.read_error_info(
+            self.device_type, self.device_index, channel, error_msg
+        ):
             logger.error("CAN Error Information:")
             logger.error(f"Error code: {hex(error_msg.header.id)}")
             logger.error(f"Error data: {[hex(x) for x in error_msg.data[:8]]}")
@@ -496,8 +591,9 @@ class ZCANWrapper(ZCANWrapperBase):
 
     def monitor_channel_status(self, channel: int) -> bool:
         """Monitor channel status and handle errors"""
-        status = self.zcan.read_channel_status(self.device_type, self.device_index,
-                                            channel)
+        status = self.zcan.read_channel_status(
+            self.device_type, self.device_index, channel
+        )
         if status is None:
             logger.error("Failed to read channel status")
             return False
@@ -518,7 +614,9 @@ class ZCANWrapper(ZCANWrapperBase):
 
         # Check for errors
         if status.errInterrupt != 0:
-            logger.error(f"Channel {channel} error interrupt: 0x{status.errInterrupt:02x}")
+            logger.error(
+                f"Channel {channel} error interrupt: 0x{status.errInterrupt:02x}"
+            )
             self.handle_error(channel)
             return False
 
@@ -529,7 +627,10 @@ class ZCANWrapper(ZCANWrapperBase):
             return False
 
         # Check for error warning limit
-        if status.regRECounter > status.regEWLimit or status.regTECounter > status.regEWLimit:
+        if (
+            status.regRECounter > status.regEWLimit
+            or status.regTECounter > status.regEWLimit
+        ):
             logger.warning(
                 f"Channel {channel} error counters above warning limit\n"
                 f"  RX Errors: {status.regRECounter} (limit: {status.regEWLimit})\n"
@@ -543,7 +644,9 @@ class ZCANWrapper(ZCANWrapperBase):
         logger.info(f"\n=== Channel {channel} State Dump ===")
 
         # Get status
-        status = self.zcan.read_channel_status(self.device_type, self.device_index, channel)
+        status = self.zcan.read_channel_status(
+            self.device_type, self.device_index, channel
+        )
         if status:
             logger.info(
                 f"Channel Status:\n"
@@ -572,13 +675,13 @@ class ZCANWrapper(ZCANWrapperBase):
                 f"  Timestamp: {message.header.timestamp}\n"
                 f"  Padding: {message.header.pad}\n"
                 f"Info flags:\n"
-                f"  fmt: {message.header.info.fmt}\n"      # Should be 1 for CANFD
-                f"  brs: {message.header.info.brs}\n"      # Should be 0 for no bit rate switch
-                f"  sdf: {message.header.info.sdf}\n"      # Should be 0 for data frame
-                f"  sef: {message.header.info.sef}\n"      # Should be 0 for standard frame
+                f"  fmt: {message.header.info.fmt}\n"  # Should be 1 for CANFD
+                f"  brs: {message.header.info.brs}\n"  # Should be 0 for no bit rate switch
+                f"  sdf: {message.header.info.sdf}\n"  # Should be 0 for data frame
+                f"  sef: {message.header.info.sef}\n"  # Should be 0 for standard frame
                 f"  err: {message.header.info.err}\n"
                 f"  est: {message.header.info.est}\n"
-                f"  txm: {message.header.info.txm}\n"      # Should be 0 for normal transmission
+                f"  txm: {message.header.info.txm}\n"  # Should be 0 for normal transmission
                 f"Data: {[hex(x) for x in message.data[:message.header.len]]}\n"
                 f"=== End Frame Dump ===\n"
             )
@@ -593,35 +696,46 @@ class MockZCANWrapper(ZCANWrapperBase):
         self.channels = {}  # Track channel states
         self.message_history = []  # Track sent messages for testing
 
-    def open(self, device_type: Optional[ZCANDeviceType] = None,
-             device_index: Optional[int] = None) -> bool:
+    def open(
+        self,
+        device_type: Optional[ZCANDeviceType] = None,
+        device_index: Optional[int] = None,
+    ) -> bool:
         logger.info("Mock ZCAN: Opening device")
         self.is_open = True
         return True
 
-    def configure_channel(self, channel: int,
-                         arb_baudrate: int = 1000000,
-                         data_baudrate: int = 5000000,
-                         enable_resistance: bool = True,
-                         tx_timeout: int = 200) -> bool:
+    def configure_channel(
+        self,
+        channel: int,
+        arb_baudrate: int = 1000000,
+        data_baudrate: int = 5000000,
+        enable_resistance: bool = True,
+        tx_timeout: int = 200,
+    ) -> bool:
         logger.info(f"Mock ZCAN: Configuring channel {channel}")
         self.channels[channel] = {
-            'arb_baudrate': arb_baudrate,
-            'data_baudrate': data_baudrate,
-            'resistance': enable_resistance,
-            'timeout': tx_timeout
+            "arb_baudrate": arb_baudrate,
+            "data_baudrate": data_baudrate,
+            "resistance": enable_resistance,
+            "timeout": tx_timeout,
         }
         return True
 
     def set_filter(self, channel: int, filters: List[ZCANFilterConfig]) -> bool:
         logger.info(f"Mock ZCAN: Setting filters for channel {channel}")
         if channel in self.channels:
-            self.channels[channel]['filters'] = filters
+            self.channels[channel]["filters"] = filters
             return True
         return False
 
-    def send_fd_message(self, channel: int, id: int, data: bytes,
-                       flags: Optional[ZCANMessageInfo] = None) -> bool:
+    def send_fd_message(
+        self,
+        channel: int,
+        id: int,
+        data: bytes,
+        flags: Optional[ZCANMessageInfo] = None,
+    ) -> bool:
         if not self.is_open or channel not in self.channels:
             return False
 
@@ -633,16 +747,14 @@ class MockZCANWrapper(ZCANWrapperBase):
         )
 
         # Store message for testing
-        self.message_history.append({
-            'channel': channel,
-            'id': id,
-            'data': data,
-            'flags': flags
-        })
+        self.message_history.append(
+            {"channel": channel, "id": id, "data": data, "flags": flags}
+        )
         return True
 
-    def receive_fd_messages(self, channel: int, max_messages: int = 100,
-                          timeout_ms: int = 100) -> List[Tuple[int, bytes, int]]:
+    def receive_fd_messages(
+        self, channel: int, max_messages: int = 100, timeout_ms: int = 100
+    ) -> List[Tuple[int, bytes, int]]:
         logger.info(f"Mock ZCAN: Receiving messages from channel {channel}")
         # In mock implementation, we could return some test data here
         return []

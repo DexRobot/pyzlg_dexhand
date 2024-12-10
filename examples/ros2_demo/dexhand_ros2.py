@@ -13,12 +13,18 @@ import yaml
 import os.path
 
 from pyzlg_dexhand.dexhand_interface import (
-    DexHandBase, LeftDexHand, RightDexHand, ControlMode, ZCANWrapper
+    DexHandBase,
+    LeftDexHand,
+    RightDexHand,
+    ControlMode,
+    ZCANWrapper,
 )
 from pyzlg_dexhand.zcan_wrapper import MockZCANWrapper
 
+
 class HardwareMapping(Enum):
     """Mapping between URDF and hardware joints"""
+
     th_dip = ("th_dip", ["f_joint1_3", "f_joint1_4"])
     th_mcp = ("th_mcp", ["f_joint1_2"])
     th_rot = ("th_rot", ["f_joint1_1"])
@@ -32,10 +38,11 @@ class HardwareMapping(Enum):
     lf_dip = ("lf_dip", ["f_joint5_3", "f_joint5_4"])
     lf_mcp = ("lf_mcp", ["f_joint5_2"])
 
+
 class JointMapping:
     """Maps between URDF joints and hardware joints"""
 
-    def __init__(self, prefix: str = 'l'):
+    def __init__(self, prefix: str = "l"):
         """Initialize joint mapping"""
         self.prefix = prefix
 
@@ -69,19 +76,20 @@ class JointMapping:
 
         return command
 
+
 class DexHandNode(Node):
     """ROS2 Node for controlling one or both DexHands"""
 
     def __init__(self, config: dict):
-        super().__init__('dexhand')
+        super().__init__("dexhand")
 
         # Get configuration values
-        hands = config.get('hands', ['right'])
-        control_mode = config.get('mode', 'cascaded_pid')
-        send_rate = config.get('rate', 100.0)
-        filter_alpha = config.get('alpha', 0.1)
-        self.command_topic = config.get('topic', '/joint_commands')
-        self.is_mock = config.get('mock', False)
+        hands = config.get("hands", ["right"])
+        control_mode = config.get("mode", "cascaded_pid")
+        send_rate = config.get("rate", 100.0)
+        filter_alpha = config.get("alpha", 0.1)
+        self.command_topic = config.get("topic", "/joint_commands")
+        self.is_mock = config.get("mock", False)
 
         # Initialize shared ZCAN
         self.zcan = ZCANWrapper() if not self.is_mock else MockZCANWrapper()
@@ -90,14 +98,16 @@ class DexHandNode(Node):
 
         # Set up control mode
         self.control_mode_map = {
-            'zero_torque': ControlMode.ZERO_TORQUE,
-            'current': ControlMode.CURRENT,
-            'speed': ControlMode.SPEED,
-            'hall_position': ControlMode.HALL_POSITION,
-            'cascaded_pid': ControlMode.CASCADED_PID,
-            'protect_hall_position': ControlMode.PROTECT_HALL_POSITION
+            "zero_torque": ControlMode.ZERO_TORQUE,
+            "current": ControlMode.CURRENT,
+            "speed": ControlMode.SPEED,
+            "hall_position": ControlMode.HALL_POSITION,
+            "cascaded_pid": ControlMode.CASCADED_PID,
+            "protect_hall_position": ControlMode.PROTECT_HALL_POSITION,
         }
-        self.control_mode = self.control_mode_map.get(control_mode, ControlMode.CASCADED_PID)
+        self.control_mode = self.control_mode_map.get(
+            control_mode, ControlMode.CASCADED_PID
+        )
         self.filter_alpha = filter_alpha
 
         # Initialize hands with shared ZCAN
@@ -107,43 +117,35 @@ class DexHandNode(Node):
 
         for hand in hands:
             # Initialize hand with shared ZCAN
-            hand_class = LeftDexHand if hand == 'left' else RightDexHand
+            hand_class = LeftDexHand if hand == "left" else RightDexHand
             self.hands[hand] = hand_class(self.zcan)
             if not self.hands[hand].init():
                 raise RuntimeError(f"Failed to initialize {hand} hand")
 
             # Initialize joint mapping
-            self.joint_mappings[hand] = JointMapping('l' if hand == 'left' else 'r')
+            self.joint_mappings[hand] = JointMapping("l" if hand == "left" else "r")
 
             # Initialize last command
             self.last_commands[hand] = {}
 
-
         # Initialize command subscriber with configurable topic
         self.create_subscription(
-            JointState,
-            self.command_topic,
-            self.command_callback,
-            10
+            JointState, self.command_topic, self.command_callback, 10
         )
 
         # Initialize reset service
-        self.create_service(
-            Trigger,
-            'reset_hands',
-            self.reset_callback
-        )
+        self.create_service(Trigger, "reset_hands", self.reset_callback)
 
         # Set up command sending timer
         period = 1.0 / send_rate
         self.timer = self.create_timer(period, self.send_commands)
 
         self.get_logger().info(
-            f'DexHand node initialized:\n'
+            f"DexHand node initialized:\n"
             f'  Hands: {", ".join(hands)}\n'
-            f'  Control mode: {control_mode}\n'
-            f'  Send rate: {send_rate} Hz\n'
-            f'  Filter alpha: {filter_alpha}'
+            f"  Control mode: {control_mode}\n"
+            f"  Send rate: {send_rate} Hz\n"
+            f"  Filter alpha: {filter_alpha}"
         )
 
     def command_callback(self, msg: JointState):
@@ -169,12 +171,13 @@ class DexHandNode(Node):
                             self.last_commands[hand][joint] = value
                         else:
                             self.last_commands[hand][joint] = (
-                                (1 - self.filter_alpha) * self.last_commands[hand][joint] +
-                                self.filter_alpha * value
-                            )
+                                1 - self.filter_alpha
+                            ) * self.last_commands[hand][
+                                joint
+                            ] + self.filter_alpha * value
 
         except Exception as e:
-            self.get_logger().error(f'Error in command callback: {str(e)}')
+            self.get_logger().error(f"Error in command callback: {str(e)}")
 
     def send_commands(self):
         """Send filtered commands to all hands"""
@@ -197,14 +200,14 @@ class DexHandNode(Node):
                     rf_mcp=command.get("rf_mcp"),
                     lf_dip=command.get("lf_dip"),
                     lf_mcp=command.get("lf_mcp"),
-                    control_mode=self.control_mode
+                    control_mode=self.control_mode,
                 )
 
                 # Clear errors
                 hand_interface.clear_errors(clear_all=True)
 
         except Exception as e:
-            self.get_logger().error(f'Error sending commands: {str(e)}')
+            self.get_logger().error(f"Error sending commands: {str(e)}")
 
     def reset_callback(self, request, response):
         """Reset all hands with bend-straighten sequence"""
@@ -213,7 +216,20 @@ class DexHandNode(Node):
 
             # First bend all joints to 30 degrees
             for hand in self.hands.values():
-                hand.move_joints(th_dip=30, th_mcp=30, th_rot=30, ff_spr=30, ff_dip=30, ff_mcp=30, mf_dip=30, mf_mcp=30, rf_dip=30, rf_mcp=30, lf_dip=30, lf_mcp=30)
+                hand.move_joints(
+                    th_dip=30,
+                    th_mcp=30,
+                    th_rot=30,
+                    ff_spr=30,
+                    ff_dip=30,
+                    ff_mcp=30,
+                    mf_dip=30,
+                    mf_mcp=30,
+                    rf_dip=30,
+                    rf_mcp=30,
+                    lf_dip=30,
+                    lf_mcp=30,
+                )
                 hand.clear_errors()
 
             # Wait a moment
@@ -230,13 +246,16 @@ class DexHandNode(Node):
 
             # Set response
             response.success = success
-            response.message = 'Hand reset sequence completed successfully' if success else \
-                             'Hand reset sequence failed'
+            response.message = (
+                "Hand reset sequence completed successfully"
+                if success
+                else "Hand reset sequence failed"
+            )
             return response
 
         except Exception as e:
             response.success = False
-            response.message = f'Error in reset sequence: {str(e)}'
+            response.message = f"Error in reset sequence: {str(e)}"
             return response
 
     def on_shutdown(self):
@@ -244,17 +263,13 @@ class DexHandNode(Node):
         for hand in self.hands.values():
             hand.close()
 
+
 def main():
-    # Parse command line arguments
-    parser = argparse.ArgumentParser(description='DexHand ROS2 Node')
-    default_config = os.path.join(os.path.dirname(__file__), '../../config', 'ros_node.yaml')
-    parser.add_argument('--config', type=str, default=default_config,
-                      help='Path to configuration file')
-    args = parser.parse_args()
+    config_path = os.path.join(os.path.dirname(__file__), "../../config", "config.yaml")
 
     # Load configuration
     try:
-        with open(args.config, 'r') as f:
+        with open(config_path, "r") as f:
             config = yaml.safe_load(f)
     except Exception as e:
         print(f"Error loading config file: {e}")
@@ -265,7 +280,7 @@ def main():
 
     try:
         # Create and spin node
-        node = DexHandNode(config=config)
+        node = DexHandNode(config=config["DexHand"]["ROS_Node"])
 
         try:
             rclpy.spin(node)
@@ -276,5 +291,6 @@ def main():
     finally:
         rclpy.shutdown()
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     main()
