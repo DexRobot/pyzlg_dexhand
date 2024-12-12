@@ -1,0 +1,467 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>DexHand Python Interface &mdash; pyzlg_dexhand 0.1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=01f34227"></script>
+      <script src="_static/doctools.js?v=9bcbadda"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="#" class="icon icon-home">
+            pyzlg_dexhand
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <!-- Local TOC -->
+              <div class="local-toc"><ul>
+<li><a class="reference internal" href="#">DexHand Python Interface</a><ul>
+<li><a class="reference internal" href="#installation">Installation</a></li>
+<li><a class="reference internal" href="#quick-start">Quick Start</a></li>
+<li><a class="reference internal" href="#module-examples.ros2_demo.dexhand_ros2">API Reference</a><ul>
+<li><a class="reference internal" href="#examples.ros2_demo.dexhand_ros2.DexHandNode"><code class="docutils literal notranslate"><span class="pre">DexHandNode</span></code></a><ul>
+<li><a class="reference internal" href="#examples.ros2_demo.dexhand_ros2.DexHandNode.command_callback"><code class="docutils literal notranslate"><span class="pre">DexHandNode.command_callback()</span></code></a></li>
+<li><a class="reference internal" href="#examples.ros2_demo.dexhand_ros2.DexHandNode.on_shutdown"><code class="docutils literal notranslate"><span class="pre">DexHandNode.on_shutdown()</span></code></a></li>
+<li><a class="reference internal" href="#examples.ros2_demo.dexhand_ros2.DexHandNode.reset_callback"><code class="docutils literal notranslate"><span class="pre">DexHandNode.reset_callback()</span></code></a></li>
+<li><a class="reference internal" href="#examples.ros2_demo.dexhand_ros2.DexHandNode.send_commands"><code class="docutils literal notranslate"><span class="pre">DexHandNode.send_commands()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#examples.ros2_demo.dexhand_ros2.HardwareMapping"><code class="docutils literal notranslate"><span class="pre">HardwareMapping</span></code></a><ul>
+<li><a class="reference internal" href="#examples.ros2_demo.dexhand_ros2.HardwareMapping.ff_dip"><code class="docutils literal notranslate"><span class="pre">HardwareMapping.ff_dip</span></code></a></li>
+<li><a class="reference internal" href="#examples.ros2_demo.dexhand_ros2.HardwareMapping.ff_mcp"><code class="docutils literal notranslate"><span class="pre">HardwareMapping.ff_mcp</span></code></a></li>
+<li><a class="reference internal" href="#examples.ros2_demo.dexhand_ros2.HardwareMapping.ff_spr"><code class="docutils literal notranslate"><span class="pre">HardwareMapping.ff_spr</span></code></a></li>
+<li><a class="reference internal" href="#examples.ros2_demo.dexhand_ros2.HardwareMapping.lf_dip"><code class="docutils literal notranslate"><span class="pre">HardwareMapping.lf_dip</span></code></a></li>
+<li><a class="reference internal" href="#examples.ros2_demo.dexhand_ros2.HardwareMapping.lf_mcp"><code class="docutils literal notranslate"><span class="pre">HardwareMapping.lf_mcp</span></code></a></li>
+<li><a class="reference internal" href="#examples.ros2_demo.dexhand_ros2.HardwareMapping.mf_dip"><code class="docutils literal notranslate"><span class="pre">HardwareMapping.mf_dip</span></code></a></li>
+<li><a class="reference internal" href="#examples.ros2_demo.dexhand_ros2.HardwareMapping.mf_mcp"><code class="docutils literal notranslate"><span class="pre">HardwareMapping.mf_mcp</span></code></a></li>
+<li><a class="reference internal" href="#examples.ros2_demo.dexhand_ros2.HardwareMapping.rc_mcp"><code class="docutils literal notranslate"><span class="pre">HardwareMapping.rc_mcp</span></code></a></li>
+<li><a class="reference internal" href="#examples.ros2_demo.dexhand_ros2.HardwareMapping.rf_dip"><code class="docutils literal notranslate"><span class="pre">HardwareMapping.rf_dip</span></code></a></li>
+<li><a class="reference internal" href="#examples.ros2_demo.dexhand_ros2.HardwareMapping.th_dip"><code class="docutils literal notranslate"><span class="pre">HardwareMapping.th_dip</span></code></a></li>
+<li><a class="reference internal" href="#examples.ros2_demo.dexhand_ros2.HardwareMapping.th_mcp"><code class="docutils literal notranslate"><span class="pre">HardwareMapping.th_mcp</span></code></a></li>
+<li><a class="reference internal" href="#examples.ros2_demo.dexhand_ros2.HardwareMapping.th_rot"><code class="docutils literal notranslate"><span class="pre">HardwareMapping.th_rot</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#examples.ros2_demo.dexhand_ros2.JointMapping"><code class="docutils literal notranslate"><span class="pre">JointMapping</span></code></a><ul>
+<li><a class="reference internal" href="#examples.ros2_demo.dexhand_ros2.JointMapping.__init__"><code class="docutils literal notranslate"><span class="pre">JointMapping.__init__()</span></code></a></li>
+<li><a class="reference internal" href="#examples.ros2_demo.dexhand_ros2.JointMapping.map_command"><code class="docutils literal notranslate"><span class="pre">JointMapping.map_command()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#examples.ros2_demo.dexhand_ros2.main"><code class="docutils literal notranslate"><span class="pre">main()</span></code></a></li>
+<li><a class="reference internal" href="#examples.ros2_demo.dexhand_ros2_test.DexHandTestNode"><code class="docutils literal notranslate"><span class="pre">DexHandTestNode</span></code></a><ul>
+<li><a class="reference internal" href="#examples.ros2_demo.dexhand_ros2_test.DexHandTestNode.JOINT_LIMITS"><code class="docutils literal notranslate"><span class="pre">DexHandTestNode.JOINT_LIMITS</span></code></a></li>
+<li><a class="reference internal" href="#examples.ros2_demo.dexhand_ros2_test.DexHandTestNode.get_joint_limit"><code class="docutils literal notranslate"><span class="pre">DexHandTestNode.get_joint_limit()</span></code></a></li>
+<li><a class="reference internal" href="#examples.ros2_demo.dexhand_ros2_test.DexHandTestNode.get_target_positions"><code class="docutils literal notranslate"><span class="pre">DexHandTestNode.get_target_positions()</span></code></a></li>
+<li><a class="reference internal" href="#examples.ros2_demo.dexhand_ros2_test.DexHandTestNode.interpolate_positions"><code class="docutils literal notranslate"><span class="pre">DexHandTestNode.interpolate_positions()</span></code></a></li>
+<li><a class="reference internal" href="#examples.ros2_demo.dexhand_ros2_test.DexHandTestNode.timer_callback"><code class="docutils literal notranslate"><span class="pre">DexHandTestNode.timer_callback()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#examples.ros2_demo.dexhand_ros2_test.TestSequence"><code class="docutils literal notranslate"><span class="pre">TestSequence</span></code></a><ul>
+<li><a class="reference internal" href="#examples.ros2_demo.dexhand_ros2_test.TestSequence.ALL"><code class="docutils literal notranslate"><span class="pre">TestSequence.ALL</span></code></a></li>
+<li><a class="reference internal" href="#examples.ros2_demo.dexhand_ros2_test.TestSequence.FINGER_WAVE"><code class="docutils literal notranslate"><span class="pre">TestSequence.FINGER_WAVE</span></code></a></li>
+<li><a class="reference internal" href="#examples.ros2_demo.dexhand_ros2_test.TestSequence.FIST"><code class="docutils literal notranslate"><span class="pre">TestSequence.FIST</span></code></a></li>
+<li><a class="reference internal" href="#examples.ros2_demo.dexhand_ros2_test.TestSequence.PINCH"><code class="docutils literal notranslate"><span class="pre">TestSequence.PINCH</span></code></a></li>
+<li><a class="reference internal" href="#examples.ros2_demo.dexhand_ros2_test.TestSequence.SPREAD"><code class="docutils literal notranslate"><span class="pre">TestSequence.SPREAD</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#examples.ros2_demo.dexhand_ros2_test.main"><code class="docutils literal notranslate"><span class="pre">main()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="#">pyzlg_dexhand</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="#" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">DexHand Python Interface</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/index.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="dexhand-python-interface">
+<h1>DexHand Python Interface<a class="headerlink" href="#dexhand-python-interface" title="Link to this heading"></a></h1>
+<p>Python interface for controlling dexterous robotic hands over CANFD using ZLG USBCANFD adapters. Provides both direct control and ROS2 integration.</p>
+<div class="toctree-wrapper compound">
+</div>
+<section id="installation">
+<h2>Installation<a class="headerlink" href="#installation" title="Link to this heading"></a></h2>
+<ol class="arabic simple">
+<li><p>Install the package:</p></li>
+</ol>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span>-e<span class="w"> </span>.
+</pre></div>
+</div>
+<ol class="arabic simple" start="2">
+<li><p>Configure USB permissions:</p></li>
+</ol>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>sudo<span class="w"> </span>./tools/setup_usb_can.sh
+</pre></div>
+</div>
+<p>The setup script will:</p>
+<ul class="simple">
+<li><p>Create a canbus group</p></li>
+<li><p>Add your user to the group</p></li>
+<li><p>Set up udev rules for the USBCANFD adapter</p></li>
+<li><p>Configure appropriate permissions</p></li>
+</ul>
+<p>You may need to log out and back in for the changes to take effect.</p>
+</section>
+<section id="quick-start">
+<h2>Quick Start<a class="headerlink" href="#quick-start" title="Link to this heading"></a></h2>
+<ol class="arabic simple">
+<li><p>Hardware Testing</p></li>
+</ol>
+<p>Run hardware tests:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>tools/hardware_test/test_dexhand.py<span class="w"> </span>--hands<span class="w"> </span>right
+</pre></div>
+</div>
+<p>This should move the hand through a series of predefined motions.</p>
+<ol class="arabic simple" start="2">
+<li><p>Interactive Testing</p></li>
+</ol>
+<p>Launch interactive control interface:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>tools/hardware_test/test_dexhand_interactive.py<span class="w"> </span>--hands<span class="w"> </span>right
+</pre></div>
+</div>
+<p>This provides an IPython shell with initialized hand objects and helper functions.</p>
+<p>Example commands:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">right_hand</span><span class="o">.</span><span class="n">move_joints</span><span class="p">(</span><span class="n">th_rot</span><span class="o">=</span><span class="mi">30</span><span class="p">)</span>  <span class="c1"># Rotate thumb</span>
+<span class="n">right_hand</span><span class="o">.</span><span class="n">move_joints</span><span class="p">(</span><span class="n">ff_mcp</span><span class="o">=</span><span class="mi">60</span><span class="p">,</span> <span class="n">ff_dip</span><span class="o">=</span><span class="mi">60</span><span class="p">)</span>  <span class="c1"># Curl index finger</span>
+<span class="n">right_hand</span><span class="o">.</span><span class="n">move_joints</span><span class="p">(</span><span class="n">ff_spr</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">control_mode</span><span class="o">=</span><span class="n">ControlMode</span><span class="o">.</span><span class="n">PROTECT_HALL_POSITION</span><span class="p">)</span>  <span class="c1"># Spread all fingers</span>
+<span class="n">right_hand</span><span class="o">.</span><span class="n">get_feedback</span><span class="p">()</span>
+<span class="n">right_hand</span><span class="o">.</span><span class="n">reset_joints</span><span class="p">()</span>
+<span class="n">right_hand</span><span class="o">.</span><span class="n">clear_errors</span><span class="p">()</span>    <span class="c1"># Clear all error states</span>
+</pre></div>
+</div>
+<p>You can explore the API with tab completion and help commands.</p>
+<ol class="arabic simple" start="3">
+<li><p>ROS2 Integration</p></li>
+</ol>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Start node with default config</span>
+python<span class="w"> </span>examples/ros2_demo/dexhand_ros2.py
+
+<span class="c1"># Test movements with an example publisher</span>
+python<span class="w"> </span>examples/ros2_demo/dexhand_ros2_test.py<span class="w"> </span>--hands<span class="w"> </span>right<span class="w"> </span>--cycle-time<span class="w"> </span><span class="m">3</span>.0
+</pre></div>
+</div>
+<ol class="arabic simple" start="4">
+<li><p>Programming Interface</p></li>
+</ol>
+<p>Example code:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pyzlg_dexhand</span> <span class="kn">import</span> <span class="n">LeftDexHand</span><span class="p">,</span> <span class="n">RightDexHand</span><span class="p">,</span> <span class="n">ControlMode</span>
+
+<span class="c1"># Initialize hand</span>
+<span class="n">hand</span> <span class="o">=</span> <span class="n">RightDexHand</span><span class="p">()</span>
+<span class="n">hand</span><span class="o">.</span><span class="n">init</span><span class="p">()</span>
+
+<span class="c1"># Move thumb</span>
+<span class="n">hand</span><span class="o">.</span><span class="n">move_joints</span><span class="p">(</span>
+    <span class="n">th_rot</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span>  <span class="c1"># Thumb rotation (0-150 degrees)</span>
+    <span class="n">th_mcp</span><span class="o">=</span><span class="mi">45</span><span class="p">,</span>  <span class="c1"># Thumb MCP flexion (0-90 degrees)</span>
+    <span class="n">th_dip</span><span class="o">=</span><span class="mi">45</span><span class="p">,</span>  <span class="c1"># Thumb coupled distal flexion</span>
+    <span class="n">control_mode</span><span class="o">=</span><span class="n">ControlMode</span><span class="o">.</span><span class="n">CASCADED_PID</span>
+<span class="p">)</span>
+
+<span class="c1"># Get feedback</span>
+<span class="n">feedback</span> <span class="o">=</span> <span class="n">hand</span><span class="o">.</span><span class="n">get_feedback</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Thumb angle: </span><span class="si">{</span><span class="n">feedback</span><span class="o">.</span><span class="n">joints</span><span class="p">[</span><span class="s1">&#39;th_rot&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">angle</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Tactile force: </span><span class="si">{</span><span class="n">feedback</span><span class="o">.</span><span class="n">tactile</span><span class="p">[</span><span class="s1">&#39;th&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">normal_force</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="module-examples.ros2_demo.dexhand_ros2">
+<span id="api-reference"></span><h2>API Reference<a class="headerlink" href="#module-examples.ros2_demo.dexhand_ros2" title="Link to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="examples.ros2_demo.dexhand_ros2.DexHandNode">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">examples.ros2_demo.dexhand_ros2.</span></span><span class="sig-name descname"><span class="pre">DexHandNode</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/examples/ros2_demo/dexhand_ros2.html#DexHandNode"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#examples.ros2_demo.dexhand_ros2.DexHandNode" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Node</span></code></p>
+<p>ROS2 Node for controlling one or both DexHands</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="examples.ros2_demo.dexhand_ros2.DexHandNode.command_callback">
+<span class="sig-name descname"><span class="pre">command_callback</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">msg</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/examples/ros2_demo/dexhand_ros2.html#DexHandNode.command_callback"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#examples.ros2_demo.dexhand_ros2.DexHandNode.command_callback" title="Link to this definition"></a></dt>
+<dd><p>Handle incoming joint commands</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="examples.ros2_demo.dexhand_ros2.DexHandNode.on_shutdown">
+<span class="sig-name descname"><span class="pre">on_shutdown</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/examples/ros2_demo/dexhand_ros2.html#DexHandNode.on_shutdown"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#examples.ros2_demo.dexhand_ros2.DexHandNode.on_shutdown" title="Link to this definition"></a></dt>
+<dd><p>Clean up on node shutdown</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="examples.ros2_demo.dexhand_ros2.DexHandNode.reset_callback">
+<span class="sig-name descname"><span class="pre">reset_callback</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">response</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/examples/ros2_demo/dexhand_ros2.html#DexHandNode.reset_callback"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#examples.ros2_demo.dexhand_ros2.DexHandNode.reset_callback" title="Link to this definition"></a></dt>
+<dd><p>Reset all hands with bend-straighten sequence</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="examples.ros2_demo.dexhand_ros2.DexHandNode.send_commands">
+<span class="sig-name descname"><span class="pre">send_commands</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/examples/ros2_demo/dexhand_ros2.html#DexHandNode.send_commands"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#examples.ros2_demo.dexhand_ros2.DexHandNode.send_commands" title="Link to this definition"></a></dt>
+<dd><p>Send filtered commands to all hands</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="examples.ros2_demo.dexhand_ros2.HardwareMapping">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">examples.ros2_demo.dexhand_ros2.</span></span><span class="sig-name descname"><span class="pre">HardwareMapping</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">names=&lt;not</span> <span class="pre">given&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">*values</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">module=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">qualname=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">type=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start=1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">boundary=None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/examples/ros2_demo/dexhand_ros2.html#HardwareMapping"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#examples.ros2_demo.dexhand_ros2.HardwareMapping" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Enum</span></code></p>
+<p>Mapping between URDF and hardware joints</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="examples.ros2_demo.dexhand_ros2.HardwareMapping.ff_dip">
+<span class="sig-name descname"><span class="pre">ff_dip</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">('ff_dip',</span> <span class="pre">['f_joint2_3',</span> <span class="pre">'f_joint2_4'])</span></em><a class="headerlink" href="#examples.ros2_demo.dexhand_ros2.HardwareMapping.ff_dip" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="examples.ros2_demo.dexhand_ros2.HardwareMapping.ff_mcp">
+<span class="sig-name descname"><span class="pre">ff_mcp</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">('ff_mcp',</span> <span class="pre">['f_joint2_2'])</span></em><a class="headerlink" href="#examples.ros2_demo.dexhand_ros2.HardwareMapping.ff_mcp" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="examples.ros2_demo.dexhand_ros2.HardwareMapping.ff_spr">
+<span class="sig-name descname"><span class="pre">ff_spr</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">('ff_spr',</span> <span class="pre">['f_joint2_1',</span> <span class="pre">'f_joint4_1',</span> <span class="pre">'f_joint5_1'])</span></em><a class="headerlink" href="#examples.ros2_demo.dexhand_ros2.HardwareMapping.ff_spr" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="examples.ros2_demo.dexhand_ros2.HardwareMapping.lf_dip">
+<span class="sig-name descname"><span class="pre">lf_dip</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">('lf_dip',</span> <span class="pre">['f_joint5_3',</span> <span class="pre">'f_joint5_4'])</span></em><a class="headerlink" href="#examples.ros2_demo.dexhand_ros2.HardwareMapping.lf_dip" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="examples.ros2_demo.dexhand_ros2.HardwareMapping.lf_mcp">
+<span class="sig-name descname"><span class="pre">lf_mcp</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">('lf_mcp',</span> <span class="pre">['f_joint5_2'])</span></em><a class="headerlink" href="#examples.ros2_demo.dexhand_ros2.HardwareMapping.lf_mcp" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="examples.ros2_demo.dexhand_ros2.HardwareMapping.mf_dip">
+<span class="sig-name descname"><span class="pre">mf_dip</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">('mf_dip',</span> <span class="pre">['f_joint3_3',</span> <span class="pre">'f_joint3_4'])</span></em><a class="headerlink" href="#examples.ros2_demo.dexhand_ros2.HardwareMapping.mf_dip" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="examples.ros2_demo.dexhand_ros2.HardwareMapping.mf_mcp">
+<span class="sig-name descname"><span class="pre">mf_mcp</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">('mf_mcp',</span> <span class="pre">['f_joint3_2'])</span></em><a class="headerlink" href="#examples.ros2_demo.dexhand_ros2.HardwareMapping.mf_mcp" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="examples.ros2_demo.dexhand_ros2.HardwareMapping.rc_mcp">
+<span class="sig-name descname"><span class="pre">rc_mcp</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">('rf_mcp',</span> <span class="pre">['f_joint4_2'])</span></em><a class="headerlink" href="#examples.ros2_demo.dexhand_ros2.HardwareMapping.rc_mcp" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="examples.ros2_demo.dexhand_ros2.HardwareMapping.rf_dip">
+<span class="sig-name descname"><span class="pre">rf_dip</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">('rf_dip',</span> <span class="pre">['f_joint4_3',</span> <span class="pre">'f_joint4_4'])</span></em><a class="headerlink" href="#examples.ros2_demo.dexhand_ros2.HardwareMapping.rf_dip" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="examples.ros2_demo.dexhand_ros2.HardwareMapping.th_dip">
+<span class="sig-name descname"><span class="pre">th_dip</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">('th_dip',</span> <span class="pre">['f_joint1_3',</span> <span class="pre">'f_joint1_4'])</span></em><a class="headerlink" href="#examples.ros2_demo.dexhand_ros2.HardwareMapping.th_dip" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="examples.ros2_demo.dexhand_ros2.HardwareMapping.th_mcp">
+<span class="sig-name descname"><span class="pre">th_mcp</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">('th_mcp',</span> <span class="pre">['f_joint1_2'])</span></em><a class="headerlink" href="#examples.ros2_demo.dexhand_ros2.HardwareMapping.th_mcp" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="examples.ros2_demo.dexhand_ros2.HardwareMapping.th_rot">
+<span class="sig-name descname"><span class="pre">th_rot</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">('th_rot',</span> <span class="pre">['f_joint1_1'])</span></em><a class="headerlink" href="#examples.ros2_demo.dexhand_ros2.HardwareMapping.th_rot" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="examples.ros2_demo.dexhand_ros2.JointMapping">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">examples.ros2_demo.dexhand_ros2.</span></span><span class="sig-name descname"><span class="pre">JointMapping</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">prefix</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'l'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/examples/ros2_demo/dexhand_ros2.html#JointMapping"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#examples.ros2_demo.dexhand_ros2.JointMapping" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Maps between URDF joints and hardware joints</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="examples.ros2_demo.dexhand_ros2.JointMapping.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">prefix</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'l'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/examples/ros2_demo/dexhand_ros2.html#JointMapping.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#examples.ros2_demo.dexhand_ros2.JointMapping.__init__" title="Link to this definition"></a></dt>
+<dd><p>Initialize joint mapping</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="examples.ros2_demo.dexhand_ros2.JointMapping.map_command">
+<span class="sig-name descname"><span class="pre">map_command</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">joint_values</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/examples/ros2_demo/dexhand_ros2.html#JointMapping.map_command"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#examples.ros2_demo.dexhand_ros2.JointMapping.map_command" title="Link to this definition"></a></dt>
+<dd><p>Map URDF joint values to hardware commands</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">Dict</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>]</span></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="examples.ros2_demo.dexhand_ros2.main">
+<span class="sig-prename descclassname"><span class="pre">examples.ros2_demo.dexhand_ros2.</span></span><span class="sig-name descname"><span class="pre">main</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/examples/ros2_demo/dexhand_ros2.html#main"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#examples.ros2_demo.dexhand_ros2.main" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py class" id="module-examples.ros2_demo.dexhand_ros2_test">
+<dt class="sig sig-object py" id="examples.ros2_demo.dexhand_ros2_test.DexHandTestNode">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">examples.ros2_demo.dexhand_ros2_test.</span></span><span class="sig-name descname"><span class="pre">DexHandTestNode</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">hands</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cycle_time</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">3.0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/examples/ros2_demo/dexhand_ros2_test.html#DexHandTestNode"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#examples.ros2_demo.dexhand_ros2_test.DexHandTestNode" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Node</span></code></p>
+<p>Test node for exercising DexHand joints</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="examples.ros2_demo.dexhand_ros2_test.DexHandTestNode.JOINT_LIMITS">
+<span class="sig-name descname"><span class="pre">JOINT_LIMITS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'spread':</span> <span class="pre">(0,</span> <span class="pre">30),</span> <span class="pre">'standard':</span> <span class="pre">(0,</span> <span class="pre">90),</span> <span class="pre">'thumb_pip':</span> <span class="pre">(0,</span> <span class="pre">90),</span> <span class="pre">'thumb_rot':</span> <span class="pre">(0,</span> <span class="pre">150)}</span></em><a class="headerlink" href="#examples.ros2_demo.dexhand_ros2_test.DexHandTestNode.JOINT_LIMITS" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="examples.ros2_demo.dexhand_ros2_test.DexHandTestNode.get_joint_limit">
+<span class="sig-name descname"><span class="pre">get_joint_limit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">joint_name</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/examples/ros2_demo/dexhand_ros2_test.html#DexHandTestNode.get_joint_limit"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#examples.ros2_demo.dexhand_ros2_test.DexHandTestNode.get_joint_limit" title="Link to this definition"></a></dt>
+<dd><p>Get radian limits for a joint</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code></span></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="examples.ros2_demo.dexhand_ros2_test.DexHandTestNode.get_target_positions">
+<span class="sig-name descname"><span class="pre">get_target_positions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sequence</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">t</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/examples/ros2_demo/dexhand_ros2_test.html#DexHandTestNode.get_target_positions"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#examples.ros2_demo.dexhand_ros2_test.DexHandTestNode.get_target_positions" title="Link to this definition"></a></dt>
+<dd><p>Get target positions for current time in sequence</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>sequence</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference internal" href="#examples.ros2_demo.dexhand_ros2_test.TestSequence" title="examples.ros2_demo.dexhand_ros2_test.TestSequence"><code class="xref py py-class docutils literal notranslate"><span class="pre">TestSequence</span></code></a></span>) – Which sequence to generate targets for</p></li>
+<li><p><strong>t</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></span>) – Time in sequence (0-1)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">Dict</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>]</span></p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Dictionary of joint name to target position (in radians)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="examples.ros2_demo.dexhand_ros2_test.DexHandTestNode.interpolate_positions">
+<span class="sig-name descname"><span class="pre">interpolate_positions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">targets</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alpha</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/examples/ros2_demo/dexhand_ros2_test.html#DexHandTestNode.interpolate_positions"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#examples.ros2_demo.dexhand_ros2_test.DexHandTestNode.interpolate_positions" title="Link to this definition"></a></dt>
+<dd><p>Linearly interpolate between current and target positions</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="examples.ros2_demo.dexhand_ros2_test.DexHandTestNode.timer_callback">
+<span class="sig-name descname"><span class="pre">timer_callback</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/examples/ros2_demo/dexhand_ros2_test.html#DexHandTestNode.timer_callback"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#examples.ros2_demo.dexhand_ros2_test.DexHandTestNode.timer_callback" title="Link to this definition"></a></dt>
+<dd><p>Execute test sequences</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="examples.ros2_demo.dexhand_ros2_test.TestSequence">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">examples.ros2_demo.dexhand_ros2_test.</span></span><span class="sig-name descname"><span class="pre">TestSequence</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">names=&lt;not</span> <span class="pre">given&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">*values</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">module=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">qualname=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">type=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start=1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">boundary=None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/examples/ros2_demo/dexhand_ros2_test.html#TestSequence"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#examples.ros2_demo.dexhand_ros2_test.TestSequence" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Enum</span></code></p>
+<p>Different test sequences available</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="examples.ros2_demo.dexhand_ros2_test.TestSequence.ALL">
+<span class="sig-name descname"><span class="pre">ALL</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">5</span></em><a class="headerlink" href="#examples.ros2_demo.dexhand_ros2_test.TestSequence.ALL" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="examples.ros2_demo.dexhand_ros2_test.TestSequence.FINGER_WAVE">
+<span class="sig-name descname"><span class="pre">FINGER_WAVE</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">1</span></em><a class="headerlink" href="#examples.ros2_demo.dexhand_ros2_test.TestSequence.FINGER_WAVE" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="examples.ros2_demo.dexhand_ros2_test.TestSequence.FIST">
+<span class="sig-name descname"><span class="pre">FIST</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">4</span></em><a class="headerlink" href="#examples.ros2_demo.dexhand_ros2_test.TestSequence.FIST" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="examples.ros2_demo.dexhand_ros2_test.TestSequence.PINCH">
+<span class="sig-name descname"><span class="pre">PINCH</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">3</span></em><a class="headerlink" href="#examples.ros2_demo.dexhand_ros2_test.TestSequence.PINCH" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="examples.ros2_demo.dexhand_ros2_test.TestSequence.SPREAD">
+<span class="sig-name descname"><span class="pre">SPREAD</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">2</span></em><a class="headerlink" href="#examples.ros2_demo.dexhand_ros2_test.TestSequence.SPREAD" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="examples.ros2_demo.dexhand_ros2_test.main">
+<span class="sig-prename descclassname"><span class="pre">examples.ros2_demo.dexhand_ros2_test.</span></span><span class="sig-name descname"><span class="pre">main</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/examples/ros2_demo/dexhand_ros2_test.html#main"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#examples.ros2_demo.dexhand_ros2_test.main" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, DexRobot.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

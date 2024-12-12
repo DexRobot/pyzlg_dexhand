@@ -1,0 +1,451 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>examples.ros2_demo.dexhand_ros2_test &mdash; pyzlg_dexhand 0.1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=01f34227"></script>
+      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            pyzlg_dexhand
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <!-- Local TOC -->
+              <div class="local-toc"></div>
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">pyzlg_dexhand</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">examples.ros2_demo.dexhand_ros2_test</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for examples.ros2_demo.dexhand_ros2_test</h1><div class="highlight"><pre>
+<span></span><span class="ch">#!/usr/bin/env python3</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">yaml</span>
+
+<span class="kn">import</span> <span class="nn">rclpy</span>
+<span class="kn">from</span> <span class="nn">rclpy.node</span> <span class="kn">import</span> <span class="n">Node</span>
+
+<span class="kn">from</span> <span class="nn">sensor_msgs.msg</span> <span class="kn">import</span> <span class="n">JointState</span>
+<span class="kn">from</span> <span class="nn">std_srvs.srv</span> <span class="kn">import</span> <span class="n">Trigger</span>
+<span class="kn">import</span> <span class="nn">argparse</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">enum</span> <span class="kn">import</span> <span class="n">Enum</span><span class="p">,</span> <span class="n">auto</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Dict</span>
+
+
+<div class="viewcode-block" id="TestSequence">
+<a class="viewcode-back" href="../../../index.html#examples.ros2_demo.dexhand_ros2_test.TestSequence">[docs]</a>
+<span class="k">class</span> <span class="nc">TestSequence</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Different test sequences available&quot;&quot;&quot;</span>
+
+    <span class="n">FINGER_WAVE</span> <span class="o">=</span> <span class="n">auto</span><span class="p">()</span>  <span class="c1"># Sequential finger curling</span>
+    <span class="n">SPREAD</span> <span class="o">=</span> <span class="n">auto</span><span class="p">()</span>  <span class="c1"># Spread fingers</span>
+    <span class="n">PINCH</span> <span class="o">=</span> <span class="n">auto</span><span class="p">()</span>  <span class="c1"># Thumb-to-finger pinching</span>
+    <span class="n">FIST</span> <span class="o">=</span> <span class="n">auto</span><span class="p">()</span>  <span class="c1"># Make fist</span>
+    <span class="n">ALL</span> <span class="o">=</span> <span class="n">auto</span><span class="p">()</span>  <span class="c1"># Test all movements</span></div>
+
+
+
+<div class="viewcode-block" id="DexHandTestNode">
+<a class="viewcode-back" href="../../../index.html#examples.ros2_demo.dexhand_ros2_test.DexHandTestNode">[docs]</a>
+<span class="k">class</span> <span class="nc">DexHandTestNode</span><span class="p">(</span><span class="n">Node</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Test node for exercising DexHand joints&quot;&quot;&quot;</span>
+
+    <span class="c1"># Joint limits in degrees (will be converted to radians)</span>
+    <span class="n">JOINT_LIMITS</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;thumb_rot&quot;</span><span class="p">:</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">150</span><span class="p">),</span>  <span class="c1"># Thumb rotation has extended range</span>
+        <span class="s2">&quot;thumb_pip&quot;</span><span class="p">:</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">90</span><span class="p">),</span>  <span class="c1"># Thumb PIP has different sign</span>
+        <span class="s2">&quot;spread&quot;</span><span class="p">:</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">30</span><span class="p">),</span>  <span class="c1"># Finger spread is limited</span>
+        <span class="s2">&quot;standard&quot;</span><span class="p">:</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">90</span><span class="p">),</span>  <span class="c1"># Standard joint range</span>
+    <span class="p">}</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">hands</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">cycle_time</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">3.0</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="s2">&quot;dexhand_test&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Store configuration</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">hands</span> <span class="o">=</span> <span class="n">hands</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cycle_time</span> <span class="o">=</span> <span class="n">cycle_time</span>
+
+        <span class="c1"># Convert joint limits to radians</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">joint_limits_rad</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="n">name</span><span class="p">:</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">deg2rad</span><span class="p">(</span><span class="n">min_deg</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">deg2rad</span><span class="p">(</span><span class="n">max_deg</span><span class="p">))</span>
+            <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="p">(</span><span class="n">min_deg</span><span class="p">,</span> <span class="n">max_deg</span><span class="p">)</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">JOINT_LIMITS</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+        <span class="p">}</span>
+
+        <span class="c1"># Build joint lists for each hand</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">joint_names</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">hand</span> <span class="ow">in</span> <span class="n">hands</span><span class="p">:</span>
+            <span class="n">prefix</span> <span class="o">=</span> <span class="s2">&quot;l&quot;</span> <span class="k">if</span> <span class="n">hand</span> <span class="o">==</span> <span class="s2">&quot;left&quot;</span> <span class="k">else</span> <span class="s2">&quot;r&quot;</span>
+            <span class="k">for</span> <span class="n">finger</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">6</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">joint_names</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span>
+                    <span class="p">[</span>
+                        <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s2">_f_joint</span><span class="si">{</span><span class="n">finger</span><span class="si">}</span><span class="s2">_1&quot;</span><span class="p">,</span>  <span class="c1"># Finger spread</span>
+                        <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s2">_f_joint</span><span class="si">{</span><span class="n">finger</span><span class="si">}</span><span class="s2">_2&quot;</span><span class="p">,</span>  <span class="c1"># Finger PIP</span>
+                        <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s2">_f_joint</span><span class="si">{</span><span class="n">finger</span><span class="si">}</span><span class="s2">_3&quot;</span><span class="p">,</span>  <span class="c1"># Finger DIP</span>
+                        <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s2">_f_joint</span><span class="si">{</span><span class="n">finger</span><span class="si">}</span><span class="s2">_4&quot;</span><span class="p">,</span>  <span class="c1"># Finger DIP (coupled)</span>
+                    <span class="p">]</span>
+                <span class="p">)</span>
+
+        <span class="c1"># Create publisher for commands</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cmd_pub</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">create_publisher</span><span class="p">(</span>
+            <span class="n">JointState</span><span class="p">,</span> <span class="s2">&quot;joint_commands&quot;</span><span class="p">,</span> <span class="mi">10</span>  <span class="c1"># Using global joint states topic</span>
+        <span class="p">)</span>
+
+        <span class="c1"># Create dictionary for current joint positions</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">current_pos</span> <span class="o">=</span> <span class="p">{</span><span class="n">name</span><span class="p">:</span> <span class="mf">0.0</span> <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">joint_names</span><span class="p">}</span>
+
+        <span class="c1"># Movement settings</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">update_rate</span> <span class="o">=</span> <span class="mi">50</span>  <span class="c1"># Hz</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">timer_period</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">update_rate</span>
+
+        <span class="c1"># Start test sequence timer</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">timer</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">create_timer</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">timer_period</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">timer_callback</span><span class="p">)</span>
+
+        <span class="c1"># Test sequence state</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">current_sequence</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sequence_start_time</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">get_logger</span><span class="p">()</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;DexHand test node initialized:</span><span class="se">\n</span><span class="s2">&quot;</span>
+            <span class="sa">f</span><span class="s1">&#39;  Hands: </span><span class="si">{</span><span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">hands</span><span class="p">)</span><span class="si">}</span><span class="se">\n</span><span class="s1">&#39;</span>
+            <span class="sa">f</span><span class="s2">&quot;  Cycle time: </span><span class="si">{</span><span class="n">cycle_time</span><span class="si">}</span><span class="s2">s</span><span class="se">\n</span><span class="s2">&quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;  Update rate: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">update_rate</span><span class="si">}</span><span class="s2">Hz&quot;</span>
+        <span class="p">)</span>
+
+<div class="viewcode-block" id="DexHandTestNode.get_joint_limit">
+<a class="viewcode-back" href="../../../index.html#examples.ros2_demo.dexhand_ros2_test.DexHandTestNode.get_joint_limit">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_joint_limit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">joint_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get radian limits for a joint&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="s2">&quot;joint1_1&quot;</span> <span class="ow">in</span> <span class="n">joint_name</span><span class="p">:</span>  <span class="c1"># Thumb rotation</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">joint_limits_rad</span><span class="p">[</span><span class="s2">&quot;thumb_rot&quot;</span><span class="p">]</span>
+        <span class="k">elif</span> <span class="s2">&quot;joint1_2&quot;</span> <span class="ow">in</span> <span class="n">joint_name</span><span class="p">:</span>  <span class="c1"># Thumb PIP - no sign flip</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">joint_limits_rad</span><span class="p">[</span><span class="s2">&quot;thumb_pip&quot;</span><span class="p">]</span>
+        <span class="k">elif</span> <span class="s2">&quot;_1&quot;</span> <span class="ow">in</span> <span class="n">joint_name</span><span class="p">:</span>  <span class="c1"># Spread joints</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">joint_limits_rad</span><span class="p">[</span><span class="s2">&quot;spread&quot;</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>  <span class="c1"># Standard joints</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">joint_limits_rad</span><span class="p">[</span><span class="s2">&quot;standard&quot;</span><span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="DexHandTestNode.interpolate_positions">
+<a class="viewcode-back" href="../../../index.html#examples.ros2_demo.dexhand_ros2_test.DexHandTestNode.interpolate_positions">[docs]</a>
+    <span class="k">def</span> <span class="nf">interpolate_positions</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">targets</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">],</span> <span class="n">alpha</span><span class="p">:</span> <span class="nb">float</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Linearly interpolate between current and target positions&quot;&quot;&quot;</span>
+        <span class="n">msg</span> <span class="o">=</span> <span class="n">JointState</span><span class="p">()</span>
+        <span class="n">msg</span><span class="o">.</span><span class="n">header</span><span class="o">.</span><span class="n">stamp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_clock</span><span class="p">()</span><span class="o">.</span><span class="n">now</span><span class="p">()</span><span class="o">.</span><span class="n">to_msg</span><span class="p">()</span>
+
+        <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">target</span> <span class="ow">in</span> <span class="n">targets</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">current</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">current_pos</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)</span>
+            <span class="n">new_pos</span> <span class="o">=</span> <span class="n">current</span> <span class="o">+</span> <span class="n">alpha</span> <span class="o">*</span> <span class="p">(</span><span class="n">target</span> <span class="o">-</span> <span class="n">current</span><span class="p">)</span>
+
+            <span class="c1"># Clip to joint limits</span>
+            <span class="n">min_pos</span><span class="p">,</span> <span class="n">max_pos</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_joint_limit</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+            <span class="n">new_pos</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">clip</span><span class="p">(</span><span class="n">new_pos</span><span class="p">,</span> <span class="n">min_pos</span><span class="p">,</span> <span class="n">max_pos</span><span class="p">)</span>
+
+            <span class="n">msg</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+            <span class="n">msg</span><span class="o">.</span><span class="n">position</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">new_pos</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">current_pos</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">new_pos</span>
+
+        <span class="k">return</span> <span class="n">msg</span></div>
+
+
+<div class="viewcode-block" id="DexHandTestNode.get_target_positions">
+<a class="viewcode-back" href="../../../index.html#examples.ros2_demo.dexhand_ros2_test.DexHandTestNode.get_target_positions">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_target_positions</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">sequence</span><span class="p">:</span> <span class="n">TestSequence</span><span class="p">,</span> <span class="n">t</span><span class="p">:</span> <span class="nb">float</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get target positions for current time in sequence</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            sequence: Which sequence to generate targets for</span>
+<span class="sd">            t: Time in sequence (0-1)</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Dictionary of joint name to target position (in radians)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">positions</span> <span class="o">=</span> <span class="p">{}</span>
+
+        <span class="k">if</span> <span class="n">sequence</span> <span class="o">==</span> <span class="n">TestSequence</span><span class="o">.</span><span class="n">FINGER_WAVE</span><span class="p">:</span>
+            <span class="c1"># Wave flexion from pinky to index</span>
+            <span class="n">t</span> <span class="o">=</span> <span class="n">t</span> <span class="o">*</span> <span class="mi">5</span>  <span class="c1"># Stretch over 5 fingers</span>
+            <span class="k">if</span> <span class="n">t</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">:</span>  <span class="c1"># Pinky</span>
+                <span class="n">angle</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">deg2rad</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">t</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">)</span> <span class="o">*</span> <span class="mi">90</span><span class="p">)</span>  <span class="c1"># Full range</span>
+                <span class="k">for</span> <span class="n">hand</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">hands</span><span class="p">:</span>
+                    <span class="n">prefix</span> <span class="o">=</span> <span class="s2">&quot;l&quot;</span> <span class="k">if</span> <span class="n">hand</span> <span class="o">==</span> <span class="s2">&quot;left&quot;</span> <span class="k">else</span> <span class="s2">&quot;r&quot;</span>
+                    <span class="n">positions</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s2">_f_joint5_2&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">angle</span>  <span class="c1"># PIP</span>
+                    <span class="n">positions</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s2">_f_joint5_3&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">angle</span>  <span class="c1"># DIP</span>
+                    <span class="n">positions</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s2">_f_joint5_4&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">angle</span>  <span class="c1"># DIP (coupled)</span>
+            <span class="k">elif</span> <span class="n">t</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">:</span>  <span class="c1"># Ring</span>
+                <span class="n">angle</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">deg2rad</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">((</span><span class="n">t</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">)</span> <span class="o">*</span> <span class="mi">90</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">hand</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">hands</span><span class="p">:</span>
+                    <span class="n">prefix</span> <span class="o">=</span> <span class="s2">&quot;l&quot;</span> <span class="k">if</span> <span class="n">hand</span> <span class="o">==</span> <span class="s2">&quot;left&quot;</span> <span class="k">else</span> <span class="s2">&quot;r&quot;</span>
+                    <span class="n">positions</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s2">_f_joint4_2&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">angle</span>
+                    <span class="n">positions</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s2">_f_joint4_3&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">angle</span>
+                    <span class="n">positions</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s2">_f_joint4_4&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">angle</span>
+            <span class="k">elif</span> <span class="n">t</span> <span class="o">&lt;</span> <span class="mi">3</span><span class="p">:</span>  <span class="c1"># Middle</span>
+                <span class="n">angle</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">deg2rad</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">((</span><span class="n">t</span> <span class="o">-</span> <span class="mi">2</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">)</span> <span class="o">*</span> <span class="mi">90</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">hand</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">hands</span><span class="p">:</span>
+                    <span class="n">prefix</span> <span class="o">=</span> <span class="s2">&quot;l&quot;</span> <span class="k">if</span> <span class="n">hand</span> <span class="o">==</span> <span class="s2">&quot;left&quot;</span> <span class="k">else</span> <span class="s2">&quot;r&quot;</span>
+                    <span class="n">positions</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s2">_f_joint3_2&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">angle</span>
+                    <span class="n">positions</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s2">_f_joint3_3&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">angle</span>
+                    <span class="n">positions</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s2">_f_joint3_4&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">angle</span>
+            <span class="k">elif</span> <span class="n">t</span> <span class="o">&lt;</span> <span class="mi">4</span><span class="p">:</span>  <span class="c1"># Index</span>
+                <span class="n">angle</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">deg2rad</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">((</span><span class="n">t</span> <span class="o">-</span> <span class="mi">3</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">)</span> <span class="o">*</span> <span class="mi">90</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">hand</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">hands</span><span class="p">:</span>
+                    <span class="n">prefix</span> <span class="o">=</span> <span class="s2">&quot;l&quot;</span> <span class="k">if</span> <span class="n">hand</span> <span class="o">==</span> <span class="s2">&quot;left&quot;</span> <span class="k">else</span> <span class="s2">&quot;r&quot;</span>
+                    <span class="n">positions</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s2">_f_joint2_2&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">angle</span>
+                    <span class="n">positions</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s2">_f_joint2_3&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">angle</span>
+                    <span class="n">positions</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s2">_f_joint2_4&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">angle</span>
+            <span class="k">elif</span> <span class="n">t</span> <span class="o">&lt;</span> <span class="mi">5</span><span class="p">:</span>  <span class="c1"># Thumb</span>
+                <span class="n">angle</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">deg2rad</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">((</span><span class="n">t</span> <span class="o">-</span> <span class="mi">4</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">)</span> <span class="o">*</span> <span class="mi">30</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">hand</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">hands</span><span class="p">:</span>
+                    <span class="n">prefix</span> <span class="o">=</span> <span class="s2">&quot;l&quot;</span> <span class="k">if</span> <span class="n">hand</span> <span class="o">==</span> <span class="s2">&quot;left&quot;</span> <span class="k">else</span> <span class="s2">&quot;r&quot;</span>
+                    <span class="n">positions</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s2">_f_joint1_1&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">angle</span>  <span class="c1"># Rotation</span>
+                    <span class="n">positions</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s2">_f_joint1_2&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">angle</span>  <span class="c1"># PIP (no sign flip)</span>
+                    <span class="n">positions</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s2">_f_joint1_3&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">angle</span>  <span class="c1"># DIP</span>
+                    <span class="n">positions</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s2">_f_joint1_4&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">angle</span>  <span class="c1"># DIP</span>
+
+        <span class="k">elif</span> <span class="n">sequence</span> <span class="o">==</span> <span class="n">TestSequence</span><span class="o">.</span><span class="n">SPREAD</span><span class="p">:</span>
+            <span class="c1"># Spread fingers out and back</span>
+            <span class="n">angle</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">deg2rad</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">t</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">)</span> <span class="o">*</span> <span class="mi">30</span><span class="p">)</span>  <span class="c1"># Max spread angle</span>
+            <span class="k">for</span> <span class="n">hand</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">hands</span><span class="p">:</span>
+                <span class="n">prefix</span> <span class="o">=</span> <span class="s2">&quot;l&quot;</span> <span class="k">if</span> <span class="n">hand</span> <span class="o">==</span> <span class="s2">&quot;left&quot;</span> <span class="k">else</span> <span class="s2">&quot;r&quot;</span>
+                <span class="n">positions</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s2">_f_joint2_1&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">angle</span>  <span class="c1"># Index spread</span>
+                <span class="n">positions</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s2">_f_joint3_1&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">angle</span>  <span class="c1"># Middle spread</span>
+                <span class="n">positions</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s2">_f_joint4_1&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">angle</span>  <span class="c1"># Ring spread</span>
+                <span class="n">positions</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s2">_f_joint5_1&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">angle</span>  <span class="c1"># Pinky spread</span>
+
+        <span class="k">elif</span> <span class="n">sequence</span> <span class="o">==</span> <span class="n">TestSequence</span><span class="o">.</span><span class="n">PINCH</span><span class="p">:</span>
+            <span class="c1"># Sequential thumb-to-finger pinching</span>
+            <span class="n">t</span> <span class="o">=</span> <span class="n">t</span> <span class="o">*</span> <span class="mi">4</span>  <span class="c1"># Four fingers to pinch</span>
+            <span class="n">thumb_rot</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">deg2rad</span><span class="p">(</span><span class="mi">120</span><span class="p">)</span>  <span class="c1"># Base thumb rotation in radians</span>
+
+            <span class="k">for</span> <span class="n">hand</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">hands</span><span class="p">:</span>
+                <span class="n">prefix</span> <span class="o">=</span> <span class="s2">&quot;l&quot;</span> <span class="k">if</span> <span class="n">hand</span> <span class="o">==</span> <span class="s2">&quot;left&quot;</span> <span class="k">else</span> <span class="s2">&quot;r&quot;</span>
+                <span class="c1"># Keep thumb rotated</span>
+                <span class="n">positions</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s2">_f_joint1_1&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">thumb_rot</span>
+
+                <span class="c1"># Move thumb and one finger at a time</span>
+                <span class="k">if</span> <span class="n">t</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">:</span>  <span class="c1"># Index</span>
+                    <span class="n">s</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">t</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">)</span>
+                    <span class="n">positions</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s2">_f_joint1_2&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">deg2rad</span><span class="p">(</span><span class="n">s</span> <span class="o">*</span> <span class="mi">30</span><span class="p">)</span>  <span class="c1"># Thumb PIP</span>
+                    <span class="n">positions</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s2">_f_joint1_3&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">deg2rad</span><span class="p">(</span><span class="n">s</span> <span class="o">*</span> <span class="mi">30</span><span class="p">)</span>  <span class="c1"># Thumb DIP</span>
+                    <span class="n">positions</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s2">_f_joint1_4&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">deg2rad</span><span class="p">(</span><span class="n">s</span> <span class="o">*</span> <span class="mi">30</span><span class="p">)</span>  <span class="c1"># Thumb DIP</span>
+                    <span class="n">positions</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s2">_f_joint2_2&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">deg2rad</span><span class="p">(</span><span class="n">s</span> <span class="o">*</span> <span class="mi">90</span><span class="p">)</span>  <span class="c1"># Index</span>
+                    <span class="n">positions</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s2">_f_joint2_3&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">deg2rad</span><span class="p">(</span><span class="n">s</span> <span class="o">*</span> <span class="mi">90</span><span class="p">)</span>
+                    <span class="n">positions</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s2">_f_joint2_4&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">deg2rad</span><span class="p">(</span><span class="n">s</span> <span class="o">*</span> <span class="mi">90</span><span class="p">)</span>
+                <span class="k">elif</span> <span class="n">t</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">:</span>  <span class="c1"># Middle</span>
+                    <span class="n">s</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">((</span><span class="n">t</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">)</span>
+                    <span class="n">positions</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s2">_f_joint1_2&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">deg2rad</span><span class="p">(</span><span class="n">s</span> <span class="o">*</span> <span class="mi">30</span><span class="p">)</span>  <span class="c1"># Thumb</span>
+                    <span class="n">positions</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s2">_f_joint1_3&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">deg2rad</span><span class="p">(</span><span class="n">s</span> <span class="o">*</span> <span class="mi">30</span><span class="p">)</span>
+                    <span class="n">positions</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s2">_f_joint1_4&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">deg2rad</span><span class="p">(</span><span class="n">s</span> <span class="o">*</span> <span class="mi">30</span><span class="p">)</span>
+                    <span class="n">positions</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s2">_f_joint3_2&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">deg2rad</span><span class="p">(</span><span class="n">s</span> <span class="o">*</span> <span class="mi">90</span><span class="p">)</span>  <span class="c1"># Middle</span>
+                    <span class="n">positions</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s2">_f_joint3_3&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">deg2rad</span><span class="p">(</span><span class="n">s</span> <span class="o">*</span> <span class="mi">90</span><span class="p">)</span>
+                    <span class="n">positions</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s2">_f_joint3_4&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">deg2rad</span><span class="p">(</span><span class="n">s</span> <span class="o">*</span> <span class="mi">90</span><span class="p">)</span>
+                <span class="k">elif</span> <span class="n">t</span> <span class="o">&lt;</span> <span class="mi">3</span><span class="p">:</span>  <span class="c1"># Ring</span>
+                    <span class="n">s</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">((</span><span class="n">t</span> <span class="o">-</span> <span class="mi">2</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">)</span>
+                    <span class="n">positions</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s2">_f_joint1_2&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">deg2rad</span><span class="p">(</span><span class="n">s</span> <span class="o">*</span> <span class="mi">30</span><span class="p">)</span>  <span class="c1"># Thumb</span>
+                    <span class="n">positions</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s2">_f_joint1_3&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">deg2rad</span><span class="p">(</span><span class="n">s</span> <span class="o">*</span> <span class="mi">30</span><span class="p">)</span>
+                    <span class="n">positions</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s2">_f_joint1_4&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">deg2rad</span><span class="p">(</span><span class="n">s</span> <span class="o">*</span> <span class="mi">30</span><span class="p">)</span>
+                    <span class="n">positions</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s2">_f_joint4_2&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">deg2rad</span><span class="p">(</span><span class="n">s</span> <span class="o">*</span> <span class="mi">90</span><span class="p">)</span>  <span class="c1"># Ring</span>
+                    <span class="n">positions</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s2">_f_joint4_3&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">deg2rad</span><span class="p">(</span><span class="n">s</span> <span class="o">*</span> <span class="mi">90</span><span class="p">)</span>
+                    <span class="n">positions</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s2">_f_joint4_4&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">deg2rad</span><span class="p">(</span><span class="n">s</span> <span class="o">*</span> <span class="mi">90</span><span class="p">)</span>
+                <span class="k">elif</span> <span class="n">t</span> <span class="o">&lt;</span> <span class="mi">4</span><span class="p">:</span>  <span class="c1"># Pinky</span>
+                    <span class="n">s</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">((</span><span class="n">t</span> <span class="o">-</span> <span class="mi">3</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">)</span>
+                    <span class="n">positions</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s2">_f_joint1_2&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">deg2rad</span><span class="p">(</span><span class="n">s</span> <span class="o">*</span> <span class="mi">30</span><span class="p">)</span>  <span class="c1"># Thumb</span>
+                    <span class="n">positions</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s2">_f_joint1_3&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">deg2rad</span><span class="p">(</span><span class="n">s</span> <span class="o">*</span> <span class="mi">30</span><span class="p">)</span>
+                    <span class="n">positions</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s2">_f_joint1_4&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">deg2rad</span><span class="p">(</span><span class="n">s</span> <span class="o">*</span> <span class="mi">30</span><span class="p">)</span>
+                    <span class="n">positions</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s2">_f_joint5_2&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">deg2rad</span><span class="p">(</span><span class="n">s</span> <span class="o">*</span> <span class="mi">90</span><span class="p">)</span>  <span class="c1"># Pinky</span>
+                    <span class="n">positions</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s2">_f_joint5_3&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">deg2rad</span><span class="p">(</span><span class="n">s</span> <span class="o">*</span> <span class="mi">90</span><span class="p">)</span>
+                    <span class="n">positions</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s2">_f_joint5_4&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">deg2rad</span><span class="p">(</span><span class="n">s</span> <span class="o">*</span> <span class="mi">90</span><span class="p">)</span>
+
+        <span class="k">elif</span> <span class="n">sequence</span> <span class="o">==</span> <span class="n">TestSequence</span><span class="o">.</span><span class="n">FIST</span><span class="p">:</span>
+            <span class="c1"># Make a fist</span>
+            <span class="n">angle</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">t</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">hand</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">hands</span><span class="p">:</span>
+                <span class="n">prefix</span> <span class="o">=</span> <span class="s2">&quot;l&quot;</span> <span class="k">if</span> <span class="n">hand</span> <span class="o">==</span> <span class="s2">&quot;left&quot;</span> <span class="k">else</span> <span class="s2">&quot;r&quot;</span>
+                <span class="c1"># Curl all fingers</span>
+                <span class="n">positions</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s2">_f_joint2_2&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">deg2rad</span><span class="p">(</span><span class="n">angle</span> <span class="o">*</span> <span class="mi">90</span><span class="p">)</span>  <span class="c1"># Index</span>
+                <span class="n">positions</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s2">_f_joint2_3&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">deg2rad</span><span class="p">(</span><span class="n">angle</span> <span class="o">*</span> <span class="mi">90</span><span class="p">)</span>
+                <span class="n">positions</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s2">_f_joint2_4&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">deg2rad</span><span class="p">(</span><span class="n">angle</span> <span class="o">*</span> <span class="mi">90</span><span class="p">)</span>
+                <span class="n">positions</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s2">_f_joint3_2&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">deg2rad</span><span class="p">(</span><span class="n">angle</span> <span class="o">*</span> <span class="mi">90</span><span class="p">)</span>  <span class="c1"># Middle</span>
+                <span class="n">positions</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s2">_f_joint3_3&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">deg2rad</span><span class="p">(</span><span class="n">angle</span> <span class="o">*</span> <span class="mi">90</span><span class="p">)</span>
+                <span class="n">positions</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s2">_f_joint3_4&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">deg2rad</span><span class="p">(</span><span class="n">angle</span> <span class="o">*</span> <span class="mi">90</span><span class="p">)</span>
+                <span class="n">positions</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s2">_f_joint4_2&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">deg2rad</span><span class="p">(</span><span class="n">angle</span> <span class="o">*</span> <span class="mi">90</span><span class="p">)</span>  <span class="c1"># Ring</span>
+                <span class="n">positions</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s2">_f_joint4_3&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">deg2rad</span><span class="p">(</span><span class="n">angle</span> <span class="o">*</span> <span class="mi">90</span><span class="p">)</span>
+                <span class="n">positions</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s2">_f_joint4_4&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">deg2rad</span><span class="p">(</span><span class="n">angle</span> <span class="o">*</span> <span class="mi">90</span><span class="p">)</span>
+                <span class="n">positions</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s2">_f_joint5_2&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">deg2rad</span><span class="p">(</span><span class="n">angle</span> <span class="o">*</span> <span class="mi">90</span><span class="p">)</span>  <span class="c1"># Pinky</span>
+                <span class="n">positions</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s2">_f_joint5_3&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">deg2rad</span><span class="p">(</span><span class="n">angle</span> <span class="o">*</span> <span class="mi">90</span><span class="p">)</span>
+                <span class="n">positions</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s2">_f_joint5_4&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">deg2rad</span><span class="p">(</span><span class="n">angle</span> <span class="o">*</span> <span class="mi">90</span><span class="p">)</span>
+                <span class="c1"># Thumb</span>
+                <span class="n">positions</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s2">_f_joint1_1&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">deg2rad</span><span class="p">(</span><span class="n">angle</span> <span class="o">*</span> <span class="mi">120</span><span class="p">)</span>  <span class="c1"># Rotation</span>
+                <span class="n">positions</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s2">_f_joint1_2&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">deg2rad</span><span class="p">(</span><span class="n">angle</span> <span class="o">*</span> <span class="mi">30</span><span class="p">)</span>  <span class="c1"># PIP</span>
+                <span class="n">positions</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s2">_f_joint1_3&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">deg2rad</span><span class="p">(</span><span class="n">angle</span> <span class="o">*</span> <span class="mi">30</span><span class="p">)</span>  <span class="c1"># DIP</span>
+                <span class="n">positions</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s2">_f_joint1_4&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">deg2rad</span><span class="p">(</span><span class="n">angle</span> <span class="o">*</span> <span class="mi">30</span><span class="p">)</span>  <span class="c1"># DIP</span>
+
+        <span class="k">return</span> <span class="n">positions</span></div>
+
+
+<div class="viewcode-block" id="DexHandTestNode.timer_callback">
+<a class="viewcode-back" href="../../../index.html#examples.ros2_demo.dexhand_ros2_test.DexHandTestNode.timer_callback">[docs]</a>
+    <span class="k">def</span> <span class="nf">timer_callback</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Execute test sequences&quot;&quot;&quot;</span>
+        <span class="n">now</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_clock</span><span class="p">()</span><span class="o">.</span><span class="n">now</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">current_sequence</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="c1"># Start with finger wave</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">current_sequence</span> <span class="o">=</span> <span class="n">TestSequence</span><span class="o">.</span><span class="n">FINGER_WAVE</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">sequence_start_time</span> <span class="o">=</span> <span class="n">now</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">get_logger</span><span class="p">()</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Starting sequence: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">current_sequence</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">return</span>
+
+        <span class="c1"># Get time in current sequence</span>
+        <span class="n">t</span> <span class="o">=</span> <span class="p">(</span><span class="n">now</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">sequence_start_time</span><span class="p">)</span><span class="o">.</span><span class="n">nanoseconds</span> <span class="o">/</span> <span class="mf">1e9</span>
+
+        <span class="k">if</span> <span class="n">t</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">cycle_time</span><span class="p">:</span>
+            <span class="c1"># Call the ros2 service to reset the hand</span>
+            <span class="n">reset_client</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">create_client</span><span class="p">(</span><span class="n">Trigger</span><span class="p">,</span> <span class="s2">&quot;/reset_hands&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">reset_client</span><span class="o">.</span><span class="n">wait_for_service</span><span class="p">(</span><span class="n">timeout_sec</span><span class="o">=</span><span class="mf">1.0</span><span class="p">):</span>
+                <span class="n">request</span> <span class="o">=</span> <span class="n">Trigger</span><span class="o">.</span><span class="n">Request</span><span class="p">()</span>
+                <span class="n">reset_client</span><span class="o">.</span><span class="n">call_async</span><span class="p">(</span><span class="n">request</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">get_logger</span><span class="p">()</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;Reset service not available&quot;</span><span class="p">)</span>
+
+            <span class="c1"># Move to next sequence</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">current_sequence</span> <span class="o">==</span> <span class="n">TestSequence</span><span class="o">.</span><span class="n">FINGER_WAVE</span><span class="p">:</span>
+                <span class="n">next_seq</span> <span class="o">=</span> <span class="n">TestSequence</span><span class="o">.</span><span class="n">SPREAD</span>
+            <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">current_sequence</span> <span class="o">==</span> <span class="n">TestSequence</span><span class="o">.</span><span class="n">SPREAD</span><span class="p">:</span>
+                <span class="n">next_seq</span> <span class="o">=</span> <span class="n">TestSequence</span><span class="o">.</span><span class="n">PINCH</span>
+            <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">current_sequence</span> <span class="o">==</span> <span class="n">TestSequence</span><span class="o">.</span><span class="n">PINCH</span><span class="p">:</span>
+                <span class="n">next_seq</span> <span class="o">=</span> <span class="n">TestSequence</span><span class="o">.</span><span class="n">FIST</span>
+            <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">current_sequence</span> <span class="o">==</span> <span class="n">TestSequence</span><span class="o">.</span><span class="n">FIST</span><span class="p">:</span>
+                <span class="n">next_seq</span> <span class="o">=</span> <span class="n">TestSequence</span><span class="o">.</span><span class="n">FINGER_WAVE</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">current_sequence</span> <span class="o">=</span> <span class="n">next_seq</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">sequence_start_time</span> <span class="o">=</span> <span class="n">now</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">get_logger</span><span class="p">()</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Starting sequence: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">current_sequence</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">return</span>
+
+        <span class="c1"># Get normalized time in sequence (0-1)</span>
+        <span class="n">t_norm</span> <span class="o">=</span> <span class="n">t</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">cycle_time</span>
+
+        <span class="c1"># Get target positions for current sequence</span>
+        <span class="n">targets</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_target_positions</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">current_sequence</span><span class="p">,</span> <span class="n">t_norm</span><span class="p">)</span>
+
+        <span class="c1"># Interpolate and publish</span>
+        <span class="k">if</span> <span class="n">targets</span><span class="p">:</span>
+            <span class="n">msg</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">interpolate_positions</span><span class="p">(</span><span class="n">targets</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">)</span>  <span class="c1"># Low pass filter</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">cmd_pub</span><span class="o">.</span><span class="n">publish</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="main">
+<a class="viewcode-back" href="../../../index.html#examples.ros2_demo.dexhand_ros2_test.main">[docs]</a>
+<span class="k">def</span> <span class="nf">main</span><span class="p">():</span>
+    <span class="n">config_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="vm">__file__</span><span class="p">),</span> <span class="s2">&quot;../../config&quot;</span><span class="p">,</span> <span class="s2">&quot;config.yaml&quot;</span><span class="p">)</span>
+
+    <span class="c1"># Load configuration</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">config_path</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">config</span> <span class="o">=</span> <span class="n">yaml</span><span class="o">.</span><span class="n">safe_load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error loading config file: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">return</span>
+
+    <span class="n">rclpy</span><span class="o">.</span><span class="n">init</span><span class="p">()</span>
+
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">node</span> <span class="o">=</span> <span class="n">DexHandTestNode</span><span class="p">(</span>
+            <span class="n">hands</span><span class="o">=</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;DexHand&quot;</span><span class="p">][</span><span class="s2">&quot;ROS_Node&quot;</span><span class="p">][</span><span class="s2">&quot;hands&quot;</span><span class="p">],</span>
+            <span class="n">cycle_time</span><span class="o">=</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;DexHand&quot;</span><span class="p">][</span><span class="s2">&quot;ROS_Node&quot;</span><span class="p">][</span><span class="s2">&quot;cycle_time&quot;</span><span class="p">],</span>
+        <span class="p">)</span>
+        <span class="n">rclpy</span><span class="o">.</span><span class="n">spin</span><span class="p">(</span><span class="n">node</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">KeyboardInterrupt</span><span class="p">:</span>
+        <span class="k">pass</span>
+    <span class="k">finally</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">rclpy</span><span class="o">.</span><span class="n">ok</span><span class="p">():</span>
+            <span class="n">node</span><span class="o">.</span><span class="n">destroy_node</span><span class="p">()</span>
+        <span class="n">rclpy</span><span class="o">.</span><span class="n">shutdown</span><span class="p">()</span></div>
+
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="n">main</span><span class="p">()</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, DexRobot.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
