@@ -106,22 +106,27 @@ Example code:
 API Reference
 --------------
 
-.. automodule:: tools.hardware_test.test_dexhand
+.. automodule:: pyzlg_dexhand.dexhand_interface
    :members:
    :undoc-members:
    :show-inheritance:
 
-.. automodule:: tools.hardware_test.test_dexhand_interactive
+.. automodule:: pyzlg_dexhand.dexhand_protocol
    :members:
    :undoc-members:
    :show-inheritance:
 
-.. automodule:: examples.ros2_demo.dexhand_ros2
+.. automodule:: pyzlg_dexhand.dexhand_protocol.commands
    :members:
    :undoc-members:
    :show-inheritance:
 
-.. automodule:: examples.ros2_demo.dexhand_ros2_test
-    :members:
-    :undoc-members:
-    :show-inheritance:
+.. automodule:: pyzlg_dexhand.dexhand_protocol.messages
+   :members:
+   :undoc-members:
+   :show-inheritance:
+    
+.. automodule:: pyzlg_dexhand.zcan_wrapper
+   :members:
+   :undoc-members:
+   :show-inheritance:
