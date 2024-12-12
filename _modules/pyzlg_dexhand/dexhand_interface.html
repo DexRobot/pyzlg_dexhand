@@ -1,0 +1,683 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>pyzlg_dexhand.dexhand_interface &mdash; pyzlg_dexhand 0.1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=01f34227"></script>
+      <script src="../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            pyzlg_dexhand
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <!-- Local TOC -->
+              <div class="local-toc"></div>
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">pyzlg_dexhand</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">pyzlg_dexhand.dexhand_interface</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for pyzlg_dexhand.dexhand_interface</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">dataclasses</span> <span class="kn">import</span> <span class="n">dataclass</span><span class="p">,</span> <span class="n">asdict</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Union</span><span class="p">,</span> <span class="n">Tuple</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">yaml</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Dict</span>
+<span class="kn">import</span> <span class="nn">time</span>
+
+<span class="kn">from</span> <span class="nn">.zcan_wrapper</span> <span class="kn">import</span> <span class="n">ZCANWrapper</span>
+<span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">dexhand_protocol</span> <span class="k">as</span> <span class="n">protocol</span>
+<span class="kn">from</span> <span class="nn">.dexhand_protocol</span> <span class="kn">import</span> <span class="n">BoardID</span>
+<span class="kn">from</span> <span class="nn">.dexhand_protocol.commands</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">ControlMode</span><span class="p">,</span>
+    <span class="n">MotorCommand</span><span class="p">,</span>
+    <span class="n">ClearErrorCommand</span><span class="p">,</span>
+    <span class="n">FeedbackConfigCommand</span><span class="p">,</span>
+    <span class="n">FeedbackMode</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span> <span class="nn">.dexhand_protocol.messages</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">BoardFeedback</span><span class="p">,</span>
+    <span class="n">ErrorInfo</span><span class="p">,</span>
+    <span class="n">MessageType</span><span class="p">,</span>
+    <span class="n">ProcessedMessage</span><span class="p">,</span>
+<span class="p">)</span>
+
+
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="HandConfig">
+<a class="viewcode-back" href="../../index.html#pyzlg_dexhand.dexhand_interface.HandConfig">[docs]</a>
+<span class="nd">@dataclass</span>
+<span class="k">class</span> <span class="nc">HandConfig</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Configuration for hand hardware&quot;&quot;&quot;</span>
+
+    <span class="n">channel</span><span class="p">:</span> <span class="nb">int</span>  <span class="c1"># CAN channel number</span>
+    <span class="n">hall_scale</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span>  <span class="c1"># Scale coefficients for hall position modes</span></div>
+
+
+
+<div class="viewcode-block" id="BoardState">
+<a class="viewcode-back" href="../../index.html#pyzlg_dexhand.dexhand_interface.BoardState">[docs]</a>
+<span class="nd">@dataclass</span>
+<span class="k">class</span> <span class="nc">BoardState</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Feedback and Error collected for a single board.&quot;&quot;&quot;</span>
+
+    <span class="n">feedback_timestamp</span><span class="p">:</span> <span class="nb">float</span>  <span class="c1"># Timestamp of last feedback</span>
+    <span class="n">status_timestamp</span><span class="p">:</span> <span class="nb">float</span>  <span class="c1"># Timestamp of last status (normal / error) update</span>
+    <span class="n">is_normal</span><span class="p">:</span> <span class="nb">bool</span>  <span class="c1"># True if board is in normal state</span>
+    <span class="n">feedback</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">BoardFeedback</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># Last feedback received</span>
+    <span class="n">error_info</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">ErrorInfo</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="kc">None</span>  <span class="c1"># Error information if board is in error state</span>
+    <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="JointFeedback">
+<a class="viewcode-back" href="../../index.html#pyzlg_dexhand.dexhand_interface.JointFeedback">[docs]</a>
+<span class="nd">@dataclass</span>
+<span class="k">class</span> <span class="nc">JointFeedback</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Feedback for a specific joint command&quot;&quot;&quot;</span>
+
+    <span class="n">timestamp</span><span class="p">:</span> <span class="nb">float</span>  <span class="c1"># When feedback was received</span>
+    <span class="n">angle</span><span class="p">:</span> <span class="nb">float</span>  <span class="c1"># Joint angle in degrees</span>
+    <span class="n">encoder_position</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># Encoder position in raw units</span></div>
+
+
+
+<div class="viewcode-block" id="StampedTactileFeedback">
+<a class="viewcode-back" href="../../index.html#pyzlg_dexhand.dexhand_interface.StampedTactileFeedback">[docs]</a>
+<span class="nd">@dataclass</span>
+<span class="k">class</span> <span class="nc">StampedTactileFeedback</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Timestamped tactile feedback for a fingertip&quot;&quot;&quot;</span>
+
+    <span class="n">timestamp</span><span class="p">:</span> <span class="nb">float</span>  <span class="c1"># When feedback was received</span>
+    <span class="n">normal_force</span><span class="p">:</span> <span class="nb">float</span>  <span class="c1"># Normal force in N</span>
+    <span class="n">normal_force_delta</span><span class="p">:</span> <span class="nb">int</span>  <span class="c1"># Change in normal force (raw units)</span>
+    <span class="n">tangential_force</span><span class="p">:</span> <span class="nb">float</span>  <span class="c1"># Tangential force in N</span>
+    <span class="n">tangential_force_delta</span><span class="p">:</span> <span class="nb">int</span>  <span class="c1"># Change in tangential force (raw units)</span>
+    <span class="n">direction</span><span class="p">:</span> <span class="nb">int</span>  <span class="c1"># Force direction (0-359 degrees, fingertip is 0)</span>
+    <span class="n">proximity</span><span class="p">:</span> <span class="nb">int</span>  <span class="c1"># Proximity value (raw units)</span>
+    <span class="n">temperature</span><span class="p">:</span> <span class="nb">int</span>  <span class="c1"># Temperature in Celsius</span></div>
+
+
+
+<div class="viewcode-block" id="HandFeedback">
+<a class="viewcode-back" href="../../index.html#pyzlg_dexhand.dexhand_interface.HandFeedback">[docs]</a>
+<span class="nd">@dataclass</span>
+<span class="k">class</span> <span class="nc">HandFeedback</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Feedback data for whole hand&quot;&quot;&quot;</span>
+
+    <span class="n">query_timestamp</span><span class="p">:</span> <span class="nb">float</span>  <span class="c1"># When feedback was requested</span>
+    <span class="n">joints</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">JointFeedback</span><span class="p">]</span>  <span class="c1"># Feedback per joint</span>
+    <span class="n">tactile</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">StampedTactileFeedback</span><span class="p">]</span>  <span class="c1"># Tactile data per fingertip</span></div>
+
+
+
+<div class="viewcode-block" id="DexHandBase">
+<a class="viewcode-back" href="../../index.html#pyzlg_dexhand.dexhand_interface.DexHandBase">[docs]</a>
+<span class="k">class</span> <span class="nc">DexHandBase</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Base class for dexterous hand control&quot;&quot;&quot;</span>
+
+    <span class="n">NUM_MOTORS</span> <span class="o">=</span> <span class="mi">12</span>  <span class="c1"># Total motors in hand</span>
+    <span class="n">NUM_BOARDS</span> <span class="o">=</span> <span class="mi">6</span>  <span class="c1"># Number of control boards</span>
+
+    <span class="n">joint_names</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="s2">&quot;th_dip&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;th_mcp&quot;</span><span class="p">,</span>  <span class="c1"># Board 0: Thumb</span>
+        <span class="s2">&quot;th_rot&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;ff_spr&quot;</span><span class="p">,</span>  <span class="c1"># Board 1: Thumb rotation &amp; spread</span>
+        <span class="s2">&quot;ff_dip&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;ff_mcp&quot;</span><span class="p">,</span>  <span class="c1"># Board 2: First finger</span>
+        <span class="s2">&quot;mf_dip&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;mf_mcp&quot;</span><span class="p">,</span>  <span class="c1"># Board 3: Middle finger</span>
+        <span class="s2">&quot;rf_dip&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;rf_mcp&quot;</span><span class="p">,</span>  <span class="c1"># Board 4: Ring finger</span>
+        <span class="s2">&quot;lf_dip&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;lf_mcp&quot;</span><span class="p">,</span>  <span class="c1"># Board 5: Little finger</span>
+    <span class="p">]</span>
+    <span class="n">finger_map</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="mi">0</span><span class="p">:</span> <span class="s2">&quot;th&quot;</span><span class="p">,</span>
+        <span class="mi">2</span><span class="p">:</span> <span class="s2">&quot;ff&quot;</span><span class="p">,</span>
+        <span class="mi">3</span><span class="p">:</span> <span class="s2">&quot;mf&quot;</span><span class="p">,</span>
+        <span class="mi">4</span><span class="p">:</span> <span class="s2">&quot;rf&quot;</span><span class="p">,</span>
+        <span class="mi">5</span><span class="p">:</span> <span class="s2">&quot;lf&quot;</span><span class="p">,</span>
+    <span class="p">}</span>  <span class="c1"># Map from board index to finger name</span>
+
+<div class="viewcode-block" id="DexHandBase.__init__">
+<a class="viewcode-back" href="../../index.html#pyzlg_dexhand.dexhand_interface.DexHandBase.__init__">[docs]</a>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">base_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">zcan</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">ZCANWrapper</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialize dexterous hand interface</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            config_path: Path to hand&#39;s YAML config file</span>
+<span class="sd">            base_id: Base board ID (0x01 for left, 0x07 for right)</span>
+<span class="sd">            zcan: Optional existing ZCANWrapper instance to share between hands</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">config</span> <span class="o">=</span> <span class="n">HandConfig</span><span class="p">(</span>
+            <span class="n">channel</span><span class="o">=</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;channel&quot;</span><span class="p">],</span> <span class="n">hall_scale</span><span class="o">=</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;hall_scale&quot;</span><span class="p">]</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">base_id</span> <span class="o">=</span> <span class="n">base_id</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">zcan</span> <span class="o">=</span> <span class="n">zcan</span> <span class="k">if</span> <span class="n">zcan</span> <span class="k">else</span> <span class="n">ZCANWrapper</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_owns_zcan</span> <span class="o">=</span> <span class="n">zcan</span> <span class="ow">is</span> <span class="kc">None</span>
+
+        <span class="c1"># Hall position scaling factors</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_init_hall_scaling</span><span class="p">()</span>
+
+        <span class="c1"># Maintain state for each board</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">board_states</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">BoardState</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="n">i</span><span class="p">:</span> <span class="n">BoardState</span><span class="p">(</span>
+                <span class="n">feedback_timestamp</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+                <span class="n">feedback</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                <span class="n">status_timestamp</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+                <span class="n">is_normal</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                <span class="n">error_info</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">NUM_BOARDS</span><span class="p">)</span>
+        <span class="p">}</span></div>
+
+
+    <span class="k">def</span> <span class="nf">_init_hall_scaling</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialize scaling factors for hall position modes&quot;&quot;&quot;</span>
+        <span class="c1"># Conversion factor for hall position modes (from protocol spec):</span>
+        <span class="c1"># - 6 counts per revolution</span>
+        <span class="c1"># - 25:1 gear ratio</span>
+        <span class="c1"># - 16-bit resolution</span>
+        <span class="c1"># - 360 degrees per revolution</span>
+        <span class="n">factor</span> <span class="o">=</span> <span class="mi">6</span> <span class="o">*</span> <span class="mi">25</span> <span class="o">*</span> <span class="mi">2</span><span class="o">**</span><span class="mi">4</span> <span class="o">/</span> <span class="mf">360.0</span>  <span class="c1"># Converts degrees to hardware units</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_hall_scale</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">hall_scale</span><span class="p">)</span> <span class="o">*</span> <span class="n">factor</span>
+
+<div class="viewcode-block" id="DexHandBase.init">
+<a class="viewcode-back" href="../../index.html#pyzlg_dexhand.dexhand_interface.DexHandBase.init">[docs]</a>
+    <span class="k">def</span> <span class="nf">init</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">device_index</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialize CAN communication</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            device_index: Device index for ZCAN device</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            bool: True if initialization successful</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_owns_zcan</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">zcan</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">device_index</span><span class="o">=</span><span class="n">device_index</span><span class="p">):</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Failed to open CAN device&quot;</span><span class="p">)</span>
+                <span class="k">return</span> <span class="kc">False</span>
+
+        <span class="c1"># Configure channel</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">zcan</span><span class="o">.</span><span class="n">configure_channel</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">channel</span><span class="p">):</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Failed to configure channel </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">channel</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="kc">False</span>
+
+        <span class="k">return</span> <span class="kc">True</span></div>
+
+
+    <span class="k">def</span> <span class="nf">_get_command_id</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">msg_type</span><span class="p">:</span> <span class="n">MessageType</span><span class="p">,</span> <span class="n">board_idx</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get command CAN ID for a board index&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="mi">0</span> <span class="o">&lt;=</span> <span class="n">board_idx</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">NUM_BOARDS</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Invalid board index: </span><span class="si">{</span><span class="n">board_idx</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">msg_type</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">base_id</span> <span class="o">+</span> <span class="n">board_idx</span>
+
+<div class="viewcode-block" id="DexHandBase.set_feedback_mode">
+<a class="viewcode-back" href="../../index.html#pyzlg_dexhand.dexhand_interface.DexHandBase.set_feedback_mode">[docs]</a>
+    <span class="k">def</span> <span class="nf">set_feedback_mode</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">mode</span><span class="p">:</span> <span class="n">FeedbackMode</span><span class="p">,</span> <span class="n">period_ms</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">enable</span><span class="p">:</span> <span class="nb">bool</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Configure feedback mode for all boards</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            mode: Feedback mode</span>
+<span class="sd">            period_ms: Period in milliseconds (if periodic)</span>
+<span class="sd">            enable: Enable flag</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            bool: True if command sent successfully</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Create and encode command</span>
+        <span class="n">command</span> <span class="o">=</span> <span class="n">FeedbackConfigCommand</span><span class="p">(</span><span class="n">mode</span><span class="o">=</span><span class="n">mode</span><span class="p">,</span> <span class="n">period_ms</span><span class="o">=</span><span class="n">period_ms</span><span class="p">,</span> <span class="n">enable</span><span class="o">=</span><span class="n">enable</span><span class="p">)</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">msg_type</span><span class="p">,</span> <span class="n">data</span> <span class="o">=</span> <span class="n">protocol</span><span class="o">.</span><span class="n">commands</span><span class="o">.</span><span class="n">encode_command</span><span class="p">(</span><span class="n">command</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">ValueError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Failed to encode feedback config command: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="kc">False</span>
+
+        <span class="c1"># Send command to all boards</span>
+        <span class="k">for</span> <span class="n">board_idx</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">NUM_BOARDS</span><span class="p">):</span>
+            <span class="n">command_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_command_id</span><span class="p">(</span><span class="n">msg_type</span><span class="p">,</span> <span class="n">board_idx</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">zcan</span><span class="o">.</span><span class="n">send_fd_message</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">channel</span><span class="p">,</span> <span class="n">command_id</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;Failed to send feedback config command to board </span><span class="si">{</span><span class="n">board_idx</span><span class="si">}</span><span class="s2">&quot;</span>
+                <span class="p">)</span>
+                <span class="k">return</span> <span class="kc">False</span>
+
+        <span class="k">return</span> <span class="kc">True</span></div>
+
+
+    <span class="k">def</span> <span class="nf">_send_motion_command</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">board_idx</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+        <span class="n">motor1_pos</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+        <span class="n">motor2_pos</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+        <span class="n">motor_enable</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mh">0x03</span><span class="p">,</span>
+        <span class="n">control_mode</span><span class="p">:</span> <span class="n">ControlMode</span> <span class="o">=</span> <span class="n">ControlMode</span><span class="o">.</span><span class="n">CASCADED_PID</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Send a motion command to a specific board</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            board_idx: Board index to command</span>
+<span class="sd">            motor1_pos: Position command for motor 1, in hardware units</span>
+<span class="sd">            motor2_pos: Position command for motor 2, in hardware units</span>
+<span class="sd">            motor_enable: Motor enable flags, 0x01 for motor 1, 0x02 for motor 2, 0x03 for both</span>
+<span class="sd">            control_mode: Control mode</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            bool: True if command sent successfully</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Create and encode command</span>
+        <span class="n">command</span> <span class="o">=</span> <span class="n">MotorCommand</span><span class="p">(</span>
+            <span class="n">control_mode</span><span class="o">=</span><span class="n">control_mode</span><span class="p">,</span>
+            <span class="n">motor_enable</span><span class="o">=</span><span class="n">motor_enable</span><span class="p">,</span>
+            <span class="n">motor1_pos</span><span class="o">=</span><span class="n">motor1_pos</span><span class="p">,</span>
+            <span class="n">motor2_pos</span><span class="o">=</span><span class="n">motor2_pos</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">msg_type</span><span class="p">,</span> <span class="n">data</span> <span class="o">=</span> <span class="n">protocol</span><span class="o">.</span><span class="n">commands</span><span class="o">.</span><span class="n">encode_command</span><span class="p">(</span><span class="n">command</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">ValueError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Failed to encode command: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="kc">False</span>
+
+        <span class="c1"># Send command</span>
+        <span class="n">command_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_command_id</span><span class="p">(</span><span class="n">MessageType</span><span class="o">.</span><span class="n">MOTION_COMMAND</span><span class="p">,</span> <span class="n">board_idx</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">zcan</span><span class="o">.</span><span class="n">send_fd_message</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">channel</span><span class="p">,</span> <span class="n">command_id</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Failed to send command to ID </span><span class="si">{command_id}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="kc">False</span>
+
+        <span class="k">return</span> <span class="kc">True</span>
+
+    <span class="k">def</span> <span class="nf">_refresh_board_states</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Receive CANFD frames to update the states for all boards.&quot;&quot;&quot;</span>
+        <span class="c1"># Get all messages</span>
+        <span class="n">messages</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">zcan</span><span class="o">.</span><span class="n">receive_fd_messages</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">channel</span><span class="p">)</span>
+
+        <span class="c1"># Process all received messages</span>
+        <span class="k">for</span> <span class="n">msg_id</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">timestamp</span> <span class="ow">in</span> <span class="n">messages</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">result</span> <span class="o">=</span> <span class="n">protocol</span><span class="o">.</span><span class="n">messages</span><span class="o">.</span><span class="n">process_message</span><span class="p">(</span><span class="n">msg_id</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>
+                <span class="n">board_idx</span> <span class="o">=</span> <span class="n">msg_id</span> <span class="o">-</span> <span class="n">result</span><span class="o">.</span><span class="n">msg_type</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">base_id</span>
+
+                <span class="k">if</span> <span class="n">result</span><span class="o">.</span><span class="n">msg_type</span> <span class="o">==</span> <span class="n">MessageType</span><span class="o">.</span><span class="n">MOTION_FEEDBACK</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">board_states</span><span class="p">[</span><span class="n">board_idx</span><span class="p">]</span><span class="o">.</span><span class="n">feedback_timestamp</span> <span class="o">=</span> <span class="n">timestamp</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">board_states</span><span class="p">[</span><span class="n">board_idx</span><span class="p">]</span><span class="o">.</span><span class="n">feedback</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">feedback</span>
+                <span class="k">elif</span> <span class="n">result</span><span class="o">.</span><span class="n">msg_type</span> <span class="o">==</span> <span class="n">MessageType</span><span class="o">.</span><span class="n">ERROR_MESSAGE</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">board_states</span><span class="p">[</span><span class="n">board_idx</span><span class="p">]</span><span class="o">.</span><span class="n">status_timestamp</span> <span class="o">=</span> <span class="n">timestamp</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">board_states</span><span class="p">[</span><span class="n">board_idx</span><span class="p">]</span><span class="o">.</span><span class="n">is_normal</span> <span class="o">=</span> <span class="kc">False</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">board_states</span><span class="p">[</span><span class="n">board_idx</span><span class="p">]</span><span class="o">.</span><span class="n">error_info</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">error</span>
+                <span class="k">elif</span> <span class="n">result</span><span class="o">.</span><span class="n">msg_type</span> <span class="o">==</span> <span class="n">MessageType</span><span class="o">.</span><span class="n">CONFIG_RESPONSE</span><span class="p">:</span>
+                    <span class="n">success</span><span class="p">,</span> <span class="n">command_type</span> <span class="o">=</span> <span class="n">protocol</span><span class="o">.</span><span class="n">messages</span><span class="o">.</span><span class="n">verify_config_response</span><span class="p">(</span>
+                        <span class="n">msg_id</span><span class="p">,</span> <span class="n">data</span>
+                    <span class="p">)</span>
+                    <span class="k">if</span> <span class="p">(</span>
+                        <span class="n">success</span>
+                        <span class="ow">and</span> <span class="n">command_type</span> <span class="o">==</span> <span class="n">protocol</span><span class="o">.</span><span class="n">commands</span><span class="o">.</span><span class="n">CommandType</span><span class="o">.</span><span class="n">CLEAR_ERROR</span>
+                    <span class="p">):</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">board_states</span><span class="p">[</span><span class="n">board_idx</span><span class="p">]</span><span class="o">.</span><span class="n">error_info</span> <span class="o">=</span> <span class="kc">None</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">board_states</span><span class="p">[</span><span class="n">board_idx</span><span class="p">]</span><span class="o">.</span><span class="n">is_normal</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="k">except</span> <span class="ne">ValueError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Failed to process message: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_clear_board_error</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">board_idx</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Attempt to clear error state for a board</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            board_idx: Board index to clear error for</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            bool: True if error clearance command sent successfully</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Create and encode clear error command</span>
+        <span class="n">clear_cmd</span> <span class="o">=</span> <span class="n">ClearErrorCommand</span><span class="p">()</span>
+        <span class="n">msg_type</span><span class="p">,</span> <span class="n">clear_data</span> <span class="o">=</span> <span class="n">protocol</span><span class="o">.</span><span class="n">commands</span><span class="o">.</span><span class="n">encode_command</span><span class="p">(</span><span class="n">clear_cmd</span><span class="p">)</span>
+        <span class="n">clear_cmd_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_command_id</span><span class="p">(</span><span class="n">msg_type</span><span class="p">,</span> <span class="n">board_idx</span><span class="p">)</span>
+
+        <span class="c1"># Send command</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">zcan</span><span class="o">.</span><span class="n">send_fd_message</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">channel</span><span class="p">,</span> <span class="n">clear_cmd_id</span><span class="p">,</span> <span class="n">clear_data</span><span class="p">):</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Failed to send error clear command to board </span><span class="si">{</span><span class="n">board_idx</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="kc">False</span>
+
+        <span class="k">return</span> <span class="kc">True</span>
+
+<div class="viewcode-block" id="DexHandBase.move_joints">
+<a class="viewcode-back" href="../../index.html#pyzlg_dexhand.dexhand_interface.DexHandBase.move_joints">[docs]</a>
+    <span class="k">def</span> <span class="nf">move_joints</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">th_rot</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>  <span class="c1"># thumb rotation</span>
+        <span class="n">th_mcp</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>  <span class="c1"># thumb metacarpophalangeal</span>
+        <span class="n">th_dip</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>  <span class="c1"># thumb coupled distal joints</span>
+        <span class="n">ff_spr</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>  <span class="c1"># four-finger spread</span>
+        <span class="n">ff_mcp</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>  <span class="c1"># first finger metacarpophalangeal</span>
+        <span class="n">ff_dip</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>  <span class="c1"># first finger coupled distal joints</span>
+        <span class="n">mf_mcp</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>  <span class="c1"># middle finger metacarpophalangeal</span>
+        <span class="n">mf_dip</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>  <span class="c1"># middle finger coupled distal joints</span>
+        <span class="n">rf_mcp</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>  <span class="c1"># ring finger metacarpophalangeal</span>
+        <span class="n">rf_dip</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>  <span class="c1"># ring finger coupled distal joints</span>
+        <span class="n">lf_mcp</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>  <span class="c1"># little finger metacarpophalangeal</span>
+        <span class="n">lf_dip</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>  <span class="c1"># little finger coupled distal joints</span>
+        <span class="n">control_mode</span><span class="p">:</span> <span class="n">ControlMode</span> <span class="o">=</span> <span class="n">ControlMode</span><span class="o">.</span><span class="n">CASCADED_PID</span><span class="p">,</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Move hand joints to specified angles.</span>
+
+<span class="sd">        For each finger, there are two independent DOFs:</span>
+<span class="sd">        - MCP (metacarpophalangeal) joint: Controls base joint flexion</span>
+<span class="sd">        - DIP (coupled): Controls coupled motion of PIP and DIP joints</span>
+
+<span class="sd">        Additional DOFs:</span>
+<span class="sd">        - th_rot: Thumb rotation/opposition</span>
+<span class="sd">        - ff_spr: Four-finger spread (abduction between fingers)</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            th_rot: Thumb rotation angle in degrees</span>
+<span class="sd">            th_mcp: Thumb MCP flexion angle</span>
+<span class="sd">            th_dip: Thumb coupled PIP-DIP flexion</span>
+<span class="sd">            ff_spr: Four-finger spread angle</span>
+<span class="sd">            ff_mcp: Index MCP flexion</span>
+<span class="sd">            ff_dip: Index coupled PIP-DIP flexion</span>
+<span class="sd">            mf_mcp: Middle MCP flexion</span>
+<span class="sd">            mf_dip: Middle coupled PIP-DIP flexion</span>
+<span class="sd">            rf_mcp: Ring MCP flexion</span>
+<span class="sd">            rf_dip: Ring coupled PIP-DIP flexion</span>
+<span class="sd">            lf_mcp: Little MCP flexion</span>
+<span class="sd">            lf_dip: Little coupled PIP-DIP flexion</span>
+<span class="sd">            control_mode: Motor control mode</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Record command start time</span>
+        <span class="n">command_timestamp</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+
+        <span class="c1"># Map joint angles to motor commands</span>
+        <span class="n">motor_angles</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">th_dip</span><span class="p">,</span>
+            <span class="n">th_mcp</span><span class="p">,</span>  <span class="c1"># Board 0</span>
+            <span class="n">th_rot</span><span class="p">,</span>
+            <span class="n">ff_spr</span><span class="p">,</span>  <span class="c1"># Board 1</span>
+            <span class="n">ff_dip</span><span class="p">,</span>
+            <span class="n">ff_mcp</span><span class="p">,</span>  <span class="c1"># Board 2</span>
+            <span class="n">mf_dip</span><span class="p">,</span>
+            <span class="n">mf_mcp</span><span class="p">,</span>  <span class="c1"># Board 3</span>
+            <span class="n">rf_dip</span><span class="p">,</span>
+            <span class="n">rf_mcp</span><span class="p">,</span>  <span class="c1"># Board 4</span>
+            <span class="n">lf_dip</span><span class="p">,</span>
+            <span class="n">lf_mcp</span><span class="p">,</span>  <span class="c1"># Board 5</span>
+        <span class="p">]</span>
+
+        <span class="c1"># Scale angles and create enable mask</span>
+        <span class="n">scaled_positions</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">NUM_MOTORS</span><span class="p">)</span>
+        <span class="n">enables</span> <span class="o">=</span> <span class="p">[</span><span class="kc">False</span><span class="p">]</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">NUM_MOTORS</span>
+
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="p">(</span><span class="n">angle</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">motor_angles</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">joint_names</span><span class="p">)):</span>
+            <span class="k">if</span> <span class="n">angle</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">scaled_positions</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_scale_angle</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">angle</span><span class="p">,</span> <span class="n">control_mode</span><span class="p">)</span>
+                <span class="n">enables</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+
+        <span class="k">for</span> <span class="n">board_idx</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">NUM_BOARDS</span><span class="p">):</span>
+            <span class="n">base_idx</span> <span class="o">=</span> <span class="n">board_idx</span> <span class="o">*</span> <span class="mi">2</span>
+            <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="n">enables</span><span class="p">[</span><span class="n">base_idx</span> <span class="p">:</span> <span class="n">base_idx</span> <span class="o">+</span> <span class="mi">2</span><span class="p">]):</span>
+                <span class="n">motor_enable</span> <span class="o">=</span> <span class="mh">0x01</span> <span class="k">if</span> <span class="n">enables</span><span class="p">[</span><span class="n">base_idx</span><span class="p">]</span> <span class="k">else</span> <span class="mi">0</span>
+                <span class="n">motor_enable</span> <span class="o">|=</span> <span class="mh">0x02</span> <span class="k">if</span> <span class="n">enables</span><span class="p">[</span><span class="n">base_idx</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="k">else</span> <span class="mi">0</span>
+                <span class="n">success</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_send_motion_command</span><span class="p">(</span>
+                    <span class="n">board_idx</span><span class="o">=</span><span class="n">board_idx</span><span class="p">,</span>
+                    <span class="n">motor1_pos</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">scaled_positions</span><span class="p">[</span><span class="n">base_idx</span><span class="p">]),</span>
+                    <span class="n">motor2_pos</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">scaled_positions</span><span class="p">[</span><span class="n">base_idx</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]),</span>
+                    <span class="n">motor_enable</span><span class="o">=</span><span class="n">motor_enable</span><span class="p">,</span>
+                    <span class="n">control_mode</span><span class="o">=</span><span class="n">control_mode</span><span class="p">,</span>
+                <span class="p">)</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">success</span><span class="p">:</span>
+                    <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Failed to send command to board </span><span class="si">{</span><span class="n">board_idx</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="DexHandBase.get_feedback">
+<a class="viewcode-back" href="../../index.html#pyzlg_dexhand.dexhand_interface.DexHandBase.get_feedback">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_feedback</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">HandFeedback</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get feedback from all joints and tactile sensors</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            HandFeedback object.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Record query start time</span>
+        <span class="n">query_timestamp</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+
+        <span class="c1"># Refresh board states to get feedback</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_refresh_board_states</span><span class="p">()</span>
+
+        <span class="c1"># Process feedback from all boards</span>
+        <span class="n">joint_feedback</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">tactile_feedback</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">board_idx</span><span class="p">,</span> <span class="n">state</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">board_states</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">base_idx</span> <span class="o">=</span> <span class="n">board_idx</span> <span class="o">*</span> <span class="mi">2</span>
+            <span class="n">timestamp</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+
+            <span class="k">if</span> <span class="n">state</span><span class="o">.</span><span class="n">feedback</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="c1"># No feedback available</span>
+                <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">2</span><span class="p">):</span>
+                    <span class="n">joint_idx</span> <span class="o">=</span> <span class="n">base_idx</span> <span class="o">+</span> <span class="n">i</span>
+                    <span class="n">joint_feedback</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">joint_names</span><span class="p">[</span><span class="n">joint_idx</span><span class="p">]]</span> <span class="o">=</span> <span class="n">JointFeedback</span><span class="p">(</span>
+                        <span class="n">timestamp</span><span class="o">=</span><span class="n">timestamp</span><span class="p">,</span>
+                        <span class="n">angle</span><span class="o">=</span><span class="nb">float</span><span class="p">(</span><span class="s2">&quot;nan&quot;</span><span class="p">),</span>
+                        <span class="n">encoder_position</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                    <span class="p">)</span>
+                <span class="k">continue</span>
+
+            <span class="c1"># Process joint feedback</span>
+            <span class="n">motors</span> <span class="o">=</span> <span class="p">[</span><span class="n">state</span><span class="o">.</span><span class="n">feedback</span><span class="o">.</span><span class="n">motor1</span><span class="p">,</span> <span class="n">state</span><span class="o">.</span><span class="n">feedback</span><span class="o">.</span><span class="n">motor2</span><span class="p">]</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">2</span><span class="p">):</span>
+                <span class="n">joint_idx</span> <span class="o">=</span> <span class="n">base_idx</span> <span class="o">+</span> <span class="n">i</span>
+                <span class="n">joint_feedback</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">joint_names</span><span class="p">[</span><span class="n">joint_idx</span><span class="p">]]</span> <span class="o">=</span> <span class="n">JointFeedback</span><span class="p">(</span>
+                    <span class="n">timestamp</span><span class="o">=</span><span class="n">timestamp</span><span class="p">,</span>
+                    <span class="n">angle</span><span class="o">=</span><span class="n">motors</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">angle</span><span class="p">,</span>
+                    <span class="n">encoder_position</span><span class="o">=</span><span class="n">motors</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">position</span><span class="p">,</span>
+                <span class="p">)</span>
+
+            <span class="c1"># Process tactile feedback if available</span>
+            <span class="k">if</span> <span class="n">state</span><span class="o">.</span><span class="n">feedback</span><span class="o">.</span><span class="n">tactile</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">board_idx</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">finger_map</span><span class="p">:</span>
+                    <span class="n">tactile_feedback</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">finger_map</span><span class="p">[</span><span class="n">board_idx</span><span class="p">]]</span> <span class="o">=</span> <span class="p">(</span>
+                        <span class="n">StampedTactileFeedback</span><span class="p">(</span>
+                            <span class="n">timestamp</span><span class="o">=</span><span class="n">timestamp</span><span class="p">,</span> <span class="o">**</span><span class="n">asdict</span><span class="p">(</span><span class="n">state</span><span class="o">.</span><span class="n">feedback</span><span class="o">.</span><span class="n">tactile</span><span class="p">)</span>
+                        <span class="p">)</span>
+                    <span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">HandFeedback</span><span class="p">(</span>
+            <span class="n">query_timestamp</span><span class="o">=</span><span class="n">query_timestamp</span><span class="p">,</span>
+            <span class="n">joints</span><span class="o">=</span><span class="n">joint_feedback</span><span class="p">,</span>
+            <span class="n">tactile</span><span class="o">=</span><span class="n">tactile_feedback</span><span class="p">,</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="DexHandBase.get_errors">
+<a class="viewcode-back" href="../../index.html#pyzlg_dexhand.dexhand_interface.DexHandBase.get_errors">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_errors</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">Optional</span><span class="p">[</span><span class="n">ErrorInfo</span><span class="p">]]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get error information for whole hand</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Dict mapping board index to ErrorInfo if an error is present</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">{</span><span class="n">i</span><span class="p">:</span> <span class="n">state</span><span class="o">.</span><span class="n">error_info</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">state</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">board_states</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span></div>
+
+
+<div class="viewcode-block" id="DexHandBase.clear_errors">
+<a class="viewcode-back" href="../../index.html#pyzlg_dexhand.dexhand_interface.DexHandBase.clear_errors">[docs]</a>
+    <span class="k">def</span> <span class="nf">clear_errors</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">clear_all</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Clear all errors for the hand</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            clear_all: If True, attempt to clear errors for all boards even if not in error state</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">board_idx</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">NUM_BOARDS</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">clear_all</span> <span class="ow">or</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">board_states</span><span class="p">[</span><span class="n">board_idx</span><span class="p">]</span><span class="o">.</span><span class="n">is_normal</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_clear_board_error</span><span class="p">(</span><span class="n">board_idx</span><span class="p">)</span></div>
+
+
+    <span class="k">def</span> <span class="nf">_scale_angle</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">motor_idx</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">angle</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">control_mode</span><span class="p">:</span> <span class="n">ControlMode</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Scale angle based on control mode&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">control_mode</span> <span class="ow">in</span> <span class="p">(</span>
+            <span class="n">ControlMode</span><span class="o">.</span><span class="n">HALL_POSITION</span><span class="p">,</span>
+            <span class="n">ControlMode</span><span class="o">.</span><span class="n">PROTECT_HALL_POSITION</span><span class="p">,</span>
+        <span class="p">):</span>
+            <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="n">angle</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">_hall_scale</span><span class="p">[</span><span class="n">motor_idx</span><span class="p">])</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># For cascaded PID mode, scale to 100x for hardware units</span>
+            <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="n">angle</span> <span class="o">*</span> <span class="mi">100</span><span class="p">)</span>
+
+<div class="viewcode-block" id="DexHandBase.reset_joints">
+<a class="viewcode-back" href="../../index.html#pyzlg_dexhand.dexhand_interface.DexHandBase.reset_joints">[docs]</a>
+    <span class="k">def</span> <span class="nf">reset_joints</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Reset all joints to their zero positions.</span>
+
+<span class="sd">        This is equivalent to setting all joint angles to 0 degrees.</span>
+<span class="sd">        Uses CASCADED_PID control mode.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">move_joints</span><span class="p">(</span>
+            <span class="n">th_rot</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+            <span class="n">th_mcp</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+            <span class="n">th_dip</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+            <span class="n">ff_spr</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+            <span class="n">ff_mcp</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+            <span class="n">ff_dip</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+            <span class="n">mf_mcp</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+            <span class="n">mf_dip</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+            <span class="n">rf_mcp</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+            <span class="n">rf_dip</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+            <span class="n">lf_mcp</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+            <span class="n">lf_dip</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+            <span class="n">control_mode</span><span class="o">=</span><span class="n">ControlMode</span><span class="o">.</span><span class="n">CASCADED_PID</span><span class="p">,</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="DexHandBase.close">
+<a class="viewcode-back" href="../../index.html#pyzlg_dexhand.dexhand_interface.DexHandBase.close">[docs]</a>
+    <span class="k">def</span> <span class="nf">close</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Close CAN communication&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_owns_zcan</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">zcan</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="LeftDexHand">
+<a class="viewcode-back" href="../../index.html#pyzlg_dexhand.dexhand_interface.LeftDexHand">[docs]</a>
+<span class="k">class</span> <span class="nc">LeftDexHand</span><span class="p">(</span><span class="n">DexHandBase</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Control interface for left dexterous hand&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">zcan</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">ZCANWrapper</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+        <span class="n">config_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="vm">__file__</span><span class="p">),</span> <span class="s2">&quot;../config&quot;</span><span class="p">,</span> <span class="s2">&quot;config.yaml&quot;</span>
+        <span class="p">)</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">config_path</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">config</span> <span class="o">=</span> <span class="n">yaml</span><span class="o">.</span><span class="n">safe_load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
+            <span class="n">config</span><span class="p">[</span><span class="s2">&quot;DexHand&quot;</span><span class="p">][</span><span class="s2">&quot;left_hand&quot;</span><span class="p">],</span>
+            <span class="n">BoardID</span><span class="o">.</span><span class="n">LEFT_HAND_BASE</span><span class="p">,</span>
+            <span class="n">zcan</span><span class="p">,</span>
+        <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="RightDexHand">
+<a class="viewcode-back" href="../../index.html#pyzlg_dexhand.dexhand_interface.RightDexHand">[docs]</a>
+<span class="k">class</span> <span class="nc">RightDexHand</span><span class="p">(</span><span class="n">DexHandBase</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Control interface for right dexterous hand&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">zcan</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">ZCANWrapper</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+        <span class="n">config_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="vm">__file__</span><span class="p">),</span> <span class="s2">&quot;../config&quot;</span><span class="p">,</span> <span class="s2">&quot;config.yaml&quot;</span>
+        <span class="p">)</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">config_path</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">config</span> <span class="o">=</span> <span class="n">yaml</span><span class="o">.</span><span class="n">safe_load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
+            <span class="n">config</span><span class="p">[</span><span class="s2">&quot;DexHand&quot;</span><span class="p">][</span><span class="s2">&quot;right_hand&quot;</span><span class="p">],</span>
+            <span class="n">BoardID</span><span class="o">.</span><span class="n">RIGHT_HAND_BASE</span><span class="p">,</span>
+            <span class="n">zcan</span><span class="p">,</span>
+        <span class="p">)</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, DexRobot.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
