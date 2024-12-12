@@ -1,8 +1,10 @@
 #!/usr/bin/env python3
 import os
 import yaml
+
 import rclpy
 from rclpy.node import Node
+
 from sensor_msgs.msg import JointState
 from std_srvs.srv import Trigger
 import argparse
