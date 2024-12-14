@@ -1,132 +1,79 @@
-DexHand Python Interface
-=========================
+Welcome to DexHand's documentation!
+=================================
 
-Python interface for controlling dexterous robotic hands over CANFD using ZLG USBCANFD adapters. Provides both direct control and ROS2 integration.
+Python interface for controlling dexterous robotic hands over CANFD using ZLG USBCANFD adapters. This package provides both direct control and ROS integration capabilities.
+
+Features
+--------
+
+* CANFD communication interface for DexHand hardware
+* Joint-space control interface with feedback processing
+* Built-in data logging and visualization tools
+* ROS integration with both ROS1 and ROS2 support
+* Hardware testing utilities
+
+Documentation Contents
+--------------------
 
 .. toctree::
    :maxdepth: 2
    :caption: Contents:
 
+   quickstart
+   api/index
 
-Installation
+Getting Started
 -------------
 
-1. Install the package:
+For new users:
 
-.. code-block:: bash
+1. Check the :doc:`quickstart` guide for installation and basic usage
+2. Review the API documentation starting with :doc:`api/dexhand_interface`
+3. Explore example applications in the Github repository
+
+Prerequisites
+------------
+
+* Linux environment
+* Python 3.8+
+* ZLG USBCANFD adapter (tested with USBCANFD-200U)
+* ROS1/ROS2 (optional, for ROS integration)
+
+Installation
+-----------
+
+Install via pip::
 
     pip install -e .
 
-2. Configure USB permissions:
-
-.. code-block:: bash
+Configure USB permissions::
 
     sudo ./tools/setup_usb_can.sh
 
-The setup script will:
+Next Steps
+---------
 
-- Create a canbus group
-- Add your user to the group
-- Set up udev rules for the USBCANFD adapter
-- Configure appropriate permissions
-
-You may need to log out and back in for the changes to take effect.
-
-Quick Start
-------------
-
-1. Hardware Testing
-
-Run hardware tests:
-
-.. code-block:: bash
-
-    python tools/hardware_test/test_dexhand.py --hands right
-
-This should move the hand through a series of predefined motions.
-
-2. Interactive Testing
-
-Launch interactive control interface:
-
-.. code-block:: bash
+* Try the interactive testing interface::
 
     python tools/hardware_test/test_dexhand_interactive.py --hands right
 
-This provides an IPython shell with initialized hand objects and helper functions.
+* Experiment with ROS integration::
 
-Example commands:
+    python examples/ros_node/dexhand_ros.py
 
-.. code-block:: python
+* Check out the :doc:`api/dexhand_logger` for data collection and analysis
 
-    right_hand.move_joints(th_rot=30)  # Rotate thumb
-    right_hand.move_joints(ff_mcp=60, ff_dip=60)  # Curl index finger
-    right_hand.move_joints(ff_spr=20, control_mode=ControlMode.PROTECT_HALL_POSITION)  # Spread all fingers
-    right_hand.get_feedback()
-    right_hand.reset_joints()
-    right_hand.clear_errors()    # Clear all error states
+Support
+-------
 
-You can explore the API with tab completion and help commands.
+For issues, questions, or contributions:
 
-3. ROS2 Integration
+* Check our `GitHub Issues <https://github.com/dexrobot/pyzlg_dexhand/issues>`_
+* Submit pull requests via GitHub
 
-.. code-block:: bash
+Indices and tables
+================
 
-    # Start node with default config
-    python examples/ros2_demo/dexhand_ros2.py
-
-    # Test movements with an example publisher
-    python examples/ros2_demo/dexhand_ros2_test.py --hands right --cycle-time 3.0
-
-4. Programming Interface
-
-Example code:
-
-.. code-block:: python
-
-    from pyzlg_dexhand import LeftDexHand, RightDexHand, ControlMode
-
-    # Initialize hand
-    hand = RightDexHand()
-    hand.init()
-
-    # Move thumb
-    hand.move_joints(
-        th_rot=30,  # Thumb rotation (0-150 degrees)
-        th_mcp=45,  # Thumb MCP flexion (0-90 degrees)
-        th_dip=45,  # Thumb coupled distal flexion
-        control_mode=ControlMode.CASCADED_PID
-    )
-
-    # Get feedback
-    feedback = hand.get_feedback()
-    print(f"Thumb angle: {feedback.joints['th_rot'].angle}")
-    print(f"Tactile force: {feedback.tactile['th'].normal_force}")
-
-API Reference
---------------
-
-.. automodule:: pyzlg_dexhand.dexhand_interface
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-.. automodule:: pyzlg_dexhand.dexhand_protocol
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-.. automodule:: pyzlg_dexhand.dexhand_protocol.commands
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-.. automodule:: pyzlg_dexhand.dexhand_protocol.messages
-   :members:
-   :undoc-members:
-   :show-inheritance:
-    
-.. automodule:: pyzlg_dexhand.zcan_wrapper
-   :members:
-   :undoc-members:
-   :show-inheritance:
+* :ref:`genindex`
+* :ref:`modindex`
+* :ref:`search`

@@ -1,0 +1,110 @@
+<svg viewBox="0 0 800 320" xmlns="http://www.w3.org/2000/svg">
+    <!-- Computer -->
+    <g transform="translate(115,50)">
+        <!-- Monitor -->
+        <rect x="0" y="0" width="120" height="80" stroke="black" stroke-width="2" fill="white"/>
+        <!-- Screen -->
+        <rect x="10" y="10" width="100" height="60" stroke="black" stroke-width="1" fill="white"/>
+        <!-- Globe icon -->
+        <circle cx="60" cy="40" r="20" stroke="black" stroke-width="1.5" fill="none"/>
+        <path d="M 40,40 h 40 M 60,20 v 40 M 45,30 q 15,-15 30,0 M 45,50 q 15,15 30,0"
+              stroke="black" stroke-width="1.5" fill="none"/>
+        <!-- Base -->
+        <path d="M 50,80 l 10,10 h 20 l 10,-10" stroke="black" stroke-width="2" fill="white"/>
+        <!-- Keyboard -->
+        <rect x="20" y="95" width="80" height="20" stroke="black" stroke-width="2" fill="white"/>
+        <text x="60" y="135" text-anchor="middle" font-size="14">Main Computer</text>
+    </g>
+
+    <!-- Bidirectional Arrow -->
+    <g transform="translate(175,180)">
+        <path d="M 0,20 L 0,40" stroke="black" stroke-width="2"/>
+        <path d="M -5,20 L 0,10 L 5,20" stroke="black" stroke-width="2"/>
+        <path d="M -5,30 L 0,40 L 5,30" stroke="black" stroke-width="2"/>
+    </g>
+
+    <!-- USB-CAN Adapter -->
+    <g transform="translate(115,220)">
+        <rect x="0" y="0" width="120" height="60" rx="5" stroke="black" stroke-width="2" fill="white"/>
+        <rect x="100" y="20" width="20" height="20" stroke="black" stroke-width="2" fill="white"/>
+        <text x="60" y="80" text-anchor="middle" font-size="14">USB to CANFD</text>
+    </g>
+
+    <!-- Simple Robotic Hand -->
+    <g transform="translate(350,30)">
+        <!-- Palm base -->
+        <rect x="20" y="60" width="60" height="70" rx="5"
+              fill="white" stroke="black" stroke-width="2"/>
+
+        <!-- Fingers -->
+        <rect x="30" y="20" width="10" height="40" rx="5"
+              fill="white" stroke="black" stroke-width="2"/>
+        <rect x="45" y="15" width="10" height="45" rx="5"
+              fill="white" stroke="black" stroke-width="2"/>
+        <rect x="60" y="20" width="10" height="40" rx="5"
+              fill="white" stroke="black" stroke-width="2"/>
+
+        <!-- Thumb -->
+        <g transform="translate(20,70) rotate(-30)">
+          <rect x="-5" y="-25" width="10" height="25" rx="5"
+                fill="white" stroke="black" stroke-width="2"/>
+        </g>
+
+        <!-- Connection point -->
+        <circle cx="50" cy="115" r="5" fill="white" stroke="black" stroke-width="2"/>
+
+        <text x="50" y="150" text-anchor="middle" font-size="14">DexHand</text>
+    </g>
+
+    <!-- Connection Diagram -->
+    <g transform="translate(400,250)">
+        <!-- GX12 Connector -->
+        <circle cx="0" cy="0" r="30" stroke="black" stroke-width="2" fill="white"/>
+        <circle cx="-10" cy="-10" r="3" fill="black"/>
+        <circle cx="10" cy="10" r="3" fill="black"/>
+        <circle cx="-10" cy="10" r="3" fill="black"/>
+        <circle cx="10" cy="-10" r="3" fill="black"/>
+        <circle cx="0" cy="-20" r="3" stroke="black" fill="white"/>
+        <text x="0" y="50" text-anchor="middle" font-size="14">GX12 Connector</text>
+
+        <!-- Pin Numbers -->
+        <text x="-25" y="-25" text-anchor="middle" font-size="12">3</text>
+        <text x="25" y="-25" text-anchor="start" font-size="12">2</text>
+        <text x="-25" y="30" text-anchor="middle" font-size="12">4</text>
+        <text x="30" y="30" text-anchor="end" font-size="12">1</text>
+    </g>
+
+    <!-- Wiring Labels -->
+    <g transform="translate(240,240)">
+        <path d="M 0,0 L 150,0" stroke="lightgreen" stroke-width="2"/>
+        <text x="75" y="-5" text-anchor="middle" font-size="12">CANL (White)</text>
+
+        <path d="M 0,20 L 150,20" stroke="blue" stroke-width="2"/>
+        <text x="75" y="35" text-anchor="middle" font-size="12">CANH</text>
+    </g>
+
+    <!-- Power Supply -->
+    <g transform="translate(565,250)">
+        <!-- Power supply body -->
+        <rect x="0" y="-30" width="80" height="60" stroke="black" stroke-width="2" fill="white"/>
+        <!-- Power connectors -->
+        <rect x="70" y="-20" width="10" height="10" stroke="black" stroke-width="1" fill="black"/>
+        <rect x="70" y="10" width="10" height="10" stroke="black" stroke-width="1" fill="black"/>
+        <!-- Vents -->
+        <g transform="translate(10,-20)">
+            <path d="M 0,0 h 50 M 0,10 h 50 M 0,20 h 50 M 0,30 h 50 M 0,40 h 50"
+                  stroke="black" stroke-width="1"/>
+        </g>
+        <text x="40" y="50" text-anchor="middle" font-size="14">DC Power Supply</text>
+        <text x="40" y="70" text-anchor="middle" font-size="14">24V 3A</text>
+    </g>
+
+    <!-- Power Connections -->
+    <g transform="translate(410,240)">
+        <path d="M 0,0 L 150,0" stroke="black" stroke-width="2"/>
+        <text x="75" y="-5" text-anchor="middle" font-size="12">GND</text>
+
+        <path d="M 0,20 L 150,20" stroke="red" stroke-width="2"/>
+        <text x="75" y="35" text-anchor="middle" font-size="12">VCC</text>
+    </g>
+</svg>
