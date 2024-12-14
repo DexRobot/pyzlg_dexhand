@@ -5,7 +5,14 @@ setup(
     name="pyzlg_dexhand",
     version="0.1.0",
     packages=find_packages(),
-    install_requires=["numpy", "pyyaml"],
+    install_requires=[
+        "numpy",
+        "pyyaml",
+        "ipython",
+        "matplotlib",
+        "pandas",
+        "ros_compat @ git+https://github.com/dexrobot/ros_compat.git",
+    ],
     extras_require={
         "test": ["pytest", "pytest-cov"],
         "docs": [
