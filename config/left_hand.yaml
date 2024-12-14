@@ -1,6 +1,0 @@
-# Configuration for left dexterous hand
-channel: 0
-ctrl_offset: 0x100
-ce_offset: 0x00
-recv_offset: 0x20
-hall_scale: [2.1, 2.1, 1.8, 4.0, 2.2, 1.6, 2.2, 1.6, 2.2, 1.6, 2.2, 1.6]  # Scale coefficients for hall position modes (0x33/0x55)
