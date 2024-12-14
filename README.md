@@ -19,6 +19,12 @@ This package provides:
 - ZLG USBCANFD adapter (tested with USBCANFD-200U)
 - ROS1/ROS2 (optional, for ROS interface)
 
+## Hardware setup
+
+Please refer to the following diagram:
+
+![DexHand Connection Diagram](docs/assets/connection.svg)
+
 ## Installation
 
 1. Install the package:
@@ -77,16 +83,6 @@ You can explore the API with tab completion and help commands.
 
 
 ### 3. ROS Integration
-
-```bash
-# Start node with default config
-python examples/ros_node/dexhand_ros.py
-
-# Test movements with an example publisher
-python examples/ros_node/dexhand_ros_publisher_demo.py --hands right --cycle-time 3.0
-```
-
-### ROS Integration
 
 The SDK provides a ROS interface that supports both ROS1 (rospy) and ROS2 (rclpy) environments, automatically detecting and using the appropriate framework.
 
