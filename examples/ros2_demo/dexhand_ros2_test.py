@@ -2,9 +2,8 @@
 import os
 import yaml
 
-import rclpy
-from rclpy.node import Node
 
+from ros_compat import ROSNode, ROSTime
 from sensor_msgs.msg import JointState
 from std_srvs.srv import Trigger
 import argparse
@@ -23,7 +22,7 @@ class TestSequence(Enum):
     ALL = auto()  # Test all movements
 
 
-class DexHandTestNode(Node):
+class DexHandTestNode(ROSNode):
     """Test node for exercising DexHand joints"""
 
     # Joint limits in degrees (will be converted to radians)
@@ -80,7 +79,7 @@ class DexHandTestNode(Node):
         self.current_sequence = None
         self.sequence_start_time = None
 
-        self.get_logger().info(
+        self.logger.info(
             f"DexHand test node initialized:\n"
             f'  Hands: {", ".join(hands)}\n'
             f"  Cycle time: {cycle_time}s\n"
@@ -101,7 +100,7 @@ class DexHandTestNode(Node):
     def interpolate_positions(self, targets: Dict[str, float], alpha: float):
         """Linearly interpolate between current and target positions"""
         msg = JointState()
-        msg.header.stamp = self.get_clock().now().to_msg()
+        msg.header.stamp = self.get_ros_time().to_msg()
 
         for name, target in targets.items():
             current = self.current_pos.get(name, 0.0)
@@ -253,17 +252,17 @@ class DexHandTestNode(Node):
 
     def timer_callback(self):
         """Execute test sequences"""
-        now = self.get_clock().now()
+        now = self.get_ros_time().now()
 
         if self.current_sequence is None:
             # Start with finger wave
             self.current_sequence = TestSequence.FINGER_WAVE
             self.sequence_start_time = now
-            self.get_logger().info(f"Starting sequence: {self.current_sequence.name}")
+            self.logger.info(f"Starting sequence: {self.current_sequence.name}")
             return
 
         # Get time in current sequence
-        t = (now - self.sequence_start_time).nanoseconds / 1e9
+        t = now - self.sequence_start_time
 
         if t > self.cycle_time:
             # Call the ros2 service to reset the hand
@@ -272,7 +271,7 @@ class DexHandTestNode(Node):
                 request = Trigger.Request()
                 reset_client.call_async(request)
             else:
-                self.get_logger().warn("Reset service not available")
+                self.logger.warn("Reset service not available")
 
             # Move to next sequence
             if self.current_sequence == TestSequence.FINGER_WAVE:
@@ -286,7 +285,7 @@ class DexHandTestNode(Node):
 
             self.current_sequence = next_seq
             self.sequence_start_time = now
-            self.get_logger().info(f"Starting sequence: {self.current_sequence.name}")
+            self.logger.info(f"Starting sequence: {self.current_sequence.name}")
             return
 
         # Get normalized time in sequence (0-1)
@@ -312,20 +311,14 @@ def main():
         print(f"Error loading config file: {e}")
         return
 
-    rclpy.init()
-
+    node = DexHandTestNode(
+        hands=config["DexHand"]["ROS_Node"]["hands"],
+        cycle_time=config["DexHand"]["ROS_Node"]["cycle_time"],
+    )
     try:
-        node = DexHandTestNode(
-            hands=config["DexHand"]["ROS_Node"]["hands"],
-            cycle_time=config["DexHand"]["ROS_Node"]["cycle_time"],
-        )
-        rclpy.spin(node)
-    except KeyboardInterrupt:
-        pass
+        node.spin()
     finally:
-        if rclpy.ok():
-            node.destroy_node()
-        rclpy.shutdown()
+        node.shutdown()
 
 
 if __name__ == "__main__":

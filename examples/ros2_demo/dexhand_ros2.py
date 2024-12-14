@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
-import rclpy
-from rclpy.node import Node
+from ros_compat import ROSNode
 from std_msgs.msg import Float32MultiArray
 from std_srvs.srv import Trigger
 from sensor_msgs.msg import JointState
@@ -77,7 +76,7 @@ class JointMapping:
         return command
 
 
-class DexHandNode(Node):
+class DexHandNode(ROSNode):
     """ROS2 Node for controlling one or both DexHands"""
 
     def __init__(self, config: dict):
@@ -130,7 +129,7 @@ class DexHandNode(Node):
 
         # Initialize command subscriber with configurable topic
         self.create_subscription(
-            JointState, self.command_topic, self.command_callback, 10
+            JointState, self.command_topic, self.command_callback
         )
 
         # Initialize reset service
@@ -140,7 +139,7 @@ class DexHandNode(Node):
         period = 1.0 / send_rate
         self.timer = self.create_timer(period, self.send_commands)
 
-        self.get_logger().info(
+        self.logger.info(
             f"DexHand node initialized:\n"
             f'  Hands: {", ".join(hands)}\n'
             f"  Control mode: {control_mode}\n"
@@ -177,7 +176,7 @@ class DexHandNode(Node):
                             ] + self.filter_alpha * value
 
         except Exception as e:
-            self.get_logger().error(f"Error in command callback: {str(e)}")
+            self.logger.error(f"Error in command callback: {str(e)}")
 
     def send_commands(self):
         """Send filtered commands to all hands"""
@@ -207,7 +206,7 @@ class DexHandNode(Node):
                 hand_interface.clear_errors(clear_all=True)
 
         except Exception as e:
-            self.get_logger().error(f"Error sending commands: {str(e)}")
+            self.logger.error(f"Error sending commands: {str(e)}")
 
     def reset_callback(self, request, response):
         """Reset all hands with bend-straighten sequence"""
@@ -275,21 +274,11 @@ def main():
         print(f"Error loading config file: {e}")
         return
 
-    # Initialize ROS
-    rclpy.init()
-
+    node = DexHandNode(config=config["DexHand"]["ROS_Node"])
     try:
-        # Create and spin node
-        node = DexHandNode(config=config["DexHand"]["ROS_Node"])
-
-        try:
-            rclpy.spin(node)
-        finally:
-            node.on_shutdown()
-            node.destroy_node()
-
+        node.spin()
     finally:
-        rclpy.shutdown()
+        node.shutdown()
 
 
 if __name__ == "__main__":

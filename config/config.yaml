@@ -21,4 +21,3 @@ DexHand:
     topic: '/joint_commands'  # Topic to subscribe for joint commands
 
   ZCANDeviceType: "ZCAN_USBCANFD_100U"  # ZCAN_USBCANFD_100U/ZCAN_USBCANFD_200U
-
