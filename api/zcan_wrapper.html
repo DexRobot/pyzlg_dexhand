@@ -1,0 +1,938 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ZCAN Wrapper &mdash; pyzlg_dexhand 0.1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=01f34227"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="DexHand Logger" href="dexhand_logger.html" />
+    <link rel="prev" title="DexHand Protocol" href="dexhand_protocol.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            pyzlg_dexhand
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../quickstart.html">Quickstart Guide</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">API Reference</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="dexhand_interface.html">DexHand Interface</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dexhand_protocol.html">DexHand Protocol</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">ZCAN Wrapper</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#core-components">Core Components</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#device-types">Device Types</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#status-codes">Status Codes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#message-types">Message Types</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#base-wrapper">Base Wrapper</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#pyzlg_dexhand.zcan_wrapper.ZCANWrapperBase"><code class="docutils literal notranslate"><span class="pre">ZCANWrapperBase</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#hardware-implementation">Hardware Implementation</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#pyzlg_dexhand.zcan_wrapper.ZCANWrapper"><code class="docutils literal notranslate"><span class="pre">ZCANWrapper</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#mock-implementation">Mock Implementation</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#pyzlg_dexhand.zcan_wrapper.MockZCANWrapper"><code class="docutils literal notranslate"><span class="pre">MockZCANWrapper</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#configuration">Configuration</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#bittimingconfig">BitTimingConfig</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#canfdtimingconfig">CANFDTimingConfig</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#filter-configuration">Filter Configuration</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#examples">Examples</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#basic-usage">Basic Usage</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#message-filtering">Message Filtering</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#error-handling">Error Handling</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#notes">Notes</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#device-setup">Device Setup</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#timing-configuration">Timing Configuration</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#error-recovery">Error Recovery</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="dexhand_logger.html">DexHand Logger</a></li>
+<li class="toctree-l2"><a class="reference internal" href="index.html#core-components">Core Components</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">pyzlg_dexhand</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="index.html">API Reference</a></li>
+      <li class="breadcrumb-item active">ZCAN Wrapper</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/api/zcan_wrapper.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="zcan-wrapper">
+<h1>ZCAN Wrapper<a class="headerlink" href="#zcan-wrapper" title="Link to this heading"></a></h1>
+<p>The ZCAN wrapper module provides low-level hardware communication with ZLG USBCANFD devices.</p>
+<section id="core-components">
+<h2>Core Components<a class="headerlink" href="#core-components" title="Link to this heading"></a></h2>
+<section id="device-types">
+<h3>Device Types<a class="headerlink" href="#device-types" title="Link to this heading"></a></h3>
+<dl class="py class">
+<dt class="sig sig-object py" id="pyzlg_dexhand.zcan.ZCANDeviceType">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pyzlg_dexhand.zcan.</span></span><span class="sig-name descname"><span class="pre">ZCANDeviceType</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">names=&lt;not</span> <span class="pre">given&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">*values</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">module=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">qualname=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">type=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start=1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">boundary=None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyzlg_dexhand/zcan.html#ZCANDeviceType"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyzlg_dexhand.zcan.ZCANDeviceType" title="Link to this definition"></a></dt>
+<dd><dl class="py attribute">
+<dt class="sig sig-object py" id="pyzlg_dexhand.zcan.ZCANDeviceType.ZCAN_CANDTU_MINI">
+<span class="sig-name descname"><span class="pre">ZCAN_CANDTU_MINI</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">33</span></em><a class="headerlink" href="#pyzlg_dexhand.zcan.ZCANDeviceType.ZCAN_CANDTU_MINI" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pyzlg_dexhand.zcan.ZCANDeviceType.ZCAN_USBCANFD_100U">
+<span class="sig-name descname"><span class="pre">ZCAN_USBCANFD_100U</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">42</span></em><a class="headerlink" href="#pyzlg_dexhand.zcan.ZCANDeviceType.ZCAN_USBCANFD_100U" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pyzlg_dexhand.zcan.ZCANDeviceType.ZCAN_USBCANFD_200U">
+<span class="sig-name descname"><span class="pre">ZCAN_USBCANFD_200U</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">41</span></em><a class="headerlink" href="#pyzlg_dexhand.zcan.ZCANDeviceType.ZCAN_USBCANFD_200U" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pyzlg_dexhand.zcan.ZCANDeviceType.ZCAN_USBCAN_2E_U">
+<span class="sig-name descname"><span class="pre">ZCAN_USBCAN_2E_U</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">21</span></em><a class="headerlink" href="#pyzlg_dexhand.zcan.ZCANDeviceType.ZCAN_USBCAN_2E_U" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="status-codes">
+<h3>Status Codes<a class="headerlink" href="#status-codes" title="Link to this heading"></a></h3>
+<dl class="py class">
+<dt class="sig sig-object py" id="pyzlg_dexhand.zcan.ZCANStatus">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pyzlg_dexhand.zcan.</span></span><span class="sig-name descname"><span class="pre">ZCANStatus</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">names=&lt;not</span> <span class="pre">given&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">*values</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">module=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">qualname=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">type=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start=1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">boundary=None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyzlg_dexhand/zcan.html#ZCANStatus"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyzlg_dexhand.zcan.ZCANStatus" title="Link to this definition"></a></dt>
+<dd><dl class="py attribute">
+<dt class="sig sig-object py" id="pyzlg_dexhand.zcan.ZCANStatus.ERROR">
+<span class="sig-name descname"><span class="pre">ERROR</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0</span></em><a class="headerlink" href="#pyzlg_dexhand.zcan.ZCANStatus.ERROR" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pyzlg_dexhand.zcan.ZCANStatus.OFFLINE">
+<span class="sig-name descname"><span class="pre">OFFLINE</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">3</span></em><a class="headerlink" href="#pyzlg_dexhand.zcan.ZCANStatus.OFFLINE" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pyzlg_dexhand.zcan.ZCANStatus.OK">
+<span class="sig-name descname"><span class="pre">OK</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">1</span></em><a class="headerlink" href="#pyzlg_dexhand.zcan.ZCANStatus.OK" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pyzlg_dexhand.zcan.ZCANStatus.ONLINE">
+<span class="sig-name descname"><span class="pre">ONLINE</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">2</span></em><a class="headerlink" href="#pyzlg_dexhand.zcan.ZCANStatus.ONLINE" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pyzlg_dexhand.zcan.ZCANStatus.UNSUPPORTED">
+<span class="sig-name descname"><span class="pre">UNSUPPORTED</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">4</span></em><a class="headerlink" href="#pyzlg_dexhand.zcan.ZCANStatus.UNSUPPORTED" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="message-types">
+<h3>Message Types<a class="headerlink" href="#message-types" title="Link to this heading"></a></h3>
+<dl class="py class">
+<dt class="sig sig-object py" id="pyzlg_dexhand.zcan.ZCANMessageType">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pyzlg_dexhand.zcan.</span></span><span class="sig-name descname"><span class="pre">ZCANMessageType</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">names=&lt;not</span> <span class="pre">given&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">*values</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">module=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">qualname=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">type=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start=1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">boundary=None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyzlg_dexhand/zcan.html#ZCANMessageType"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyzlg_dexhand.zcan.ZCANMessageType" title="Link to this definition"></a></dt>
+<dd><dl class="py attribute">
+<dt class="sig sig-object py" id="pyzlg_dexhand.zcan.ZCANMessageType.NORMAL">
+<span class="sig-name descname"><span class="pre">NORMAL</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0</span></em><a class="headerlink" href="#pyzlg_dexhand.zcan.ZCANMessageType.NORMAL" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pyzlg_dexhand.zcan.ZCANMessageType.SELF_TEST">
+<span class="sig-name descname"><span class="pre">SELF_TEST</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">2</span></em><a class="headerlink" href="#pyzlg_dexhand.zcan.ZCANMessageType.SELF_TEST" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pyzlg_dexhand.zcan.ZCANMessageType.SINGLE">
+<span class="sig-name descname"><span class="pre">SINGLE</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">1</span></em><a class="headerlink" href="#pyzlg_dexhand.zcan.ZCANMessageType.SINGLE" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pyzlg_dexhand.zcan.ZCANMessageType.SINGLE_SELF_TEST">
+<span class="sig-name descname"><span class="pre">SINGLE_SELF_TEST</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">3</span></em><a class="headerlink" href="#pyzlg_dexhand.zcan.ZCANMessageType.SINGLE_SELF_TEST" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</section>
+</section>
+<section id="base-wrapper">
+<h2>Base Wrapper<a class="headerlink" href="#base-wrapper" title="Link to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="pyzlg_dexhand.zcan_wrapper.ZCANWrapperBase">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pyzlg_dexhand.zcan_wrapper.</span></span><span class="sig-name descname"><span class="pre">ZCANWrapperBase</span></span><a class="reference internal" href="../_modules/pyzlg_dexhand/zcan_wrapper.html#ZCANWrapperBase"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyzlg_dexhand.zcan_wrapper.ZCANWrapperBase" title="Link to this definition"></a></dt>
+<dd><p>Abstract base class for ZCAN wrapper implementations</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="pyzlg_dexhand.zcan_wrapper.ZCANWrapperBase.close">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">close</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyzlg_dexhand/zcan_wrapper.html#ZCANWrapperBase.close"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyzlg_dexhand.zcan_wrapper.ZCANWrapperBase.close" title="Link to this definition"></a></dt>
+<dd><p>Close ZCAN device</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>True if device closed successfully</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyzlg_dexhand.zcan_wrapper.ZCANWrapperBase.configure_channel">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">configure_channel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">channel</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">arb_baudrate</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1000000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_baudrate</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5000000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">enable_resistance</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tx_timeout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">200</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyzlg_dexhand/zcan_wrapper.html#ZCANWrapperBase.configure_channel"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyzlg_dexhand.zcan_wrapper.ZCANWrapperBase.configure_channel" title="Link to this definition"></a></dt>
+<dd><p>Configure and start a CAN channel</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>channel</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></span>) – Channel number</p></li>
+<li><p><strong>arb_baudrate</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></span>) – Arbitration baudrate in Hz</p></li>
+<li><p><strong>data_baudrate</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></span>) – Data baudrate in Hz</p></li>
+<li><p><strong>enable_resistance</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></span>) – Enable terminal resistance</p></li>
+<li><p><strong>tx_timeout</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></span>) – TX timeout in ms</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>True if configuration successful</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyzlg_dexhand.zcan_wrapper.ZCANWrapperBase.open">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">open</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">device_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">device_index</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyzlg_dexhand/zcan_wrapper.html#ZCANWrapperBase.open"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyzlg_dexhand.zcan_wrapper.ZCANWrapperBase.open" title="Link to this definition"></a></dt>
+<dd><p>Open ZCAN device</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>device_type</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<a class="reference internal" href="#pyzlg_dexhand.zcan.ZCANDeviceType" title="pyzlg_dexhand.zcan.ZCANDeviceType"><code class="xref py py-class docutils literal notranslate"><span class="pre">ZCANDeviceType</span></code></a>]</span>) – Type of ZCAN device</p></li>
+<li><p><strong>device_index</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]</span>) – Device index</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>True if device opened successfully</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyzlg_dexhand.zcan_wrapper.ZCANWrapperBase.receive_fd_messages">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">receive_fd_messages</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">channel</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_messages</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">100</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout_ms</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">100</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyzlg_dexhand/zcan_wrapper.html#ZCANWrapperBase.receive_fd_messages"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyzlg_dexhand.zcan_wrapper.ZCANWrapperBase.receive_fd_messages" title="Link to this definition"></a></dt>
+<dd><p>Receive CANFD messages</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>channel</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></span>) – Channel number</p></li>
+<li><p><strong>max_messages</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></span>) – Maximum number of messages to receive</p></li>
+<li><p><strong>timeout_ms</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></span>) – Receive timeout in milliseconds</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code>[<code class="xref py py-data docutils literal notranslate"><span class="pre">Tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">bytes</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]]</span></p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>List of (id, data, timestamp) tuples for received messages</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyzlg_dexhand.zcan_wrapper.ZCANWrapperBase.send_fd_message">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">send_fd_message</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">channel</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">flags</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyzlg_dexhand/zcan_wrapper.html#ZCANWrapperBase.send_fd_message"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyzlg_dexhand.zcan_wrapper.ZCANWrapperBase.send_fd_message" title="Link to this definition"></a></dt>
+<dd><p>Send a CANFD message</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>channel</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></span>) – Channel number</p></li>
+<li><p><strong>id</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></span>) – Message ID</p></li>
+<li><p><strong>data</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">bytes</span></code></span>) – Message data bytes</p></li>
+<li><p><strong>flags</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">ZCANMessageInfo</span></code>]</span>) – Optional message flags</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>True if message sent successfully</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyzlg_dexhand.zcan_wrapper.ZCANWrapperBase.set_filter">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">set_filter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">channel</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filters</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyzlg_dexhand/zcan_wrapper.html#ZCANWrapperBase.set_filter"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyzlg_dexhand.zcan_wrapper.ZCANWrapperBase.set_filter" title="Link to this definition"></a></dt>
+<dd><p>Set message filters for a channel</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>channel</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></span>) – Channel number</p></li>
+<li><p><strong>filters</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code>[<a class="reference internal" href="#pyzlg_dexhand.zcan_wrapper.ZCANFilterConfig" title="pyzlg_dexhand.zcan_wrapper.ZCANFilterConfig"><code class="xref py py-class docutils literal notranslate"><span class="pre">ZCANFilterConfig</span></code></a>]</span>) – List of filter configurations</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>True if filters set successfully</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="hardware-implementation">
+<h2>Hardware Implementation<a class="headerlink" href="#hardware-implementation" title="Link to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="pyzlg_dexhand.zcan_wrapper.ZCANWrapper">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pyzlg_dexhand.zcan_wrapper.</span></span><span class="sig-name descname"><span class="pre">ZCANWrapper</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lib_path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'../lib/libusbcanfd.so'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyzlg_dexhand/zcan_wrapper.html#ZCANWrapper"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyzlg_dexhand.zcan_wrapper.ZCANWrapper" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pyzlg_dexhand.zcan_wrapper.ZCANWrapperBase" title="pyzlg_dexhand.zcan_wrapper.ZCANWrapperBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">ZCANWrapperBase</span></code></a></p>
+<p>High level wrapper for ZCAN operations</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="pyzlg_dexhand.zcan_wrapper.ZCANWrapper.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lib_path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'../lib/libusbcanfd.so'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyzlg_dexhand/zcan_wrapper.html#ZCANWrapper.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyzlg_dexhand.zcan_wrapper.ZCANWrapper.__init__" title="Link to this definition"></a></dt>
+<dd><p>Initialize ZCAN wrapper</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>lib_path</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span>) – Path to ZLG driver library, relative to the current file.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyzlg_dexhand.zcan_wrapper.ZCANWrapper.close">
+<span class="sig-name descname"><span class="pre">close</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyzlg_dexhand/zcan_wrapper.html#ZCANWrapper.close"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyzlg_dexhand.zcan_wrapper.ZCANWrapper.close" title="Link to this definition"></a></dt>
+<dd><p>Close ZCAN device</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>True if device closed successfully</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyzlg_dexhand.zcan_wrapper.ZCANWrapper.configure_channel">
+<span class="sig-name descname"><span class="pre">configure_channel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">channel</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">arb_baudrate</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1000000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_baudrate</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5000000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">enable_resistance</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tx_timeout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">200</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyzlg_dexhand/zcan_wrapper.html#ZCANWrapper.configure_channel"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyzlg_dexhand.zcan_wrapper.ZCANWrapper.configure_channel" title="Link to this definition"></a></dt>
+<dd><p>Configure and start a CAN channel</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>channel</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></span>) – Channel number to configure</p></li>
+<li><p><strong>arb_baudrate</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></span>) – Arbitration baudrate in Hz</p></li>
+<li><p><strong>data_baudrate</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></span>) – Data baudrate in Hz</p></li>
+<li><p><strong>enable_resistance</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></span>) – Enable terminal resistance</p></li>
+<li><p><strong>tx_timeout</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></span>) – Transmission timeout in ms</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>True if configuration successful</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyzlg_dexhand.zcan_wrapper.ZCANWrapper.dump_channel_state">
+<span class="sig-name descname"><span class="pre">dump_channel_state</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">channel</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyzlg_dexhand/zcan_wrapper.html#ZCANWrapper.dump_channel_state"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyzlg_dexhand.zcan_wrapper.ZCANWrapper.dump_channel_state" title="Link to this definition"></a></dt>
+<dd><p>Dump complete channel state for debugging</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyzlg_dexhand.zcan_wrapper.ZCANWrapper.dump_frame">
+<span class="sig-name descname"><span class="pre">dump_frame</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">message</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyzlg_dexhand/zcan_wrapper.html#ZCANWrapper.dump_frame"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyzlg_dexhand.zcan_wrapper.ZCANWrapper.dump_frame" title="Link to this definition"></a></dt>
+<dd><p>Dump complete frame details for debugging</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></span></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyzlg_dexhand.zcan_wrapper.ZCANWrapper.handle_error">
+<span class="sig-name descname"><span class="pre">handle_error</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">channel</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyzlg_dexhand/zcan_wrapper.html#ZCANWrapper.handle_error"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyzlg_dexhand.zcan_wrapper.ZCANWrapper.handle_error" title="Link to this definition"></a></dt>
+<dd><p>Read and log error information from the device</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></span></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyzlg_dexhand.zcan_wrapper.ZCANWrapper.monitor_channel_status">
+<span class="sig-name descname"><span class="pre">monitor_channel_status</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">channel</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyzlg_dexhand/zcan_wrapper.html#ZCANWrapper.monitor_channel_status"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyzlg_dexhand.zcan_wrapper.ZCANWrapper.monitor_channel_status" title="Link to this definition"></a></dt>
+<dd><p>Monitor channel status and handle errors</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></span></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyzlg_dexhand.zcan_wrapper.ZCANWrapper.open">
+<span class="sig-name descname"><span class="pre">open</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">device_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">device_index</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyzlg_dexhand/zcan_wrapper.html#ZCANWrapper.open"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyzlg_dexhand.zcan_wrapper.ZCANWrapper.open" title="Link to this definition"></a></dt>
+<dd><p>Open ZCAN device</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>device_type</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<a class="reference internal" href="#pyzlg_dexhand.zcan.ZCANDeviceType" title="pyzlg_dexhand.zcan.ZCANDeviceType"><code class="xref py py-class docutils literal notranslate"><span class="pre">ZCANDeviceType</span></code></a>]</span>) – Type of ZCAN device, defaults to ZCAN_USBCANFD_200U</p></li>
+<li><p><strong>device_index</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]</span>) – Device index, defaults to 0</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>True if device opened successfully</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyzlg_dexhand.zcan_wrapper.ZCANWrapper.receive_fd_messages">
+<span class="sig-name descname"><span class="pre">receive_fd_messages</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">channel</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_messages</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">100</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout_ms</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">100</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyzlg_dexhand/zcan_wrapper.html#ZCANWrapper.receive_fd_messages"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyzlg_dexhand.zcan_wrapper.ZCANWrapper.receive_fd_messages" title="Link to this definition"></a></dt>
+<dd><p>Receive CANFD messages</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>channel</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></span>) – Channel number</p></li>
+<li><p><strong>max_messages</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></span>) – Maximum number of messages to receive</p></li>
+<li><p><strong>timeout_ms</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></span>) – Receive timeout in milliseconds</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code>[<code class="xref py py-data docutils literal notranslate"><span class="pre">Tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">bytes</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]]</span></p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>List of (id, data, timestamp) tuples for received messages</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyzlg_dexhand.zcan_wrapper.ZCANWrapper.reset_channel">
+<span class="sig-name descname"><span class="pre">reset_channel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">channel</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyzlg_dexhand/zcan_wrapper.html#ZCANWrapper.reset_channel"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyzlg_dexhand.zcan_wrapper.ZCANWrapper.reset_channel" title="Link to this definition"></a></dt>
+<dd><p>Reset a CAN channel after errors</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></span></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyzlg_dexhand.zcan_wrapper.ZCANWrapper.send_fd_message">
+<span class="sig-name descname"><span class="pre">send_fd_message</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">channel</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">flags</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyzlg_dexhand/zcan_wrapper.html#ZCANWrapper.send_fd_message"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyzlg_dexhand.zcan_wrapper.ZCANWrapper.send_fd_message" title="Link to this definition"></a></dt>
+<dd><p>Send a single CANFD message</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></span></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyzlg_dexhand.zcan_wrapper.ZCANWrapper.send_fd_messages">
+<span class="sig-name descname"><span class="pre">send_fd_messages</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">channel</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">messages</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">flags</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyzlg_dexhand/zcan_wrapper.html#ZCANWrapper.send_fd_messages"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyzlg_dexhand.zcan_wrapper.ZCANWrapper.send_fd_messages" title="Link to this definition"></a></dt>
+<dd><p>Send multiple CANFD messages</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>channel</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></span>) – Channel number</p></li>
+<li><p><strong>messages</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code>[<code class="xref py py-data docutils literal notranslate"><span class="pre">Tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">bytes</span></code>]]</span>) – List of (id, data) tuples</p></li>
+<li><p><strong>flags</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">ZCANMessageInfo</span></code>]</span>) – Optional message flags to use for all messages</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Number of messages successfully sent</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyzlg_dexhand.zcan_wrapper.ZCANWrapper.set_filter">
+<span class="sig-name descname"><span class="pre">set_filter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">channel</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filters</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyzlg_dexhand/zcan_wrapper.html#ZCANWrapper.set_filter"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyzlg_dexhand.zcan_wrapper.ZCANWrapper.set_filter" title="Link to this definition"></a></dt>
+<dd><p>Configure message filters for a channel</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>channel</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></span>) – Channel number</p></li>
+<li><p><strong>filters</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code>[<a class="reference internal" href="#pyzlg_dexhand.zcan_wrapper.ZCANFilterConfig" title="pyzlg_dexhand.zcan_wrapper.ZCANFilterConfig"><code class="xref py py-class docutils literal notranslate"><span class="pre">ZCANFilterConfig</span></code></a>]</span>) – List of filter configurations</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>True if filters set successfully</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="mock-implementation">
+<h2>Mock Implementation<a class="headerlink" href="#mock-implementation" title="Link to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="pyzlg_dexhand.zcan_wrapper.MockZCANWrapper">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pyzlg_dexhand.zcan_wrapper.</span></span><span class="sig-name descname"><span class="pre">MockZCANWrapper</span></span><a class="reference internal" href="../_modules/pyzlg_dexhand/zcan_wrapper.html#MockZCANWrapper"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyzlg_dexhand.zcan_wrapper.MockZCANWrapper" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pyzlg_dexhand.zcan_wrapper.ZCANWrapperBase" title="pyzlg_dexhand.zcan_wrapper.ZCANWrapperBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">ZCANWrapperBase</span></code></a></p>
+<p>Mock implementation for testing</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="pyzlg_dexhand.zcan_wrapper.MockZCANWrapper.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyzlg_dexhand/zcan_wrapper.html#MockZCANWrapper.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyzlg_dexhand.zcan_wrapper.MockZCANWrapper.__init__" title="Link to this definition"></a></dt>
+<dd><p>Initialize mock wrapper</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyzlg_dexhand.zcan_wrapper.MockZCANWrapper.clear_message_history">
+<span class="sig-name descname"><span class="pre">clear_message_history</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyzlg_dexhand/zcan_wrapper.html#MockZCANWrapper.clear_message_history"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyzlg_dexhand.zcan_wrapper.MockZCANWrapper.clear_message_history" title="Link to this definition"></a></dt>
+<dd><p>Clear message history</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyzlg_dexhand.zcan_wrapper.MockZCANWrapper.close">
+<span class="sig-name descname"><span class="pre">close</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyzlg_dexhand/zcan_wrapper.html#MockZCANWrapper.close"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyzlg_dexhand.zcan_wrapper.MockZCANWrapper.close" title="Link to this definition"></a></dt>
+<dd><p>Close ZCAN device</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>True if device closed successfully</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyzlg_dexhand.zcan_wrapper.MockZCANWrapper.configure_channel">
+<span class="sig-name descname"><span class="pre">configure_channel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">channel</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">arb_baudrate</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1000000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_baudrate</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5000000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">enable_resistance</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tx_timeout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">200</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyzlg_dexhand/zcan_wrapper.html#MockZCANWrapper.configure_channel"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyzlg_dexhand.zcan_wrapper.MockZCANWrapper.configure_channel" title="Link to this definition"></a></dt>
+<dd><p>Configure and start a CAN channel</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>channel</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></span>) – Channel number</p></li>
+<li><p><strong>arb_baudrate</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></span>) – Arbitration baudrate in Hz</p></li>
+<li><p><strong>data_baudrate</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></span>) – Data baudrate in Hz</p></li>
+<li><p><strong>enable_resistance</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></span>) – Enable terminal resistance</p></li>
+<li><p><strong>tx_timeout</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></span>) – TX timeout in ms</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>True if configuration successful</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyzlg_dexhand.zcan_wrapper.MockZCANWrapper.get_message_history">
+<span class="sig-name descname"><span class="pre">get_message_history</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyzlg_dexhand/zcan_wrapper.html#MockZCANWrapper.get_message_history"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyzlg_dexhand.zcan_wrapper.MockZCANWrapper.get_message_history" title="Link to this definition"></a></dt>
+<dd><p>Get history of sent messages for testing</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code>]</span></p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>List of dictionaries containing message details</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyzlg_dexhand.zcan_wrapper.MockZCANWrapper.open">
+<span class="sig-name descname"><span class="pre">open</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">device_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">device_index</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyzlg_dexhand/zcan_wrapper.html#MockZCANWrapper.open"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyzlg_dexhand.zcan_wrapper.MockZCANWrapper.open" title="Link to this definition"></a></dt>
+<dd><p>Open ZCAN device</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>device_type</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<a class="reference internal" href="#pyzlg_dexhand.zcan.ZCANDeviceType" title="pyzlg_dexhand.zcan.ZCANDeviceType"><code class="xref py py-class docutils literal notranslate"><span class="pre">ZCANDeviceType</span></code></a>]</span>) – Type of ZCAN device</p></li>
+<li><p><strong>device_index</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]</span>) – Device index</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>True if device opened successfully</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyzlg_dexhand.zcan_wrapper.MockZCANWrapper.receive_fd_messages">
+<span class="sig-name descname"><span class="pre">receive_fd_messages</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">channel</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_messages</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">100</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout_ms</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">100</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyzlg_dexhand/zcan_wrapper.html#MockZCANWrapper.receive_fd_messages"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyzlg_dexhand.zcan_wrapper.MockZCANWrapper.receive_fd_messages" title="Link to this definition"></a></dt>
+<dd><p>Receive CANFD messages</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>channel</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></span>) – Channel number</p></li>
+<li><p><strong>max_messages</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></span>) – Maximum number of messages to receive</p></li>
+<li><p><strong>timeout_ms</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></span>) – Receive timeout in milliseconds</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code>[<code class="xref py py-data docutils literal notranslate"><span class="pre">Tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">bytes</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]]</span></p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>List of (id, data, timestamp) tuples for received messages</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyzlg_dexhand.zcan_wrapper.MockZCANWrapper.send_fd_message">
+<span class="sig-name descname"><span class="pre">send_fd_message</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">channel</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">flags</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyzlg_dexhand/zcan_wrapper.html#MockZCANWrapper.send_fd_message"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyzlg_dexhand.zcan_wrapper.MockZCANWrapper.send_fd_message" title="Link to this definition"></a></dt>
+<dd><p>Send a CANFD message</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>channel</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></span>) – Channel number</p></li>
+<li><p><strong>id</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></span>) – Message ID</p></li>
+<li><p><strong>data</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">bytes</span></code></span>) – Message data bytes</p></li>
+<li><p><strong>flags</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">ZCANMessageInfo</span></code>]</span>) – Optional message flags</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>True if message sent successfully</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyzlg_dexhand.zcan_wrapper.MockZCANWrapper.set_filter">
+<span class="sig-name descname"><span class="pre">set_filter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">channel</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filters</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyzlg_dexhand/zcan_wrapper.html#MockZCANWrapper.set_filter"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyzlg_dexhand.zcan_wrapper.MockZCANWrapper.set_filter" title="Link to this definition"></a></dt>
+<dd><p>Set message filters for a channel</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>channel</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></span>) – Channel number</p></li>
+<li><p><strong>filters</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code>[<a class="reference internal" href="#pyzlg_dexhand.zcan_wrapper.ZCANFilterConfig" title="pyzlg_dexhand.zcan_wrapper.ZCANFilterConfig"><code class="xref py py-class docutils literal notranslate"><span class="pre">ZCANFilterConfig</span></code></a>]</span>) – List of filter configurations</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>True if filters set successfully</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="configuration">
+<h2>Configuration<a class="headerlink" href="#configuration" title="Link to this heading"></a></h2>
+<section id="bittimingconfig">
+<h3>BitTimingConfig<a class="headerlink" href="#bittimingconfig" title="Link to this heading"></a></h3>
+<dl class="py class">
+<dt class="sig sig-object py" id="pyzlg_dexhand.zcan_wrapper.BitTimingConfig">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pyzlg_dexhand.zcan_wrapper.</span></span><span class="sig-name descname"><span class="pre">BitTimingConfig</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tseg1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tseg2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sjw</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">brp</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyzlg_dexhand/zcan_wrapper.html#BitTimingConfig"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyzlg_dexhand.zcan_wrapper.BitTimingConfig" title="Link to this definition"></a></dt>
+<dd><p>Bit timing configuration values</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pyzlg_dexhand.zcan_wrapper.BitTimingConfig.brp">
+<span class="sig-name descname"><span class="pre">brp</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></em><a class="headerlink" href="#pyzlg_dexhand.zcan_wrapper.BitTimingConfig.brp" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pyzlg_dexhand.zcan_wrapper.BitTimingConfig.sjw">
+<span class="sig-name descname"><span class="pre">sjw</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></em><a class="headerlink" href="#pyzlg_dexhand.zcan_wrapper.BitTimingConfig.sjw" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pyzlg_dexhand.zcan_wrapper.BitTimingConfig.tseg1">
+<span class="sig-name descname"><span class="pre">tseg1</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></em><a class="headerlink" href="#pyzlg_dexhand.zcan_wrapper.BitTimingConfig.tseg1" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pyzlg_dexhand.zcan_wrapper.BitTimingConfig.tseg2">
+<span class="sig-name descname"><span class="pre">tseg2</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></em><a class="headerlink" href="#pyzlg_dexhand.zcan_wrapper.BitTimingConfig.tseg2" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="canfdtimingconfig">
+<h3>CANFDTimingConfig<a class="headerlink" href="#canfdtimingconfig" title="Link to this heading"></a></h3>
+<dl class="py class">
+<dt class="sig sig-object py" id="pyzlg_dexhand.zcan_wrapper.CANFDTimingConfig">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pyzlg_dexhand.zcan_wrapper.</span></span><span class="sig-name descname"><span class="pre">CANFDTimingConfig</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">arb</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyzlg_dexhand/zcan_wrapper.html#CANFDTimingConfig"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyzlg_dexhand.zcan_wrapper.CANFDTimingConfig" title="Link to this definition"></a></dt>
+<dd><p>Complete timing configuration for CANFD</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pyzlg_dexhand.zcan_wrapper.CANFDTimingConfig.arb">
+<span class="sig-name descname"><span class="pre">arb</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#pyzlg_dexhand.zcan_wrapper.BitTimingConfig" title="pyzlg_dexhand.zcan_wrapper.BitTimingConfig"><code class="xref py py-class docutils literal notranslate"><span class="pre">BitTimingConfig</span></code></a></em><a class="headerlink" href="#pyzlg_dexhand.zcan_wrapper.CANFDTimingConfig.arb" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="pyzlg_dexhand.zcan_wrapper.CANFDTimingConfig.clock_hz">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">clock_hz</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#pyzlg_dexhand.zcan_wrapper.CANFDTimingConfig.clock_hz" title="Link to this definition"></a></dt>
+<dd><p>Clock frequency in Hz</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pyzlg_dexhand.zcan_wrapper.CANFDTimingConfig.data">
+<span class="sig-name descname"><span class="pre">data</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#pyzlg_dexhand.zcan_wrapper.BitTimingConfig" title="pyzlg_dexhand.zcan_wrapper.BitTimingConfig"><code class="xref py py-class docutils literal notranslate"><span class="pre">BitTimingConfig</span></code></a></em><a class="headerlink" href="#pyzlg_dexhand.zcan_wrapper.CANFDTimingConfig.data" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="filter-configuration">
+<h3>Filter Configuration<a class="headerlink" href="#filter-configuration" title="Link to this heading"></a></h3>
+<dl class="py class">
+<dt class="sig sig-object py" id="pyzlg_dexhand.zcan_wrapper.ZCANFilterConfig">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pyzlg_dexhand.zcan_wrapper.</span></span><span class="sig-name descname"><span class="pre">ZCANFilterConfig</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">type</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end_id</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyzlg_dexhand/zcan_wrapper.html#ZCANFilterConfig"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyzlg_dexhand.zcan_wrapper.ZCANFilterConfig" title="Link to this definition"></a></dt>
+<dd><p>Configuration for CAN message filtering</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pyzlg_dexhand.zcan_wrapper.ZCANFilterConfig.end_id">
+<span class="sig-name descname"><span class="pre">end_id</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></em><a class="headerlink" href="#pyzlg_dexhand.zcan_wrapper.ZCANFilterConfig.end_id" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pyzlg_dexhand.zcan_wrapper.ZCANFilterConfig.start_id">
+<span class="sig-name descname"><span class="pre">start_id</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></em><a class="headerlink" href="#pyzlg_dexhand.zcan_wrapper.ZCANFilterConfig.start_id" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pyzlg_dexhand.zcan_wrapper.ZCANFilterConfig.type">
+<span class="sig-name descname"><span class="pre">type</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></em><a class="headerlink" href="#pyzlg_dexhand.zcan_wrapper.ZCANFilterConfig.type" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</section>
+</section>
+<section id="examples">
+<h2>Examples<a class="headerlink" href="#examples" title="Link to this heading"></a></h2>
+<section id="basic-usage">
+<h3>Basic Usage<a class="headerlink" href="#basic-usage" title="Link to this heading"></a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pyzlg_dexhand.zcan_wrapper</span> <span class="kn">import</span> <span class="n">ZCANWrapper</span><span class="p">,</span> <span class="n">ZCANDeviceType</span>
+
+<span class="c1"># Initialize wrapper</span>
+<span class="n">zcan</span> <span class="o">=</span> <span class="n">ZCANWrapper</span><span class="p">()</span>
+<span class="n">zcan</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">device_type</span><span class="o">=</span><span class="n">ZCANDeviceType</span><span class="o">.</span><span class="n">ZCAN_USBCANFD_200U</span><span class="p">)</span>
+
+<span class="c1"># Configure channel</span>
+<span class="n">zcan</span><span class="o">.</span><span class="n">configure_channel</span><span class="p">(</span>
+    <span class="n">channel</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+    <span class="n">arb_baudrate</span><span class="o">=</span><span class="mi">1000000</span><span class="p">,</span>  <span class="c1"># 1Mbps</span>
+    <span class="n">data_baudrate</span><span class="o">=</span><span class="mi">5000000</span>  <span class="c1"># 5Mbps</span>
+<span class="p">)</span>
+
+<span class="c1"># Send message</span>
+<span class="n">zcan</span><span class="o">.</span><span class="n">send_fd_message</span><span class="p">(</span>
+    <span class="n">channel</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+    <span class="nb">id</span><span class="o">=</span><span class="mh">0x101</span><span class="p">,</span>
+    <span class="n">data</span><span class="o">=</span><span class="sa">b</span><span class="s1">&#39;</span><span class="se">\x44\x03\x00\x00\x00\x00</span><span class="s1">&#39;</span>  <span class="c1"># Example command</span>
+<span class="p">)</span>
+
+<span class="c1"># Receive messages</span>
+<span class="n">messages</span> <span class="o">=</span> <span class="n">zcan</span><span class="o">.</span><span class="n">receive_fd_messages</span><span class="p">(</span>
+    <span class="n">channel</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+    <span class="n">max_messages</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
+    <span class="n">timeout_ms</span><span class="o">=</span><span class="mi">100</span>
+<span class="p">)</span>
+<span class="k">for</span> <span class="n">msg_id</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">timestamp</span> <span class="ow">in</span> <span class="n">messages</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Message ID: </span><span class="si">{</span><span class="n">msg_id</span><span class="si">:</span><span class="s2">x</span><span class="si">}</span><span class="s2">, Data: </span><span class="si">{</span><span class="n">data</span><span class="o">.</span><span class="n">hex</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+<span class="c1"># Clean up</span>
+<span class="n">zcan</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+</pre></div>
+</div>
+</section>
+<section id="message-filtering">
+<h3>Message Filtering<a class="headerlink" href="#message-filtering" title="Link to this heading"></a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Configure message filters</span>
+<span class="n">filters</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="n">ZCANFilterConfig</span><span class="p">(</span>
+        <span class="nb">type</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>  <span class="c1"># Standard frame</span>
+        <span class="n">start_id</span><span class="o">=</span><span class="mh">0x100</span><span class="p">,</span>
+        <span class="n">end_id</span><span class="o">=</span><span class="mh">0x1FF</span>
+    <span class="p">),</span>
+    <span class="n">ZCANFilterConfig</span><span class="p">(</span>
+        <span class="nb">type</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+        <span class="n">start_id</span><span class="o">=</span><span class="mh">0x600</span><span class="p">,</span>
+        <span class="n">end_id</span><span class="o">=</span><span class="mh">0x6FF</span>
+    <span class="p">)</span>
+<span class="p">]</span>
+<span class="n">zcan</span><span class="o">.</span><span class="n">set_filter</span><span class="p">(</span><span class="n">channel</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">filters</span><span class="o">=</span><span class="n">filters</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="error-handling">
+<h3>Error Handling<a class="headerlink" href="#error-handling" title="Link to this heading"></a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Monitor channel status</span>
+<span class="k">if</span> <span class="ow">not</span> <span class="n">zcan</span><span class="o">.</span><span class="n">monitor_channel_status</span><span class="p">(</span><span class="n">channel</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+    <span class="c1"># Handle error condition</span>
+    <span class="n">zcan</span><span class="o">.</span><span class="n">handle_error</span><span class="p">(</span><span class="n">channel</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+<span class="c1"># Reset channel on severe errors</span>
+<span class="n">zcan</span><span class="o">.</span><span class="n">reset_channel</span><span class="p">(</span><span class="n">channel</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="notes">
+<h2>Notes<a class="headerlink" href="#notes" title="Link to this heading"></a></h2>
+<section id="device-setup">
+<h3>Device Setup<a class="headerlink" href="#device-setup" title="Link to this heading"></a></h3>
+<ol class="arabic simple">
+<li><p>Initialize ZCAN device with appropriate type</p></li>
+<li><p>Configure channel timing parameters</p></li>
+<li><p>Set up message filters if needed</p></li>
+<li><p>Monitor channel status during operation</p></li>
+</ol>
+</section>
+<section id="timing-configuration">
+<h3>Timing Configuration<a class="headerlink" href="#timing-configuration" title="Link to this heading"></a></h3>
+<p>Supported baudrate combinations:</p>
+<ul class="simple">
+<li><p>Arbitration phase: 1Mbps</p></li>
+<li><p>Data phase: 5Mbps</p></li>
+</ul>
+<p>Default timing parameters:</p>
+<ul class="simple">
+<li><dl class="simple">
+<dt>Arbitration phase:</dt><dd><ul>
+<li><p>TSEG1: 14</p></li>
+<li><p>TSEG2: 3</p></li>
+<li><p>SJW: 3</p></li>
+<li><p>BRP: 2</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>Data phase:</dt><dd><ul>
+<li><p>TSEG1: 1</p></li>
+<li><p>TSEG2: 0</p></li>
+<li><p>SJW: 0</p></li>
+<li><p>BRP: 2</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+</section>
+<section id="error-recovery">
+<h3>Error Recovery<a class="headerlink" href="#error-recovery" title="Link to this heading"></a></h3>
+<ol class="arabic simple">
+<li><p>Monitor channel status</p></li>
+<li><p>Read error information when detected</p></li>
+<li><p>Attempt channel reset if necessary</p></li>
+<li><p>Reconfigure channel after reset</p></li>
+</ol>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="dexhand_protocol.html" class="btn btn-neutral float-left" title="DexHand Protocol" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="dexhand_logger.html" class="btn btn-neutral float-right" title="DexHand Logger" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, DexRobot.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

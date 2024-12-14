@@ -39,8 +39,12 @@
   </form>
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <!-- Local TOC -->
-              <div class="local-toc"></div>
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../quickstart.html">Quickstart Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../api/index.html">API Reference</a></li>
+</ul>
+
         </div>
       </div>
     </nav>
@@ -75,7 +79,7 @@
 <span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">MessageType</span>
 
 <div class="viewcode-block" id="CommandType">
-<a class="viewcode-back" href="../../../index.html#pyzlg_dexhand.dexhand_protocol.commands.CommandType">[docs]</a>
+<a class="viewcode-back" href="../../../api/dexhand_protocol.html#pyzlg_dexhand.dexhand_interface.CommandType">[docs]</a>
 <span class="k">class</span> <span class="nc">CommandType</span><span class="p">(</span><span class="n">IntEnum</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Command type identifiers&quot;&quot;&quot;</span>
     <span class="n">MOTOR_COMMAND</span> <span class="o">=</span> <span class="mh">0x00</span>      <span class="c1"># Motor control command</span>
@@ -84,7 +88,7 @@
 
 
 <div class="viewcode-block" id="ControlMode">
-<a class="viewcode-back" href="../../../index.html#pyzlg_dexhand.dexhand_protocol.commands.ControlMode">[docs]</a>
+<a class="viewcode-back" href="../../../api/dexhand_protocol.html#pyzlg_dexhand.dexhand_interface.ControlMode">[docs]</a>
 <span class="k">class</span> <span class="nc">ControlMode</span><span class="p">(</span><span class="n">IntEnum</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Motor control modes&quot;&quot;&quot;</span>
     <span class="n">ZERO_TORQUE</span> <span class="o">=</span> <span class="mh">0x00</span>
@@ -96,7 +100,7 @@
 
 
 <div class="viewcode-block" id="FeedbackMode">
-<a class="viewcode-back" href="../../../index.html#pyzlg_dexhand.dexhand_protocol.commands.FeedbackMode">[docs]</a>
+<a class="viewcode-back" href="../../../api/dexhand_protocol.html#pyzlg_dexhand.dexhand_interface.FeedbackMode">[docs]</a>
 <span class="k">class</span> <span class="nc">FeedbackMode</span><span class="p">(</span><span class="n">IntEnum</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Feedback operation modes&quot;&quot;&quot;</span>
     <span class="n">PERIODIC</span> <span class="o">=</span> <span class="mh">0x01</span>   <span class="c1"># Send feedback at regular intervals</span>
@@ -105,7 +109,7 @@
 
 
 <div class="viewcode-block" id="MotorCommand">
-<a class="viewcode-back" href="../../../index.html#pyzlg_dexhand.dexhand_protocol.commands.MotorCommand">[docs]</a>
+<a class="viewcode-back" href="../../../api/dexhand_protocol.html#pyzlg_dexhand.dexhand_interface.MotorCommand">[docs]</a>
 <span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="k">class</span> <span class="nc">MotorCommand</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Command for a pair of motors&quot;&quot;&quot;</span>
@@ -116,7 +120,7 @@
 
 
 <div class="viewcode-block" id="ClearErrorCommand">
-<a class="viewcode-back" href="../../../index.html#pyzlg_dexhand.dexhand_protocol.commands.ClearErrorCommand">[docs]</a>
+<a class="viewcode-back" href="../../../api/dexhand_protocol.html#pyzlg_dexhand.dexhand_interface.ClearErrorCommand">[docs]</a>
 <span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="k">class</span> <span class="nc">ClearErrorCommand</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Command to clear error state&quot;&quot;&quot;</span>
@@ -124,7 +128,7 @@
 
 
 <div class="viewcode-block" id="FeedbackConfigCommand">
-<a class="viewcode-back" href="../../../index.html#pyzlg_dexhand.dexhand_protocol.commands.FeedbackConfigCommand">[docs]</a>
+<a class="viewcode-back" href="../../../api/dexhand_protocol.html#pyzlg_dexhand.dexhand_interface.FeedbackConfigCommand">[docs]</a>
 <span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="k">class</span> <span class="nc">FeedbackConfigCommand</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Command to configure feedback behavior&quot;&quot;&quot;</span>
@@ -136,7 +140,7 @@
 <span class="n">Command</span> <span class="o">=</span> <span class="n">Union</span><span class="p">[</span><span class="n">MotorCommand</span><span class="p">,</span> <span class="n">ClearErrorCommand</span><span class="p">,</span> <span class="n">FeedbackConfigCommand</span><span class="p">]</span>
 
 <div class="viewcode-block" id="encode_command">
-<a class="viewcode-back" href="../../../index.html#pyzlg_dexhand.dexhand_protocol.commands.encode_command">[docs]</a>
+<a class="viewcode-back" href="../../../api/dexhand_protocol.html#pyzlg_dexhand.dexhand_interface.encode_command">[docs]</a>
 <span class="k">def</span> <span class="nf">encode_command</span><span class="p">(</span><span class="n">command</span><span class="p">:</span> <span class="n">Command</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">MessageType</span><span class="p">,</span> <span class="nb">bytes</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Encode a command for transmission</span>
 

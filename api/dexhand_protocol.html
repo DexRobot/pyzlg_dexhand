@@ -1,0 +1,745 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>DexHand Protocol &mdash; pyzlg_dexhand 0.1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=01f34227"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="ZCAN Wrapper" href="zcan_wrapper.html" />
+    <link rel="prev" title="DexHand Interface" href="dexhand_interface.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            pyzlg_dexhand
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../quickstart.html">Quickstart Guide</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">API Reference</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="dexhand_interface.html">DexHand Interface</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">DexHand Protocol</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#core-protocol">Core Protocol</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#message-types">Message Types</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#board-ids">Board IDs</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#commands">Commands</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#command-types">Command Types</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#control-modes">Control Modes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#feedback-modes">Feedback Modes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#command-classes">Command Classes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#command-encoding">Command Encoding</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#messages">Messages</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#error-types">Error Types</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#feedback-classes">Feedback Classes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#message-processing">Message Processing</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#protocol-specification">Protocol Specification</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#message-structure">Message Structure</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#command-format">Command Format</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#example-usage">Example Usage</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#command-generation">Command Generation</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id1">Message Processing</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#notes">Notes</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#message-flow">Message Flow</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#error-handling">Error Handling</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="zcan_wrapper.html">ZCAN Wrapper</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dexhand_logger.html">DexHand Logger</a></li>
+<li class="toctree-l2"><a class="reference internal" href="index.html#core-components">Core Components</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">pyzlg_dexhand</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="index.html">API Reference</a></li>
+      <li class="breadcrumb-item active">DexHand Protocol</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/api/dexhand_protocol.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="dexhand-protocol">
+<h1>DexHand Protocol<a class="headerlink" href="#dexhand-protocol" title="Link to this heading"></a></h1>
+<p>The DexHand protocol implements the CANFD communication layer between host and hand hardware.</p>
+<section id="core-protocol">
+<h2>Core Protocol<a class="headerlink" href="#core-protocol" title="Link to this heading"></a></h2>
+<section id="message-types">
+<h3>Message Types<a class="headerlink" href="#message-types" title="Link to this heading"></a></h3>
+<dl class="py class">
+<dt class="sig sig-object py" id="pyzlg_dexhand.dexhand_protocol.MessageType">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pyzlg_dexhand.dexhand_protocol.</span></span><span class="sig-name descname"><span class="pre">MessageType</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">names=&lt;not</span> <span class="pre">given&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">*values</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">module=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">qualname=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">type=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start=1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">boundary=None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyzlg_dexhand/dexhand_protocol.html#MessageType"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyzlg_dexhand.dexhand_protocol.MessageType" title="Link to this definition"></a></dt>
+<dd><p>CAN message type identifiers and their base addresses</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pyzlg_dexhand.dexhand_protocol.MessageType.CONFIG_COMMAND">
+<span class="sig-name descname"><span class="pre">CONFIG_COMMAND</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0</span></em><a class="headerlink" href="#pyzlg_dexhand.dexhand_protocol.MessageType.CONFIG_COMMAND" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pyzlg_dexhand.dexhand_protocol.MessageType.CONFIG_RESPONSE">
+<span class="sig-name descname"><span class="pre">CONFIG_RESPONSE</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">128</span></em><a class="headerlink" href="#pyzlg_dexhand.dexhand_protocol.MessageType.CONFIG_RESPONSE" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pyzlg_dexhand.dexhand_protocol.MessageType.ERROR_MESSAGE">
+<span class="sig-name descname"><span class="pre">ERROR_MESSAGE</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">1536</span></em><a class="headerlink" href="#pyzlg_dexhand.dexhand_protocol.MessageType.ERROR_MESSAGE" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pyzlg_dexhand.dexhand_protocol.MessageType.INVALID">
+<span class="sig-name descname"><span class="pre">INVALID</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">4096</span></em><a class="headerlink" href="#pyzlg_dexhand.dexhand_protocol.MessageType.INVALID" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pyzlg_dexhand.dexhand_protocol.MessageType.MOTION_COMMAND">
+<span class="sig-name descname"><span class="pre">MOTION_COMMAND</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">256</span></em><a class="headerlink" href="#pyzlg_dexhand.dexhand_protocol.MessageType.MOTION_COMMAND" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pyzlg_dexhand.dexhand_protocol.MessageType.MOTION_FEEDBACK">
+<span class="sig-name descname"><span class="pre">MOTION_FEEDBACK</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">384</span></em><a class="headerlink" href="#pyzlg_dexhand.dexhand_protocol.MessageType.MOTION_FEEDBACK" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pyzlg_dexhand.dexhand_protocol.MessageType.UNKNOWN">
+<span class="sig-name descname"><span class="pre">UNKNOWN</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">4097</span></em><a class="headerlink" href="#pyzlg_dexhand.dexhand_protocol.MessageType.UNKNOWN" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="board-ids">
+<h3>Board IDs<a class="headerlink" href="#board-ids" title="Link to this heading"></a></h3>
+<dl class="py class">
+<dt class="sig sig-object py" id="pyzlg_dexhand.dexhand_protocol.BoardID">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pyzlg_dexhand.dexhand_protocol.</span></span><span class="sig-name descname"><span class="pre">BoardID</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">names=&lt;not</span> <span class="pre">given&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">*values</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">module=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">qualname=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">type=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start=1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">boundary=None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyzlg_dexhand/dexhand_protocol.html#BoardID"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyzlg_dexhand.dexhand_protocol.BoardID" title="Link to this definition"></a></dt>
+<dd><p>Base ID values for left and right hand boards</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pyzlg_dexhand.dexhand_protocol.BoardID.LEFT_HAND_BASE">
+<span class="sig-name descname"><span class="pre">LEFT_HAND_BASE</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">1</span></em><a class="headerlink" href="#pyzlg_dexhand.dexhand_protocol.BoardID.LEFT_HAND_BASE" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pyzlg_dexhand.dexhand_protocol.BoardID.RIGHT_HAND_BASE">
+<span class="sig-name descname"><span class="pre">RIGHT_HAND_BASE</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">7</span></em><a class="headerlink" href="#pyzlg_dexhand.dexhand_protocol.BoardID.RIGHT_HAND_BASE" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</section>
+</section>
+<section id="commands">
+<h2>Commands<a class="headerlink" href="#commands" title="Link to this heading"></a></h2>
+<section id="command-types">
+<h3>Command Types<a class="headerlink" href="#command-types" title="Link to this heading"></a></h3>
+<dl class="py class">
+<dt class="sig sig-object py" id="pyzlg_dexhand.dexhand_protocol.commands.CommandType">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pyzlg_dexhand.dexhand_protocol.commands.</span></span><span class="sig-name descname"><span class="pre">CommandType</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">names=&lt;not</span> <span class="pre">given&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">*values</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">module=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">qualname=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">type=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start=1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">boundary=None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyzlg_dexhand/dexhand_protocol/commands.html#CommandType"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyzlg_dexhand.dexhand_protocol.commands.CommandType" title="Link to this definition"></a></dt>
+<dd><p>Command type identifiers</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pyzlg_dexhand.dexhand_protocol.commands.CommandType.CLEAR_ERROR">
+<span class="sig-name descname"><span class="pre">CLEAR_ERROR</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">164</span></em><a class="headerlink" href="#pyzlg_dexhand.dexhand_protocol.commands.CommandType.CLEAR_ERROR" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pyzlg_dexhand.dexhand_protocol.commands.CommandType.CONFIG_FEEDBACK">
+<span class="sig-name descname"><span class="pre">CONFIG_FEEDBACK</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">116</span></em><a class="headerlink" href="#pyzlg_dexhand.dexhand_protocol.commands.CommandType.CONFIG_FEEDBACK" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pyzlg_dexhand.dexhand_protocol.commands.CommandType.MOTOR_COMMAND">
+<span class="sig-name descname"><span class="pre">MOTOR_COMMAND</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0</span></em><a class="headerlink" href="#pyzlg_dexhand.dexhand_protocol.commands.CommandType.MOTOR_COMMAND" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="control-modes">
+<h3>Control Modes<a class="headerlink" href="#control-modes" title="Link to this heading"></a></h3>
+<dl class="py class">
+<dt class="sig sig-object py" id="pyzlg_dexhand.dexhand_protocol.commands.ControlMode">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pyzlg_dexhand.dexhand_protocol.commands.</span></span><span class="sig-name descname"><span class="pre">ControlMode</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">names=&lt;not</span> <span class="pre">given&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">*values</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">module=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">qualname=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">type=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start=1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">boundary=None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyzlg_dexhand/dexhand_protocol/commands.html#ControlMode"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyzlg_dexhand.dexhand_protocol.commands.ControlMode" title="Link to this definition"></a></dt>
+<dd><p>Motor control modes</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pyzlg_dexhand.dexhand_protocol.commands.ControlMode.CASCADED_PID">
+<span class="sig-name descname"><span class="pre">CASCADED_PID</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">68</span></em><a class="headerlink" href="#pyzlg_dexhand.dexhand_protocol.commands.ControlMode.CASCADED_PID" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pyzlg_dexhand.dexhand_protocol.commands.ControlMode.CURRENT">
+<span class="sig-name descname"><span class="pre">CURRENT</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">17</span></em><a class="headerlink" href="#pyzlg_dexhand.dexhand_protocol.commands.ControlMode.CURRENT" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pyzlg_dexhand.dexhand_protocol.commands.ControlMode.HALL_POSITION">
+<span class="sig-name descname"><span class="pre">HALL_POSITION</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">51</span></em><a class="headerlink" href="#pyzlg_dexhand.dexhand_protocol.commands.ControlMode.HALL_POSITION" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pyzlg_dexhand.dexhand_protocol.commands.ControlMode.PROTECT_HALL_POSITION">
+<span class="sig-name descname"><span class="pre">PROTECT_HALL_POSITION</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">85</span></em><a class="headerlink" href="#pyzlg_dexhand.dexhand_protocol.commands.ControlMode.PROTECT_HALL_POSITION" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pyzlg_dexhand.dexhand_protocol.commands.ControlMode.SPEED">
+<span class="sig-name descname"><span class="pre">SPEED</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">34</span></em><a class="headerlink" href="#pyzlg_dexhand.dexhand_protocol.commands.ControlMode.SPEED" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pyzlg_dexhand.dexhand_protocol.commands.ControlMode.ZERO_TORQUE">
+<span class="sig-name descname"><span class="pre">ZERO_TORQUE</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0</span></em><a class="headerlink" href="#pyzlg_dexhand.dexhand_protocol.commands.ControlMode.ZERO_TORQUE" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="feedback-modes">
+<h3>Feedback Modes<a class="headerlink" href="#feedback-modes" title="Link to this heading"></a></h3>
+<dl class="py class">
+<dt class="sig sig-object py" id="pyzlg_dexhand.dexhand_protocol.commands.FeedbackMode">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pyzlg_dexhand.dexhand_protocol.commands.</span></span><span class="sig-name descname"><span class="pre">FeedbackMode</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">names=&lt;not</span> <span class="pre">given&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">*values</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">module=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">qualname=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">type=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start=1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">boundary=None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyzlg_dexhand/dexhand_protocol/commands.html#FeedbackMode"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyzlg_dexhand.dexhand_protocol.commands.FeedbackMode" title="Link to this definition"></a></dt>
+<dd><p>Feedback operation modes</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pyzlg_dexhand.dexhand_protocol.commands.FeedbackMode.ON_CHANGE">
+<span class="sig-name descname"><span class="pre">ON_CHANGE</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">3</span></em><a class="headerlink" href="#pyzlg_dexhand.dexhand_protocol.commands.FeedbackMode.ON_CHANGE" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pyzlg_dexhand.dexhand_protocol.commands.FeedbackMode.PERIODIC">
+<span class="sig-name descname"><span class="pre">PERIODIC</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">1</span></em><a class="headerlink" href="#pyzlg_dexhand.dexhand_protocol.commands.FeedbackMode.PERIODIC" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pyzlg_dexhand.dexhand_protocol.commands.FeedbackMode.QUERY">
+<span class="sig-name descname"><span class="pre">QUERY</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">2</span></em><a class="headerlink" href="#pyzlg_dexhand.dexhand_protocol.commands.FeedbackMode.QUERY" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="command-classes">
+<h3>Command Classes<a class="headerlink" href="#command-classes" title="Link to this heading"></a></h3>
+<dl class="py class">
+<dt class="sig sig-object py" id="pyzlg_dexhand.dexhand_protocol.commands.MotorCommand">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pyzlg_dexhand.dexhand_protocol.commands.</span></span><span class="sig-name descname"><span class="pre">MotorCommand</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">control_mode</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">motor_enable</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">motor1_pos</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">motor2_pos</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyzlg_dexhand/dexhand_protocol/commands.html#MotorCommand"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyzlg_dexhand.dexhand_protocol.commands.MotorCommand" title="Link to this definition"></a></dt>
+<dd><p>Command for a pair of motors</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pyzlg_dexhand.dexhand_protocol.commands.MotorCommand.control_mode">
+<span class="sig-name descname"><span class="pre">control_mode</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#pyzlg_dexhand.dexhand_protocol.commands.ControlMode" title="pyzlg_dexhand.dexhand_protocol.commands.ControlMode"><code class="xref py py-class docutils literal notranslate"><span class="pre">ControlMode</span></code></a></em><a class="headerlink" href="#pyzlg_dexhand.dexhand_protocol.commands.MotorCommand.control_mode" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pyzlg_dexhand.dexhand_protocol.commands.MotorCommand.motor1_pos">
+<span class="sig-name descname"><span class="pre">motor1_pos</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></em><a class="headerlink" href="#pyzlg_dexhand.dexhand_protocol.commands.MotorCommand.motor1_pos" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pyzlg_dexhand.dexhand_protocol.commands.MotorCommand.motor2_pos">
+<span class="sig-name descname"><span class="pre">motor2_pos</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></em><a class="headerlink" href="#pyzlg_dexhand.dexhand_protocol.commands.MotorCommand.motor2_pos" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pyzlg_dexhand.dexhand_protocol.commands.MotorCommand.motor_enable">
+<span class="sig-name descname"><span class="pre">motor_enable</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></em><a class="headerlink" href="#pyzlg_dexhand.dexhand_protocol.commands.MotorCommand.motor_enable" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="pyzlg_dexhand.dexhand_protocol.commands.ClearErrorCommand">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pyzlg_dexhand.dexhand_protocol.commands.</span></span><span class="sig-name descname"><span class="pre">ClearErrorCommand</span></span><a class="reference internal" href="../_modules/pyzlg_dexhand/dexhand_protocol/commands.html#ClearErrorCommand"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyzlg_dexhand.dexhand_protocol.commands.ClearErrorCommand" title="Link to this definition"></a></dt>
+<dd><p>Command to clear error state</p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="pyzlg_dexhand.dexhand_protocol.commands.FeedbackConfigCommand">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pyzlg_dexhand.dexhand_protocol.commands.</span></span><span class="sig-name descname"><span class="pre">FeedbackConfigCommand</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mode</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">period_ms</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">enable</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyzlg_dexhand/dexhand_protocol/commands.html#FeedbackConfigCommand"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyzlg_dexhand.dexhand_protocol.commands.FeedbackConfigCommand" title="Link to this definition"></a></dt>
+<dd><p>Command to configure feedback behavior</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pyzlg_dexhand.dexhand_protocol.commands.FeedbackConfigCommand.enable">
+<span class="sig-name descname"><span class="pre">enable</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></em><a class="headerlink" href="#pyzlg_dexhand.dexhand_protocol.commands.FeedbackConfigCommand.enable" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pyzlg_dexhand.dexhand_protocol.commands.FeedbackConfigCommand.mode">
+<span class="sig-name descname"><span class="pre">mode</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#pyzlg_dexhand.dexhand_protocol.commands.FeedbackMode" title="pyzlg_dexhand.dexhand_protocol.commands.FeedbackMode"><code class="xref py py-class docutils literal notranslate"><span class="pre">FeedbackMode</span></code></a></em><a class="headerlink" href="#pyzlg_dexhand.dexhand_protocol.commands.FeedbackConfigCommand.mode" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pyzlg_dexhand.dexhand_protocol.commands.FeedbackConfigCommand.period_ms">
+<span class="sig-name descname"><span class="pre">period_ms</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></em><a class="headerlink" href="#pyzlg_dexhand.dexhand_protocol.commands.FeedbackConfigCommand.period_ms" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="command-encoding">
+<h3>Command Encoding<a class="headerlink" href="#command-encoding" title="Link to this heading"></a></h3>
+<dl class="py function">
+<dt class="sig sig-object py" id="pyzlg_dexhand.dexhand_protocol.commands.encode_command">
+<span class="sig-prename descclassname"><span class="pre">pyzlg_dexhand.dexhand_protocol.commands.</span></span><span class="sig-name descname"><span class="pre">encode_command</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">command</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyzlg_dexhand/dexhand_protocol/commands.html#encode_command"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyzlg_dexhand.dexhand_protocol.commands.encode_command" title="Link to this definition"></a></dt>
+<dd><p>Encode a command for transmission</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>command</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code>[<a class="reference internal" href="#pyzlg_dexhand.dexhand_protocol.commands.MotorCommand" title="pyzlg_dexhand.dexhand_protocol.commands.MotorCommand"><code class="xref py py-class docutils literal notranslate"><span class="pre">MotorCommand</span></code></a>, <a class="reference internal" href="#pyzlg_dexhand.dexhand_protocol.commands.ClearErrorCommand" title="pyzlg_dexhand.dexhand_protocol.commands.ClearErrorCommand"><code class="xref py py-class docutils literal notranslate"><span class="pre">ClearErrorCommand</span></code></a>, <a class="reference internal" href="#pyzlg_dexhand.dexhand_protocol.commands.FeedbackConfigCommand" title="pyzlg_dexhand.dexhand_protocol.commands.FeedbackConfigCommand"><code class="xref py py-class docutils literal notranslate"><span class="pre">FeedbackConfigCommand</span></code></a>]</span>) – Command to encode</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<a class="reference internal" href="#pyzlg_dexhand.dexhand_protocol.MessageType" title="pyzlg_dexhand.dexhand_protocol.MessageType"><code class="xref py py-class docutils literal notranslate"><span class="pre">MessageType</span></code></a>, <code class="xref py py-class docutils literal notranslate"><span class="pre">bytes</span></code>]</span></p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Tuple of (message_type, encoded_bytes)</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>ValueError</strong> – If command parameters are invalid</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+</section>
+<section id="messages">
+<h2>Messages<a class="headerlink" href="#messages" title="Link to this heading"></a></h2>
+<section id="error-types">
+<h3>Error Types<a class="headerlink" href="#error-types" title="Link to this heading"></a></h3>
+<dl class="py class">
+<dt class="sig sig-object py" id="pyzlg_dexhand.dexhand_protocol.messages.BoardError">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pyzlg_dexhand.dexhand_protocol.messages.</span></span><span class="sig-name descname"><span class="pre">BoardError</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">names=&lt;not</span> <span class="pre">given&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">*values</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">module=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">qualname=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">type=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start=1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">boundary=None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyzlg_dexhand/dexhand_protocol/messages.html#BoardError"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyzlg_dexhand.dexhand_protocol.messages.BoardError" title="Link to this definition"></a></dt>
+<dd><p>Motor error status</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pyzlg_dexhand.dexhand_protocol.messages.BoardError.BOTH_MOTORS_ERROR">
+<span class="sig-name descname"><span class="pre">BOTH_MOTORS_ERROR</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">3</span></em><a class="headerlink" href="#pyzlg_dexhand.dexhand_protocol.messages.BoardError.BOTH_MOTORS_ERROR" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pyzlg_dexhand.dexhand_protocol.messages.BoardError.MOTOR1_ERROR">
+<span class="sig-name descname"><span class="pre">MOTOR1_ERROR</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">1</span></em><a class="headerlink" href="#pyzlg_dexhand.dexhand_protocol.messages.BoardError.MOTOR1_ERROR" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pyzlg_dexhand.dexhand_protocol.messages.BoardError.MOTOR2_ERROR">
+<span class="sig-name descname"><span class="pre">MOTOR2_ERROR</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">2</span></em><a class="headerlink" href="#pyzlg_dexhand.dexhand_protocol.messages.BoardError.MOTOR2_ERROR" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="pyzlg_dexhand.dexhand_protocol.messages.ErrorCode">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pyzlg_dexhand.dexhand_protocol.messages.</span></span><span class="sig-name descname"><span class="pre">ErrorCode</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">names=&lt;not</span> <span class="pre">given&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">*values</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">module=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">qualname=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">type=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start=1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">boundary=None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyzlg_dexhand/dexhand_protocol/messages.html#ErrorCode"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyzlg_dexhand.dexhand_protocol.messages.ErrorCode" title="Link to this definition"></a></dt>
+<dd><p>Error codes from protocol</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pyzlg_dexhand.dexhand_protocol.messages.ErrorCode.MOTOR1_CURRENT_OVERLOAD">
+<span class="sig-name descname"><span class="pre">MOTOR1_CURRENT_OVERLOAD</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">1</span></em><a class="headerlink" href="#pyzlg_dexhand.dexhand_protocol.messages.ErrorCode.MOTOR1_CURRENT_OVERLOAD" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pyzlg_dexhand.dexhand_protocol.messages.ErrorCode.MOTOR1_HALL_ERROR">
+<span class="sig-name descname"><span class="pre">MOTOR1_HALL_ERROR</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">2</span></em><a class="headerlink" href="#pyzlg_dexhand.dexhand_protocol.messages.ErrorCode.MOTOR1_HALL_ERROR" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pyzlg_dexhand.dexhand_protocol.messages.ErrorCode.MOTOR1_PARAM_ERROR">
+<span class="sig-name descname"><span class="pre">MOTOR1_PARAM_ERROR</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">8</span></em><a class="headerlink" href="#pyzlg_dexhand.dexhand_protocol.messages.ErrorCode.MOTOR1_PARAM_ERROR" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pyzlg_dexhand.dexhand_protocol.messages.ErrorCode.MOTOR1_STALL_ERROR">
+<span class="sig-name descname"><span class="pre">MOTOR1_STALL_ERROR</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">4</span></em><a class="headerlink" href="#pyzlg_dexhand.dexhand_protocol.messages.ErrorCode.MOTOR1_STALL_ERROR" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pyzlg_dexhand.dexhand_protocol.messages.ErrorCode.MOTOR2_CURRENT_OVERLOAD">
+<span class="sig-name descname"><span class="pre">MOTOR2_CURRENT_OVERLOAD</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">16</span></em><a class="headerlink" href="#pyzlg_dexhand.dexhand_protocol.messages.ErrorCode.MOTOR2_CURRENT_OVERLOAD" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pyzlg_dexhand.dexhand_protocol.messages.ErrorCode.MOTOR2_HALL_ERROR">
+<span class="sig-name descname"><span class="pre">MOTOR2_HALL_ERROR</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">32</span></em><a class="headerlink" href="#pyzlg_dexhand.dexhand_protocol.messages.ErrorCode.MOTOR2_HALL_ERROR" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pyzlg_dexhand.dexhand_protocol.messages.ErrorCode.MOTOR2_PARAM_ERROR">
+<span class="sig-name descname"><span class="pre">MOTOR2_PARAM_ERROR</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">128</span></em><a class="headerlink" href="#pyzlg_dexhand.dexhand_protocol.messages.ErrorCode.MOTOR2_PARAM_ERROR" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pyzlg_dexhand.dexhand_protocol.messages.ErrorCode.MOTOR2_STALL_ERROR">
+<span class="sig-name descname"><span class="pre">MOTOR2_STALL_ERROR</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">64</span></em><a class="headerlink" href="#pyzlg_dexhand.dexhand_protocol.messages.ErrorCode.MOTOR2_STALL_ERROR" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="feedback-classes">
+<h3>Feedback Classes<a class="headerlink" href="#feedback-classes" title="Link to this heading"></a></h3>
+<dl class="py class">
+<dt class="sig sig-object py" id="pyzlg_dexhand.dexhand_protocol.messages.MotorFeedback">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pyzlg_dexhand.dexhand_protocol.messages.</span></span><span class="sig-name descname"><span class="pre">MotorFeedback</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">current</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">velocity</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">position</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">angle</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyzlg_dexhand/dexhand_protocol/messages.html#MotorFeedback"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyzlg_dexhand.dexhand_protocol.messages.MotorFeedback" title="Link to this definition"></a></dt>
+<dd><p>Feedback data for a single motor</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pyzlg_dexhand.dexhand_protocol.messages.MotorFeedback.angle">
+<span class="sig-name descname"><span class="pre">angle</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></em><a class="headerlink" href="#pyzlg_dexhand.dexhand_protocol.messages.MotorFeedback.angle" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pyzlg_dexhand.dexhand_protocol.messages.MotorFeedback.current">
+<span class="sig-name descname"><span class="pre">current</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></em><a class="headerlink" href="#pyzlg_dexhand.dexhand_protocol.messages.MotorFeedback.current" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pyzlg_dexhand.dexhand_protocol.messages.MotorFeedback.position">
+<span class="sig-name descname"><span class="pre">position</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></em><a class="headerlink" href="#pyzlg_dexhand.dexhand_protocol.messages.MotorFeedback.position" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pyzlg_dexhand.dexhand_protocol.messages.MotorFeedback.velocity">
+<span class="sig-name descname"><span class="pre">velocity</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></em><a class="headerlink" href="#pyzlg_dexhand.dexhand_protocol.messages.MotorFeedback.velocity" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="pyzlg_dexhand.dexhand_protocol.messages.TactileFeedback">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pyzlg_dexhand.dexhand_protocol.messages.</span></span><span class="sig-name descname"><span class="pre">TactileFeedback</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">normal_force</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">normal_force_delta</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tangential_force</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tangential_force_delta</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">direction</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">proximity</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">temperature</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyzlg_dexhand/dexhand_protocol/messages.html#TactileFeedback"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyzlg_dexhand.dexhand_protocol.messages.TactileFeedback" title="Link to this definition"></a></dt>
+<dd><p>Feedback from tactile sensor</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pyzlg_dexhand.dexhand_protocol.messages.TactileFeedback.direction">
+<span class="sig-name descname"><span class="pre">direction</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></em><a class="headerlink" href="#pyzlg_dexhand.dexhand_protocol.messages.TactileFeedback.direction" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pyzlg_dexhand.dexhand_protocol.messages.TactileFeedback.normal_force">
+<span class="sig-name descname"><span class="pre">normal_force</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></em><a class="headerlink" href="#pyzlg_dexhand.dexhand_protocol.messages.TactileFeedback.normal_force" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pyzlg_dexhand.dexhand_protocol.messages.TactileFeedback.normal_force_delta">
+<span class="sig-name descname"><span class="pre">normal_force_delta</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></em><a class="headerlink" href="#pyzlg_dexhand.dexhand_protocol.messages.TactileFeedback.normal_force_delta" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pyzlg_dexhand.dexhand_protocol.messages.TactileFeedback.proximity">
+<span class="sig-name descname"><span class="pre">proximity</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></em><a class="headerlink" href="#pyzlg_dexhand.dexhand_protocol.messages.TactileFeedback.proximity" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pyzlg_dexhand.dexhand_protocol.messages.TactileFeedback.tangential_force">
+<span class="sig-name descname"><span class="pre">tangential_force</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></em><a class="headerlink" href="#pyzlg_dexhand.dexhand_protocol.messages.TactileFeedback.tangential_force" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pyzlg_dexhand.dexhand_protocol.messages.TactileFeedback.tangential_force_delta">
+<span class="sig-name descname"><span class="pre">tangential_force_delta</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></em><a class="headerlink" href="#pyzlg_dexhand.dexhand_protocol.messages.TactileFeedback.tangential_force_delta" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pyzlg_dexhand.dexhand_protocol.messages.TactileFeedback.temperature">
+<span class="sig-name descname"><span class="pre">temperature</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></em><a class="headerlink" href="#pyzlg_dexhand.dexhand_protocol.messages.TactileFeedback.temperature" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="pyzlg_dexhand.dexhand_protocol.messages.BoardFeedback">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pyzlg_dexhand.dexhand_protocol.messages.</span></span><span class="sig-name descname"><span class="pre">BoardFeedback</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">motor1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">motor2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">position_sensor1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">position_sensor2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tactile</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">encoder1</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">encoder2</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyzlg_dexhand/dexhand_protocol/messages.html#BoardFeedback"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyzlg_dexhand.dexhand_protocol.messages.BoardFeedback" title="Link to this definition"></a></dt>
+<dd><p>Complete feedback from a motor control board</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pyzlg_dexhand.dexhand_protocol.messages.BoardFeedback.encoder1">
+<span class="sig-name descname"><span class="pre">encoder1</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0</span></em><a class="headerlink" href="#pyzlg_dexhand.dexhand_protocol.messages.BoardFeedback.encoder1" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pyzlg_dexhand.dexhand_protocol.messages.BoardFeedback.encoder2">
+<span class="sig-name descname"><span class="pre">encoder2</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0</span></em><a class="headerlink" href="#pyzlg_dexhand.dexhand_protocol.messages.BoardFeedback.encoder2" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pyzlg_dexhand.dexhand_protocol.messages.BoardFeedback.motor1">
+<span class="sig-name descname"><span class="pre">motor1</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#pyzlg_dexhand.dexhand_protocol.messages.MotorFeedback" title="pyzlg_dexhand.dexhand_protocol.messages.MotorFeedback"><code class="xref py py-class docutils literal notranslate"><span class="pre">MotorFeedback</span></code></a></em><a class="headerlink" href="#pyzlg_dexhand.dexhand_protocol.messages.BoardFeedback.motor1" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pyzlg_dexhand.dexhand_protocol.messages.BoardFeedback.motor2">
+<span class="sig-name descname"><span class="pre">motor2</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#pyzlg_dexhand.dexhand_protocol.messages.MotorFeedback" title="pyzlg_dexhand.dexhand_protocol.messages.MotorFeedback"><code class="xref py py-class docutils literal notranslate"><span class="pre">MotorFeedback</span></code></a></em><a class="headerlink" href="#pyzlg_dexhand.dexhand_protocol.messages.BoardFeedback.motor2" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pyzlg_dexhand.dexhand_protocol.messages.BoardFeedback.position_sensor1">
+<span class="sig-name descname"><span class="pre">position_sensor1</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></em><a class="headerlink" href="#pyzlg_dexhand.dexhand_protocol.messages.BoardFeedback.position_sensor1" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pyzlg_dexhand.dexhand_protocol.messages.BoardFeedback.position_sensor2">
+<span class="sig-name descname"><span class="pre">position_sensor2</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></em><a class="headerlink" href="#pyzlg_dexhand.dexhand_protocol.messages.BoardFeedback.position_sensor2" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pyzlg_dexhand.dexhand_protocol.messages.BoardFeedback.tactile">
+<span class="sig-name descname"><span class="pre">tactile</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code><span class="pre">[</span><a class="reference internal" href="#pyzlg_dexhand.dexhand_protocol.messages.TactileFeedback" title="pyzlg_dexhand.dexhand_protocol.messages.TactileFeedback"><code class="xref py py-class docutils literal notranslate"><span class="pre">TactileFeedback</span></code></a><span class="pre">]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#pyzlg_dexhand.dexhand_protocol.messages.BoardFeedback.tactile" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="pyzlg_dexhand.dexhand_protocol.messages.ErrorInfo">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pyzlg_dexhand.dexhand_protocol.messages.</span></span><span class="sig-name descname"><span class="pre">ErrorInfo</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">error_type</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">error_code</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">description</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyzlg_dexhand/dexhand_protocol/messages.html#ErrorInfo"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyzlg_dexhand.dexhand_protocol.messages.ErrorInfo" title="Link to this definition"></a></dt>
+<dd><p>Error information from a board</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pyzlg_dexhand.dexhand_protocol.messages.ErrorInfo.description">
+<span class="sig-name descname"><span class="pre">description</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></em><a class="headerlink" href="#pyzlg_dexhand.dexhand_protocol.messages.ErrorInfo.description" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pyzlg_dexhand.dexhand_protocol.messages.ErrorInfo.error_code">
+<span class="sig-name descname"><span class="pre">error_code</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></em><a class="headerlink" href="#pyzlg_dexhand.dexhand_protocol.messages.ErrorInfo.error_code" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pyzlg_dexhand.dexhand_protocol.messages.ErrorInfo.error_type">
+<span class="sig-name descname"><span class="pre">error_type</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#pyzlg_dexhand.dexhand_protocol.messages.BoardError" title="pyzlg_dexhand.dexhand_protocol.messages.BoardError"><code class="xref py py-class docutils literal notranslate"><span class="pre">BoardError</span></code></a></em><a class="headerlink" href="#pyzlg_dexhand.dexhand_protocol.messages.ErrorInfo.error_type" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="message-processing">
+<h3>Message Processing<a class="headerlink" href="#message-processing" title="Link to this heading"></a></h3>
+<dl class="py class">
+<dt class="sig sig-object py" id="pyzlg_dexhand.dexhand_protocol.messages.ProcessedMessage">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pyzlg_dexhand.dexhand_protocol.messages.</span></span><span class="sig-name descname"><span class="pre">ProcessedMessage</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sender_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">msg_type</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">feedback</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">error</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyzlg_dexhand/dexhand_protocol/messages.html#ProcessedMessage"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyzlg_dexhand.dexhand_protocol.messages.ProcessedMessage" title="Link to this definition"></a></dt>
+<dd><p>Processed message from board</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pyzlg_dexhand.dexhand_protocol.messages.ProcessedMessage.error">
+<span class="sig-name descname"><span class="pre">error</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code><span class="pre">[</span><a class="reference internal" href="#pyzlg_dexhand.dexhand_protocol.messages.ErrorInfo" title="pyzlg_dexhand.dexhand_protocol.messages.ErrorInfo"><code class="xref py py-class docutils literal notranslate"><span class="pre">ErrorInfo</span></code></a><span class="pre">]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#pyzlg_dexhand.dexhand_protocol.messages.ProcessedMessage.error" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pyzlg_dexhand.dexhand_protocol.messages.ProcessedMessage.feedback">
+<span class="sig-name descname"><span class="pre">feedback</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code><span class="pre">[</span><a class="reference internal" href="#pyzlg_dexhand.dexhand_protocol.messages.BoardFeedback" title="pyzlg_dexhand.dexhand_protocol.messages.BoardFeedback"><code class="xref py py-class docutils literal notranslate"><span class="pre">BoardFeedback</span></code></a><span class="pre">]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#pyzlg_dexhand.dexhand_protocol.messages.ProcessedMessage.feedback" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pyzlg_dexhand.dexhand_protocol.messages.ProcessedMessage.msg_type">
+<span class="sig-name descname"><span class="pre">msg_type</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#pyzlg_dexhand.dexhand_protocol.MessageType" title="pyzlg_dexhand.dexhand_protocol.MessageType"><code class="xref py py-class docutils literal notranslate"><span class="pre">MessageType</span></code></a></em><a class="headerlink" href="#pyzlg_dexhand.dexhand_protocol.messages.ProcessedMessage.msg_type" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pyzlg_dexhand.dexhand_protocol.messages.ProcessedMessage.sender_id">
+<span class="sig-name descname"><span class="pre">sender_id</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></em><a class="headerlink" href="#pyzlg_dexhand.dexhand_protocol.messages.ProcessedMessage.sender_id" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pyzlg_dexhand.dexhand_protocol.messages.process_message">
+<span class="sig-prename descclassname"><span class="pre">pyzlg_dexhand.dexhand_protocol.messages.</span></span><span class="sig-name descname"><span class="pre">process_message</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">can_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyzlg_dexhand/dexhand_protocol/messages.html#process_message"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyzlg_dexhand.dexhand_protocol.messages.process_message" title="Link to this definition"></a></dt>
+<dd><p>Process a received CAN message</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>can_id</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></span>) – CAN ID of the message</p></li>
+<li><p><strong>data</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">bytes</span></code></span>) – Raw message bytes</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><a class="reference internal" href="#pyzlg_dexhand.dexhand_protocol.messages.ProcessedMessage" title="pyzlg_dexhand.dexhand_protocol.messages.ProcessedMessage"><code class="xref py py-class docutils literal notranslate"><span class="pre">ProcessedMessage</span></code></a></span></p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>ProcessedMessage containing decoded information</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>ValueError</strong> – If message cannot be decoded</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+</section>
+<section id="protocol-specification">
+<h2>Protocol Specification<a class="headerlink" href="#protocol-specification" title="Link to this heading"></a></h2>
+<section id="message-structure">
+<h3>Message Structure<a class="headerlink" href="#message-structure" title="Link to this heading"></a></h3>
+<p>The protocol uses standard CANFD frames with extended identifiers. Message IDs are constructed as:</p>
+<ul class="simple">
+<li><p>Base message type (e.g., 0x100 for motion commands)</p></li>
+<li><p>Board ID offset (0x01-0x06 for left hand, 0x07-0x0C for right hand)</p></li>
+</ul>
+</section>
+<section id="command-format">
+<h3>Command Format<a class="headerlink" href="#command-format" title="Link to this heading"></a></h3>
+<p>Motor Command:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Byte</span> <span class="mi">0</span><span class="p">:</span> <span class="n">Control</span> <span class="n">mode</span>
+<span class="n">Byte</span> <span class="mi">1</span><span class="p">:</span> <span class="n">Motor</span> <span class="n">enable</span> <span class="n">flags</span> <span class="p">(</span><span class="mh">0x01</span><span class="o">=</span><span class="n">motor1</span><span class="p">,</span> <span class="mh">0x02</span><span class="o">=</span><span class="n">motor2</span><span class="p">,</span> <span class="mh">0x03</span><span class="o">=</span><span class="n">both</span><span class="p">)</span>
+<span class="n">Byte</span> <span class="mi">2</span><span class="o">-</span><span class="mi">3</span><span class="p">:</span> <span class="n">Motor</span> <span class="mi">1</span> <span class="n">position</span> <span class="p">(</span><span class="n">little</span> <span class="n">endian</span><span class="p">)</span>
+<span class="n">Byte</span> <span class="mi">4</span><span class="o">-</span><span class="mi">5</span><span class="p">:</span> <span class="n">Motor</span> <span class="mi">2</span> <span class="n">position</span> <span class="p">(</span><span class="n">little</span> <span class="n">endian</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Clear Error Command:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Byte</span> <span class="mi">0</span><span class="p">:</span> <span class="mh">0x03</span> <span class="p">(</span><span class="n">Command</span> <span class="n">prefix</span><span class="p">)</span>
+<span class="n">Byte</span> <span class="mi">1</span><span class="p">:</span> <span class="mh">0xA4</span> <span class="p">(</span><span class="n">Clear</span> <span class="n">error</span> <span class="n">command</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Feedback Config Command:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Byte</span> <span class="mi">0</span><span class="p">:</span> <span class="mh">0x03</span> <span class="p">(</span><span class="n">Command</span> <span class="n">prefix</span><span class="p">)</span>
+<span class="n">Byte</span> <span class="mi">1</span><span class="p">:</span> <span class="mh">0x74</span> <span class="p">(</span><span class="n">Feedback</span> <span class="n">config</span> <span class="n">command</span><span class="p">)</span>
+<span class="n">Byte</span> <span class="mi">2</span><span class="p">:</span> <span class="n">Feedback</span> <span class="n">mode</span>
+<span class="n">Byte</span> <span class="mi">3</span><span class="p">:</span> <span class="n">Period</span> <span class="p">(</span><span class="mi">10</span><span class="n">ms</span> <span class="n">units</span><span class="p">)</span>
+<span class="n">Byte</span> <span class="mi">4</span><span class="p">:</span> <span class="n">Enable</span> <span class="n">flag</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="example-usage">
+<h2>Example Usage<a class="headerlink" href="#example-usage" title="Link to this heading"></a></h2>
+<section id="command-generation">
+<h3>Command Generation<a class="headerlink" href="#command-generation" title="Link to this heading"></a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pyzlg_dexhand.dexhand_protocol.commands</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">MotorCommand</span><span class="p">,</span>
+    <span class="n">ControlMode</span><span class="p">,</span>
+    <span class="n">encode_command</span>
+<span class="p">)</span>
+
+<span class="c1"># Create motor command</span>
+<span class="n">command</span> <span class="o">=</span> <span class="n">MotorCommand</span><span class="p">(</span>
+    <span class="n">control_mode</span><span class="o">=</span><span class="n">ControlMode</span><span class="o">.</span><span class="n">CASCADED_PID</span><span class="p">,</span>
+    <span class="n">motor_enable</span><span class="o">=</span><span class="mh">0x03</span><span class="p">,</span>  <span class="c1"># Both motors enabled</span>
+    <span class="n">motor1_pos</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span>
+    <span class="n">motor2_pos</span><span class="o">=-</span><span class="mi">2000</span>
+<span class="p">)</span>
+
+<span class="c1"># Encode for transmission</span>
+<span class="n">msg_type</span><span class="p">,</span> <span class="n">data</span> <span class="o">=</span> <span class="n">encode_command</span><span class="p">(</span><span class="n">command</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="id1">
+<h3>Message Processing<a class="headerlink" href="#id1" title="Link to this heading"></a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pyzlg_dexhand.dexhand_protocol.messages</span> <span class="kn">import</span> <span class="n">process_message</span>
+
+<span class="c1"># Process received message</span>
+<span class="n">can_id</span> <span class="o">=</span> <span class="mh">0x181</span>  <span class="c1"># Example: Board 1 feedback</span>
+<span class="n">data</span> <span class="o">=</span> <span class="sa">b</span><span class="s1">&#39;...&#39;</span>   <span class="c1"># Raw message data</span>
+
+<span class="n">result</span> <span class="o">=</span> <span class="n">process_message</span><span class="p">(</span><span class="n">can_id</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>
+
+<span class="k">if</span> <span class="n">result</span><span class="o">.</span><span class="n">msg_type</span> <span class="o">==</span> <span class="n">MessageType</span><span class="o">.</span><span class="n">MOTION_FEEDBACK</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Motor 1 position: </span><span class="si">{</span><span class="n">result</span><span class="o">.</span><span class="n">feedback</span><span class="o">.</span><span class="n">motor1</span><span class="o">.</span><span class="n">position</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Motor 2 position: </span><span class="si">{</span><span class="n">result</span><span class="o">.</span><span class="n">feedback</span><span class="o">.</span><span class="n">motor2</span><span class="o">.</span><span class="n">position</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="k">elif</span> <span class="n">result</span><span class="o">.</span><span class="n">msg_type</span> <span class="o">==</span> <span class="n">MessageType</span><span class="o">.</span><span class="n">ERROR_MESSAGE</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error: </span><span class="si">{</span><span class="n">result</span><span class="o">.</span><span class="n">error</span><span class="o">.</span><span class="n">description</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="notes">
+<h2>Notes<a class="headerlink" href="#notes" title="Link to this heading"></a></h2>
+<section id="message-flow">
+<h3>Message Flow<a class="headerlink" href="#message-flow" title="Link to this heading"></a></h3>
+<ol class="arabic simple">
+<li><p>Host sends commands using appropriate message type</p></li>
+<li><p>Hand processes command and returns feedback/response</p></li>
+<li><p>Any errors are reported via error messages</p></li>
+</ol>
+</section>
+<section id="error-handling">
+<h3>Error Handling<a class="headerlink" href="#error-handling" title="Link to this heading"></a></h3>
+<ol class="arabic simple">
+<li><p>Check message type from CAN ID</p></li>
+<li><p>Process messages according to type</p></li>
+<li><p>Handle errors by:
+- Parsing error information
+- Clearing errors when safe
+- Resuming normal operation</p></li>
+</ol>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="dexhand_interface.html" class="btn btn-neutral float-left" title="DexHand Interface" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="zcan_wrapper.html" class="btn btn-neutral float-right" title="ZCAN Wrapper" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, DexRobot.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

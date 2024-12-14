@@ -1,0 +1,563 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>pyzlg_dexhand.zcan &mdash; pyzlg_dexhand 0.1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=01f34227"></script>
+      <script src="../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            pyzlg_dexhand
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../quickstart.html">Quickstart Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../api/index.html">API Reference</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">pyzlg_dexhand</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">pyzlg_dexhand.zcan</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for pyzlg_dexhand.zcan</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">ctypes</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">enum</span> <span class="kn">import</span> <span class="n">IntEnum</span><span class="p">,</span> <span class="n">auto</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">List</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="ZCANDeviceType">
+<a class="viewcode-back" href="../../api/zcan_wrapper.html#pyzlg_dexhand.zcan.ZCANDeviceType">[docs]</a>
+<span class="k">class</span> <span class="nc">ZCANDeviceType</span><span class="p">(</span><span class="n">IntEnum</span><span class="p">):</span>
+    <span class="n">ZCAN_USBCANFD_200U</span> <span class="o">=</span> <span class="mi">41</span>
+    <span class="n">ZCAN_USBCANFD_100U</span> <span class="o">=</span> <span class="mi">42</span>
+    <span class="n">ZCAN_USBCAN_2E_U</span> <span class="o">=</span> <span class="mi">21</span>
+    <span class="n">ZCAN_CANDTU_MINI</span> <span class="o">=</span> <span class="mi">33</span></div>
+
+
+
+<div class="viewcode-block" id="ZCANStatus">
+<a class="viewcode-back" href="../../api/zcan_wrapper.html#pyzlg_dexhand.zcan.ZCANStatus">[docs]</a>
+<span class="k">class</span> <span class="nc">ZCANStatus</span><span class="p">(</span><span class="n">IntEnum</span><span class="p">):</span>
+    <span class="n">ERROR</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">OK</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="n">ONLINE</span> <span class="o">=</span> <span class="mi">2</span>
+    <span class="n">OFFLINE</span> <span class="o">=</span> <span class="mi">3</span>
+    <span class="n">UNSUPPORTED</span> <span class="o">=</span> <span class="mi">4</span></div>
+
+
+
+<div class="viewcode-block" id="ZCANMessageType">
+<a class="viewcode-back" href="../../api/zcan_wrapper.html#pyzlg_dexhand.zcan.ZCANMessageType">[docs]</a>
+<span class="k">class</span> <span class="nc">ZCANMessageType</span><span class="p">(</span><span class="n">IntEnum</span><span class="p">):</span>
+    <span class="n">NORMAL</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">SINGLE</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="n">SELF_TEST</span> <span class="o">=</span> <span class="mi">2</span>
+    <span class="n">SINGLE_SELF_TEST</span> <span class="o">=</span> <span class="mi">3</span></div>
+
+
+
+<span class="k">class</span> <span class="nc">ZCANMessageInfo</span><span class="p">(</span><span class="n">Structure</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;CAN message info flags&quot;&quot;&quot;</span>
+
+    <span class="n">_fields_</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="p">(</span><span class="s2">&quot;txm&quot;</span><span class="p">,</span> <span class="n">c_uint</span><span class="p">,</span> <span class="mi">4</span><span class="p">),</span>  <span class="c1"># TX mode: 0-normal, 1-once, 2-self test</span>
+        <span class="p">(</span><span class="s2">&quot;fmt&quot;</span><span class="p">,</span> <span class="n">c_uint</span><span class="p">,</span> <span class="mi">4</span><span class="p">),</span>  <span class="c1"># 0-CAN2.0, 1-CANFD</span>
+        <span class="p">(</span><span class="s2">&quot;sdf&quot;</span><span class="p">,</span> <span class="n">c_uint</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span>  <span class="c1"># 0-data frame, 1-remote frame</span>
+        <span class="p">(</span><span class="s2">&quot;sef&quot;</span><span class="p">,</span> <span class="n">c_uint</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span>  <span class="c1"># 0-std frame, 1-ext frame</span>
+        <span class="p">(</span><span class="s2">&quot;err&quot;</span><span class="p">,</span> <span class="n">c_uint</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span>  <span class="c1"># Error flag</span>
+        <span class="p">(</span><span class="s2">&quot;brs&quot;</span><span class="p">,</span> <span class="n">c_uint</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span>  <span class="c1"># Bit rate switch</span>
+        <span class="p">(</span><span class="s2">&quot;est&quot;</span><span class="p">,</span> <span class="n">c_uint</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span>  <span class="c1"># Error state</span>
+        <span class="p">(</span><span class="s2">&quot;tx&quot;</span><span class="p">,</span> <span class="n">c_uint</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span>  <span class="c1"># Receive valid</span>
+        <span class="p">(</span><span class="s2">&quot;echo&quot;</span><span class="p">,</span> <span class="n">c_uint</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span>  <span class="c1"># Echo frame flag</span>
+        <span class="p">(</span><span class="s2">&quot;qsend_100us&quot;</span><span class="p">,</span> <span class="n">c_uint</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span>  <span class="c1"># Queue send delay unit</span>
+        <span class="p">(</span><span class="s2">&quot;qsend&quot;</span><span class="p">,</span> <span class="n">c_uint</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span>  <span class="c1"># Queue send frame</span>
+        <span class="p">(</span><span class="s2">&quot;pad&quot;</span><span class="p">,</span> <span class="n">c_uint</span><span class="p">,</span> <span class="mi">15</span><span class="p">),</span>  <span class="c1"># Padding</span>
+    <span class="p">]</span>
+
+
+<span class="k">class</span> <span class="nc">ZCANMessageHeader</span><span class="p">(</span><span class="n">Structure</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;CAN message header&quot;&quot;&quot;</span>
+
+    <span class="n">_fields_</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="p">(</span><span class="s2">&quot;timestamp&quot;</span><span class="p">,</span> <span class="n">c_uint32</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">&quot;id&quot;</span><span class="p">,</span> <span class="n">c_uint32</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">&quot;info&quot;</span><span class="p">,</span> <span class="n">ZCANMessageInfo</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">&quot;pad&quot;</span><span class="p">,</span> <span class="n">c_uint16</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">&quot;channel&quot;</span><span class="p">,</span> <span class="n">c_uint8</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">&quot;len&quot;</span><span class="p">,</span> <span class="n">c_uint8</span><span class="p">),</span>
+    <span class="p">]</span>
+
+
+<span class="k">class</span> <span class="nc">ZCANMessage</span><span class="p">(</span><span class="n">Structure</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Standard CAN2.0 message&quot;&quot;&quot;</span>
+
+    <span class="n">_fields_</span> <span class="o">=</span> <span class="p">[(</span><span class="s2">&quot;header&quot;</span><span class="p">,</span> <span class="n">ZCANMessageHeader</span><span class="p">),</span> <span class="p">(</span><span class="s2">&quot;data&quot;</span><span class="p">,</span> <span class="n">c_uint8</span> <span class="o">*</span> <span class="mi">8</span><span class="p">)]</span>
+
+
+<span class="k">class</span> <span class="nc">ZCANFDMessage</span><span class="p">(</span><span class="n">Structure</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;CANFD message with up to 64 bytes&quot;&quot;&quot;</span>
+
+    <span class="n">_fields_</span> <span class="o">=</span> <span class="p">[(</span><span class="s2">&quot;header&quot;</span><span class="p">,</span> <span class="n">ZCANMessageHeader</span><span class="p">),</span> <span class="p">(</span><span class="s2">&quot;data&quot;</span><span class="p">,</span> <span class="n">c_uint8</span> <span class="o">*</span> <span class="mi">64</span><span class="p">)]</span>
+
+
+<span class="k">class</span> <span class="nc">ZCANErrorMessageHeader</span><span class="p">(</span><span class="n">Structure</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Header for CAN error messages&quot;&quot;&quot;</span>
+
+    <span class="n">_fields_</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="p">(</span><span class="s2">&quot;timestamp&quot;</span><span class="p">,</span> <span class="n">c_uint32</span><span class="p">),</span>  <span class="c1"># Timestamp</span>
+        <span class="p">(</span><span class="s2">&quot;id&quot;</span><span class="p">,</span> <span class="n">c_uint32</span><span class="p">),</span>  <span class="c1"># CAN ID</span>
+        <span class="p">(</span><span class="s2">&quot;info&quot;</span><span class="p">,</span> <span class="n">ZCANMessageInfo</span><span class="p">),</span>  <span class="c1"># Message flags</span>
+        <span class="p">(</span><span class="s2">&quot;pad&quot;</span><span class="p">,</span> <span class="n">c_uint16</span><span class="p">),</span>  <span class="c1"># Padding</span>
+        <span class="p">(</span><span class="s2">&quot;channel&quot;</span><span class="p">,</span> <span class="n">c_uint8</span><span class="p">),</span>  <span class="c1"># Channel number</span>
+        <span class="p">(</span><span class="s2">&quot;len&quot;</span><span class="p">,</span> <span class="n">c_uint8</span><span class="p">),</span>  <span class="c1"># Data length</span>
+    <span class="p">]</span>
+
+
+<span class="k">class</span> <span class="nc">ZCANErrorMessage</span><span class="p">(</span><span class="n">Structure</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Error message from CAN device&quot;&quot;&quot;</span>
+
+    <span class="n">_fields_</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="p">(</span><span class="s2">&quot;header&quot;</span><span class="p">,</span> <span class="n">ZCANErrorMessageHeader</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">&quot;data&quot;</span><span class="p">,</span> <span class="n">c_uint8</span> <span class="o">*</span> <span class="mi">8</span><span class="p">),</span>  <span class="c1"># Error data bytes</span>
+    <span class="p">]</span>
+
+
+<span class="k">class</span> <span class="nc">ZCANErrorMessageHeader</span><span class="p">(</span><span class="n">Structure</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Header for CAN error messages&quot;&quot;&quot;</span>
+
+    <span class="n">_fields_</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="p">(</span><span class="s2">&quot;timestamp&quot;</span><span class="p">,</span> <span class="n">c_uint32</span><span class="p">),</span>  <span class="c1"># Timestamp</span>
+        <span class="p">(</span><span class="s2">&quot;id&quot;</span><span class="p">,</span> <span class="n">c_uint32</span><span class="p">),</span>  <span class="c1"># CAN ID</span>
+        <span class="p">(</span><span class="s2">&quot;info&quot;</span><span class="p">,</span> <span class="n">ZCANMessageInfo</span><span class="p">),</span>  <span class="c1"># Message flags</span>
+        <span class="p">(</span><span class="s2">&quot;pad&quot;</span><span class="p">,</span> <span class="n">c_uint16</span><span class="p">),</span>  <span class="c1"># Padding</span>
+        <span class="p">(</span><span class="s2">&quot;channel&quot;</span><span class="p">,</span> <span class="n">c_uint8</span><span class="p">),</span>  <span class="c1"># Channel number</span>
+        <span class="p">(</span><span class="s2">&quot;len&quot;</span><span class="p">,</span> <span class="n">c_uint8</span><span class="p">),</span>  <span class="c1"># Data length</span>
+    <span class="p">]</span>
+
+
+<span class="k">class</span> <span class="nc">ZCANErrorMessage</span><span class="p">(</span><span class="n">Structure</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Error message from CAN device&quot;&quot;&quot;</span>
+
+    <span class="n">_fields_</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="p">(</span><span class="s2">&quot;header&quot;</span><span class="p">,</span> <span class="n">ZCANErrorMessageHeader</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">&quot;data&quot;</span><span class="p">,</span> <span class="n">c_uint8</span> <span class="o">*</span> <span class="mi">8</span><span class="p">),</span>  <span class="c1"># Error data bytes</span>
+    <span class="p">]</span>
+
+
+<span class="k">class</span> <span class="nc">BitConfig</span><span class="p">(</span><span class="n">Structure</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Bit timing configuration for CAN/CANFD&quot;&quot;&quot;</span>
+
+    <span class="n">_fields_</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="p">(</span><span class="s2">&quot;tseg1&quot;</span><span class="p">,</span> <span class="n">c_uint8</span><span class="p">),</span>  <span class="c1"># Time segment 1</span>
+        <span class="p">(</span><span class="s2">&quot;tseg2&quot;</span><span class="p">,</span> <span class="n">c_uint8</span><span class="p">),</span>  <span class="c1"># Time segment 2</span>
+        <span class="p">(</span><span class="s2">&quot;sjw&quot;</span><span class="p">,</span> <span class="n">c_uint8</span><span class="p">),</span>  <span class="c1"># Synchronization jump width</span>
+        <span class="p">(</span><span class="s2">&quot;smp&quot;</span><span class="p">,</span> <span class="n">c_uint8</span><span class="p">),</span>  <span class="c1"># Sample point</span>
+        <span class="p">(</span><span class="s2">&quot;brp&quot;</span><span class="p">,</span> <span class="n">c_uint16</span><span class="p">),</span>  <span class="c1"># Baud rate prescaler</span>
+    <span class="p">]</span>
+
+
+<span class="k">class</span> <span class="nc">ZCANCANFDInit</span><span class="p">(</span><span class="n">Structure</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Configuration for CANFD initialization&quot;&quot;&quot;</span>
+
+    <span class="n">_fields_</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="p">(</span><span class="s2">&quot;clock&quot;</span><span class="p">,</span> <span class="n">c_uint32</span><span class="p">),</span>  <span class="c1"># Clock frequency (Hz)</span>
+        <span class="p">(</span><span class="s2">&quot;mode&quot;</span><span class="p">,</span> <span class="n">c_uint32</span><span class="p">),</span>  <span class="c1"># Operating mode</span>
+        <span class="p">(</span><span class="s2">&quot;abit&quot;</span><span class="p">,</span> <span class="n">BitConfig</span><span class="p">),</span>  <span class="c1"># Arbitration bit timing</span>
+        <span class="p">(</span><span class="s2">&quot;dbit&quot;</span><span class="p">,</span> <span class="n">BitConfig</span><span class="p">),</span>  <span class="c1"># Data bit timing</span>
+    <span class="p">]</span>
+
+
+<span class="k">class</span> <span class="nc">ZCAN_STAT</span><span class="p">(</span><span class="n">Structure</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Controller status information&quot;&quot;&quot;</span>
+
+    <span class="n">_fields_</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="p">(</span><span class="s2">&quot;errInterrupt&quot;</span><span class="p">,</span> <span class="n">c_ubyte</span><span class="p">),</span>  <span class="c1"># Error interrupt</span>
+        <span class="p">(</span><span class="s2">&quot;regMode&quot;</span><span class="p">,</span> <span class="n">c_ubyte</span><span class="p">),</span>  <span class="c1"># Mode register</span>
+        <span class="p">(</span><span class="s2">&quot;regStatus&quot;</span><span class="p">,</span> <span class="n">c_ubyte</span><span class="p">),</span>  <span class="c1"># Status register</span>
+        <span class="p">(</span><span class="s2">&quot;regALCapture&quot;</span><span class="p">,</span> <span class="n">c_ubyte</span><span class="p">),</span>  <span class="c1"># Arbitration Lost Capture</span>
+        <span class="p">(</span><span class="s2">&quot;regECCapture&quot;</span><span class="p">,</span> <span class="n">c_ubyte</span><span class="p">),</span>  <span class="c1"># Error Code Capture</span>
+        <span class="p">(</span><span class="s2">&quot;regEWLimit&quot;</span><span class="p">,</span> <span class="n">c_ubyte</span><span class="p">),</span>  <span class="c1"># Error Warning Limit</span>
+        <span class="p">(</span><span class="s2">&quot;regRECounter&quot;</span><span class="p">,</span> <span class="n">c_ubyte</span><span class="p">),</span>  <span class="c1"># RX Error Counter</span>
+        <span class="p">(</span><span class="s2">&quot;regTECounter&quot;</span><span class="p">,</span> <span class="n">c_ubyte</span><span class="p">),</span>  <span class="c1"># TX Error Counter</span>
+        <span class="p">(</span><span class="s2">&quot;reserved&quot;</span><span class="p">,</span> <span class="n">c_uint32</span><span class="p">),</span>  <span class="c1"># Reserved</span>
+    <span class="p">]</span>
+
+
+<span class="k">class</span> <span class="nc">ZCAN</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Low level wrapper around ZLG USBCANFD driver&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">lib_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;./libusbcanfd.so&quot;</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialize ZCAN wrapper</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            lib_path: Path to ZLG driver library</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_lib</span> <span class="o">=</span> <span class="n">cdll</span><span class="o">.</span><span class="n">LoadLibrary</span><span class="p">(</span><span class="n">lib_path</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_configure_lib_functions</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">_configure_lib_functions</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Configure function signatures for the loaded library&quot;&quot;&quot;</span>
+        <span class="c1"># OpenDevice</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_lib</span><span class="o">.</span><span class="n">VCI_OpenDevice</span><span class="o">.</span><span class="n">argtypes</span> <span class="o">=</span> <span class="p">[</span><span class="n">c_uint32</span><span class="p">,</span> <span class="n">c_uint32</span><span class="p">,</span> <span class="n">c_uint32</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_lib</span><span class="o">.</span><span class="n">VCI_OpenDevice</span><span class="o">.</span><span class="n">restype</span> <span class="o">=</span> <span class="n">c_uint32</span>
+
+        <span class="c1"># InitCAN</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_lib</span><span class="o">.</span><span class="n">VCI_InitCAN</span><span class="o">.</span><span class="n">argtypes</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">c_uint32</span><span class="p">,</span>
+            <span class="n">c_uint32</span><span class="p">,</span>
+            <span class="n">c_uint32</span><span class="p">,</span>
+            <span class="n">POINTER</span><span class="p">(</span><span class="n">ZCANCANFDInit</span><span class="p">),</span>
+        <span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_lib</span><span class="o">.</span><span class="n">VCI_InitCAN</span><span class="o">.</span><span class="n">restype</span> <span class="o">=</span> <span class="n">c_uint32</span>
+
+        <span class="c1"># StartCAN</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_lib</span><span class="o">.</span><span class="n">VCI_StartCAN</span><span class="o">.</span><span class="n">argtypes</span> <span class="o">=</span> <span class="p">[</span><span class="n">c_uint32</span><span class="p">,</span> <span class="n">c_uint32</span><span class="p">,</span> <span class="n">c_uint32</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_lib</span><span class="o">.</span><span class="n">VCI_StartCAN</span><span class="o">.</span><span class="n">restype</span> <span class="o">=</span> <span class="n">c_uint32</span>
+
+        <span class="c1"># TransmitFD</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_lib</span><span class="o">.</span><span class="n">VCI_TransmitFD</span><span class="o">.</span><span class="n">argtypes</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">c_uint32</span><span class="p">,</span>
+            <span class="n">c_uint32</span><span class="p">,</span>
+            <span class="n">c_uint32</span><span class="p">,</span>
+            <span class="n">POINTER</span><span class="p">(</span><span class="n">ZCANFDMessage</span><span class="p">),</span>
+            <span class="n">c_uint32</span><span class="p">,</span>
+        <span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_lib</span><span class="o">.</span><span class="n">VCI_TransmitFD</span><span class="o">.</span><span class="n">restype</span> <span class="o">=</span> <span class="n">c_uint32</span>
+
+        <span class="c1"># ReceiveFD</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_lib</span><span class="o">.</span><span class="n">VCI_ReceiveFD</span><span class="o">.</span><span class="n">argtypes</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">c_uint32</span><span class="p">,</span>
+            <span class="n">c_uint32</span><span class="p">,</span>
+            <span class="n">c_uint32</span><span class="p">,</span>
+            <span class="n">POINTER</span><span class="p">(</span><span class="n">ZCANFDMessage</span><span class="p">),</span>
+            <span class="n">c_uint32</span><span class="p">,</span>
+            <span class="n">c_uint32</span><span class="p">,</span>
+        <span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_lib</span><span class="o">.</span><span class="n">VCI_ReceiveFD</span><span class="o">.</span><span class="n">restype</span> <span class="o">=</span> <span class="n">c_uint32</span>
+
+        <span class="c1"># CloseDevice</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_lib</span><span class="o">.</span><span class="n">VCI_CloseDevice</span><span class="o">.</span><span class="n">argtypes</span> <span class="o">=</span> <span class="p">[</span><span class="n">c_uint32</span><span class="p">,</span> <span class="n">c_uint32</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_lib</span><span class="o">.</span><span class="n">VCI_CloseDevice</span><span class="o">.</span><span class="n">restype</span> <span class="o">=</span> <span class="n">c_uint32</span>
+
+        <span class="c1"># GetReference &amp; SetReference</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_lib</span><span class="o">.</span><span class="n">VCI_GetReference</span><span class="o">.</span><span class="n">argtypes</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">c_uint32</span><span class="p">,</span>
+            <span class="n">c_uint32</span><span class="p">,</span>
+            <span class="n">c_uint32</span><span class="p">,</span>
+            <span class="n">c_uint32</span><span class="p">,</span>
+            <span class="n">c_void_p</span><span class="p">,</span>
+        <span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_lib</span><span class="o">.</span><span class="n">VCI_GetReference</span><span class="o">.</span><span class="n">restype</span> <span class="o">=</span> <span class="n">c_uint32</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_lib</span><span class="o">.</span><span class="n">VCI_SetReference</span><span class="o">.</span><span class="n">argtypes</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">c_uint32</span><span class="p">,</span>
+            <span class="n">c_uint32</span><span class="p">,</span>
+            <span class="n">c_uint32</span><span class="p">,</span>
+            <span class="n">c_uint32</span><span class="p">,</span>
+            <span class="n">c_void_p</span><span class="p">,</span>
+        <span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_lib</span><span class="o">.</span><span class="n">VCI_SetReference</span><span class="o">.</span><span class="n">restype</span> <span class="o">=</span> <span class="n">c_uint32</span>
+
+    <span class="k">def</span> <span class="nf">open_device</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">device_type</span><span class="p">:</span> <span class="n">ZCANDeviceType</span><span class="p">,</span> <span class="n">device_index</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">reserved</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Open USBCAN device</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            device_type: Type of ZCAN device</span>
+<span class="sd">            device_index: Device index, usually 0</span>
+<span class="sd">            reserved: Reserved parameter</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            bool: True if device opened successfully</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">logger</span><span class="o">.</span><span class="n">isEnabledFor</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">DEBUG</span><span class="p">):</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;VCI_OpenDevice: </span><span class="si">{</span><span class="n">device_type</span><span class="si">}</span><span class="s2">, </span><span class="si">{</span><span class="n">device_index</span><span class="si">}</span><span class="s2">, </span><span class="si">{</span><span class="n">reserved</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_lib</span><span class="o">.</span><span class="n">VCI_OpenDevice</span><span class="p">(</span><span class="n">device_type</span><span class="p">,</span> <span class="n">device_index</span><span class="p">,</span> <span class="n">reserved</span><span class="p">)</span>
+        <span class="k">return</span> <span class="nb">bool</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">init_can</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">device_type</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+        <span class="n">device_index</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+        <span class="n">channel</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+        <span class="n">init_config</span><span class="p">:</span> <span class="n">ZCANCANFDInit</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialize CAN channel with given configuration</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            device_type: Type of ZCAN device</span>
+<span class="sd">            device_index: Device index</span>
+<span class="sd">            channel: Channel number to initialize</span>
+<span class="sd">            init_config: Channel configuration</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            bool: True if initialization successful</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">logger</span><span class="o">.</span><span class="n">isEnabledFor</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">DEBUG</span><span class="p">):</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;VCI_InitCAN: </span><span class="si">{</span><span class="n">device_type</span><span class="si">}</span><span class="s2">, </span><span class="si">{</span><span class="n">device_index</span><span class="si">}</span><span class="s2">, </span><span class="si">{</span><span class="n">channel</span><span class="si">}</span><span class="s2">, </span><span class="si">{</span><span class="nb">bytes</span><span class="p">(</span><span class="nb">memoryview</span><span class="p">(</span><span class="n">init_config</span><span class="p">))</span><span class="o">.</span><span class="n">hex</span><span class="p">(</span><span class="s1">&#39; &#39;</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="p">)</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_lib</span><span class="o">.</span><span class="n">VCI_InitCAN</span><span class="p">(</span>
+            <span class="n">device_type</span><span class="p">,</span> <span class="n">device_index</span><span class="p">,</span> <span class="n">channel</span><span class="p">,</span> <span class="n">byref</span><span class="p">(</span><span class="n">init_config</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="nb">bool</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">start_can</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">device_type</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">device_index</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">channel</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Start CAN channel</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            device_type: Type of ZCAN device</span>
+<span class="sd">            device_index: Device index</span>
+<span class="sd">            channel: Channel number to start</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            bool: True if start successful</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">logger</span><span class="o">.</span><span class="n">isEnabledFor</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">DEBUG</span><span class="p">):</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;VCI_StartCAN: </span><span class="si">{</span><span class="n">device_type</span><span class="si">}</span><span class="s2">, </span><span class="si">{</span><span class="n">device_index</span><span class="si">}</span><span class="s2">, </span><span class="si">{</span><span class="n">channel</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_lib</span><span class="o">.</span><span class="n">VCI_StartCAN</span><span class="p">(</span><span class="n">device_type</span><span class="p">,</span> <span class="n">device_index</span><span class="p">,</span> <span class="n">channel</span><span class="p">)</span>
+        <span class="k">return</span> <span class="nb">bool</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">transmit_fd</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">device_type</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+        <span class="n">device_index</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+        <span class="n">channel</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+        <span class="n">messages</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">ZCANFDMessage</span><span class="p">],</span>
+        <span class="n">count</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Transmit CANFD messages with error handling&quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">message_array</span> <span class="o">=</span> <span class="p">(</span><span class="n">ZCANFDMessage</span> <span class="o">*</span> <span class="n">count</span><span class="p">)(</span><span class="o">*</span><span class="n">messages</span><span class="p">)</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_lib</span><span class="o">.</span><span class="n">VCI_TransmitFD</span><span class="p">(</span>
+                <span class="n">device_type</span><span class="p">,</span> <span class="n">device_index</span><span class="p">,</span> <span class="n">channel</span><span class="p">,</span> <span class="n">message_array</span><span class="p">,</span> <span class="n">count</span>
+            <span class="p">)</span>
+            <span class="k">return</span> <span class="n">result</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Exception in transmit_fd: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="mi">0</span>
+
+    <span class="k">def</span> <span class="nf">receive_fd</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">device_type</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+        <span class="n">device_index</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+        <span class="n">channel</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+        <span class="n">count</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+        <span class="n">timeout</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">100</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">ZCANFDMessage</span><span class="p">],</span> <span class="nb">int</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Receive CANFD messages</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            device_type: Type of ZCAN device</span>
+<span class="sd">            device_index: Device index</span>
+<span class="sd">            channel: Channel number</span>
+<span class="sd">            count: Maximum number of messages to receive</span>
+<span class="sd">            timeout: Receive timeout in milliseconds</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Tuple containing:</span>
+<span class="sd">            - List of received messages</span>
+<span class="sd">            - Number of messages actually received</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">message_array</span> <span class="o">=</span> <span class="p">(</span><span class="n">ZCANFDMessage</span> <span class="o">*</span> <span class="n">count</span><span class="p">)()</span>
+        <span class="n">received</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_lib</span><span class="o">.</span><span class="n">VCI_ReceiveFD</span><span class="p">(</span>
+            <span class="n">device_type</span><span class="p">,</span> <span class="n">device_index</span><span class="p">,</span> <span class="n">channel</span><span class="p">,</span> <span class="n">message_array</span><span class="p">,</span> <span class="n">count</span><span class="p">,</span> <span class="n">timeout</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="n">message_array</span><span class="p">[:</span><span class="n">received</span><span class="p">]),</span> <span class="n">received</span>
+
+    <span class="k">def</span> <span class="nf">close_device</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">device_type</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">device_index</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Close USBCAN device</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            device_type: Type of ZCAN device</span>
+<span class="sd">            device_index: Device index</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            bool: True if device closed successfully</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_lib</span><span class="o">.</span><span class="n">VCI_CloseDevice</span><span class="p">(</span><span class="n">device_type</span><span class="p">,</span> <span class="n">device_index</span><span class="p">)</span>
+        <span class="k">return</span> <span class="nb">bool</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">get_reference</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">device_type</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+        <span class="n">device_index</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+        <span class="n">channel</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+        <span class="n">ref_type</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+        <span class="n">data</span><span class="p">:</span> <span class="n">c_void_p</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get device reference parameter</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            device_type: Type of ZCAN device</span>
+<span class="sd">            device_index: Device index</span>
+<span class="sd">            channel: Channel number</span>
+<span class="sd">            ref_type: Reference parameter type</span>
+<span class="sd">            data: Pointer to receive data</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            bool: True if reference got successfully</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_lib</span><span class="o">.</span><span class="n">VCI_GetReference</span><span class="p">(</span>
+            <span class="n">device_type</span><span class="p">,</span> <span class="n">device_index</span><span class="p">,</span> <span class="n">channel</span><span class="p">,</span> <span class="n">ref_type</span><span class="p">,</span> <span class="n">data</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="nb">bool</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">set_reference</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">device_type</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+        <span class="n">device_index</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+        <span class="n">channel</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+        <span class="n">ref_type</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+        <span class="n">data</span><span class="p">:</span> <span class="n">c_void_p</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Set device reference parameter</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            device_type: Type of ZCAN device</span>
+<span class="sd">            device_index: Device index</span>
+<span class="sd">            channel: Channel number</span>
+<span class="sd">            ref_type: Reference parameter type</span>
+<span class="sd">            data: Pointer to data to set</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            bool: True if reference set successfully</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">logger</span><span class="o">.</span><span class="n">isEnabledFor</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">DEBUG</span><span class="p">):</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;VCI_SetReference: </span><span class="si">{</span><span class="n">device_type</span><span class="si">}</span><span class="s2">, </span><span class="si">{</span><span class="n">device_index</span><span class="si">}</span><span class="s2">, </span><span class="si">{</span><span class="n">channel</span><span class="si">}</span><span class="s2">, </span><span class="si">{</span><span class="n">ref_type</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="p">)</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_lib</span><span class="o">.</span><span class="n">VCI_SetReference</span><span class="p">(</span>
+            <span class="n">device_type</span><span class="p">,</span> <span class="n">device_index</span><span class="p">,</span> <span class="n">channel</span><span class="p">,</span> <span class="n">ref_type</span><span class="p">,</span> <span class="n">data</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="nb">bool</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">read_error_info</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">device_type</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+        <span class="n">device_index</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+        <span class="n">channel</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+        <span class="n">error_msg</span><span class="p">:</span> <span class="n">ZCANErrorMessage</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Read error information from device</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            device_type: Type of ZCAN device</span>
+<span class="sd">            device_index: Device index</span>
+<span class="sd">            channel: Channel number</span>
+<span class="sd">            error_msg: Structure to receive error info</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            bool: True if error info read successfully</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Configure function if not already done</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_lib</span><span class="o">.</span><span class="n">VCI_ReadErrInfo</span><span class="p">,</span> <span class="s2">&quot;argtypes&quot;</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_lib</span><span class="o">.</span><span class="n">VCI_ReadErrInfo</span><span class="o">.</span><span class="n">argtypes</span> <span class="o">=</span> <span class="p">[</span>
+                <span class="n">c_uint32</span><span class="p">,</span>
+                <span class="n">c_uint32</span><span class="p">,</span>
+                <span class="n">c_uint32</span><span class="p">,</span>
+                <span class="n">POINTER</span><span class="p">(</span><span class="n">ZCANErrorMessage</span><span class="p">),</span>
+            <span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_lib</span><span class="o">.</span><span class="n">VCI_ReadErrInfo</span><span class="o">.</span><span class="n">restype</span> <span class="o">=</span> <span class="n">c_uint32</span>
+
+        <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_lib</span><span class="o">.</span><span class="n">VCI_ReadErrInfo</span><span class="p">(</span>
+            <span class="n">device_type</span><span class="p">,</span> <span class="n">device_index</span><span class="p">,</span> <span class="n">channel</span><span class="p">,</span> <span class="n">byref</span><span class="p">(</span><span class="n">error_msg</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="nb">bool</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">read_channel_status</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">device_type</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">device_index</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">channel</span><span class="p">:</span> <span class="nb">int</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">ZCAN_STAT</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Read channel status information</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Optional[ZCAN_STAT]: Status structure if successful, None on failure</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">status</span> <span class="o">=</span> <span class="n">ZCAN_STAT</span><span class="p">()</span>
+        <span class="n">ret</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_lib</span><span class="o">.</span><span class="n">VCI_ReadCANStatus</span><span class="p">(</span>
+            <span class="n">device_type</span><span class="p">,</span> <span class="n">device_index</span><span class="p">,</span> <span class="n">channel</span><span class="p">,</span> <span class="n">byref</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">status</span> <span class="k">if</span> <span class="n">ret</span> <span class="o">==</span> <span class="n">ZCANStatus</span><span class="o">.</span><span class="n">OK</span> <span class="k">else</span> <span class="kc">None</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, DexRobot.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

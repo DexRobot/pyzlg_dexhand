@@ -39,8 +39,12 @@
   </form>
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <!-- Local TOC -->
-              <div class="local-toc"></div>
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../quickstart.html">Quickstart Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../api/index.html">API Reference</a></li>
+</ul>
+
         </div>
       </div>
     </nav>
@@ -94,7 +98,7 @@
 
 
 <div class="viewcode-block" id="ZCANFilterConfig">
-<a class="viewcode-back" href="../../index.html#pyzlg_dexhand.zcan_wrapper.ZCANFilterConfig">[docs]</a>
+<a class="viewcode-back" href="../../api/zcan_wrapper.html#pyzlg_dexhand.zcan_wrapper.ZCANFilterConfig">[docs]</a>
 <span class="nd">@dataclass</span>
 <span class="k">class</span> <span class="nc">ZCANFilterConfig</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Configuration for CAN message filtering&quot;&quot;&quot;</span>
@@ -105,8 +109,6 @@
 
 
 
-<div class="viewcode-block" id="ZCANFilter">
-<a class="viewcode-back" href="../../index.html#pyzlg_dexhand.zcan_wrapper.ZCANFilter">[docs]</a>
 <span class="k">class</span> <span class="nc">ZCANFilter</span><span class="p">(</span><span class="n">Structure</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Low level filter configuration structure&quot;&quot;&quot;</span>
 
@@ -115,21 +117,17 @@
         <span class="p">(</span><span class="s2">&quot;pad&quot;</span><span class="p">,</span> <span class="n">c_uint8</span> <span class="o">*</span> <span class="mi">3</span><span class="p">),</span>
         <span class="p">(</span><span class="s2">&quot;start_id&quot;</span><span class="p">,</span> <span class="n">c_uint32</span><span class="p">),</span>
         <span class="p">(</span><span class="s2">&quot;end_id&quot;</span><span class="p">,</span> <span class="n">c_uint32</span><span class="p">),</span>
-    <span class="p">]</span></div>
+    <span class="p">]</span>
 
 
-
-<div class="viewcode-block" id="ZCANFilterTable">
-<a class="viewcode-back" href="../../index.html#pyzlg_dexhand.zcan_wrapper.ZCANFilterTable">[docs]</a>
 <span class="k">class</span> <span class="nc">ZCANFilterTable</span><span class="p">(</span><span class="n">Structure</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Table of CAN filters&quot;&quot;&quot;</span>
 
-    <span class="n">_fields_</span> <span class="o">=</span> <span class="p">[(</span><span class="s2">&quot;size&quot;</span><span class="p">,</span> <span class="n">c_uint32</span><span class="p">),</span> <span class="p">(</span><span class="s2">&quot;table&quot;</span><span class="p">,</span> <span class="n">ZCANFilter</span> <span class="o">*</span> <span class="mi">64</span><span class="p">)]</span></div>
-
+    <span class="n">_fields_</span> <span class="o">=</span> <span class="p">[(</span><span class="s2">&quot;size&quot;</span><span class="p">,</span> <span class="n">c_uint32</span><span class="p">),</span> <span class="p">(</span><span class="s2">&quot;table&quot;</span><span class="p">,</span> <span class="n">ZCANFilter</span> <span class="o">*</span> <span class="mi">64</span><span class="p">)]</span>
 
 
 <div class="viewcode-block" id="BitTimingConfig">
-<a class="viewcode-back" href="../../index.html#pyzlg_dexhand.zcan_wrapper.BitTimingConfig">[docs]</a>
+<a class="viewcode-back" href="../../api/zcan_wrapper.html#pyzlg_dexhand.zcan_wrapper.BitTimingConfig">[docs]</a>
 <span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="k">class</span> <span class="nc">BitTimingConfig</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Bit timing configuration values&quot;&quot;&quot;</span>
@@ -142,7 +140,7 @@
 
 
 <div class="viewcode-block" id="CANFDTimingConfig">
-<a class="viewcode-back" href="../../index.html#pyzlg_dexhand.zcan_wrapper.CANFDTimingConfig">[docs]</a>
+<a class="viewcode-back" href="../../api/zcan_wrapper.html#pyzlg_dexhand.zcan_wrapper.CANFDTimingConfig">[docs]</a>
 <span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="k">class</span> <span class="nc">CANFDTimingConfig</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Complete timing configuration for CANFD&quot;&quot;&quot;</span>
@@ -157,8 +155,6 @@
 
 
 
-<div class="viewcode-block" id="TimingConfigs">
-<a class="viewcode-back" href="../../index.html#pyzlg_dexhand.zcan_wrapper.TimingConfigs">[docs]</a>
 <span class="k">class</span> <span class="nc">TimingConfigs</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Predefined timing configurations for supported baudrate combinations&quot;&quot;&quot;</span>
 
@@ -172,8 +168,6 @@
         <span class="c1"># Additional combinations can be added here</span>
     <span class="p">}</span>
 
-<div class="viewcode-block" id="TimingConfigs.get_config">
-<a class="viewcode-back" href="../../index.html#pyzlg_dexhand.zcan_wrapper.TimingConfigs.get_config">[docs]</a>
     <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">get_config</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">arb_baudrate</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">data_baudrate</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CANFDTimingConfig</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Get timing configuration for specified baudrate combination</span>
@@ -197,18 +191,16 @@
                 <span class="sa">f</span><span class="s2">&quot;Unsupported baudrate combination: </span><span class="si">{</span><span class="n">arb_baudrate</span><span class="o">/</span><span class="mf">1e6</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2">M/</span><span class="si">{</span><span class="n">data_baudrate</span><span class="o">/</span><span class="mf">1e6</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2">M. &quot;</span>
                 <span class="sa">f</span><span class="s2">&quot;Supported combinations are: </span><span class="si">{</span><span class="n">supported</span><span class="si">}</span><span class="s2">&quot;</span>
             <span class="p">)</span>
-        <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">CONFIGS</span><span class="p">[</span><span class="n">key</span><span class="p">]</span></div>
-</div>
-
+        <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">CONFIGS</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
 
 
 <div class="viewcode-block" id="ZCANWrapperBase">
-<a class="viewcode-back" href="../../index.html#pyzlg_dexhand.zcan_wrapper.ZCANWrapperBase">[docs]</a>
+<a class="viewcode-back" href="../../api/zcan_wrapper.html#pyzlg_dexhand.zcan_wrapper.ZCANWrapperBase">[docs]</a>
 <span class="k">class</span> <span class="nc">ZCANWrapperBase</span><span class="p">(</span><span class="n">ABC</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Abstract base class for ZCAN wrapper implementations&quot;&quot;&quot;</span>
 
 <div class="viewcode-block" id="ZCANWrapperBase.open">
-<a class="viewcode-back" href="../../index.html#pyzlg_dexhand.zcan_wrapper.ZCANWrapperBase.open">[docs]</a>
+<a class="viewcode-back" href="../../api/zcan_wrapper.html#pyzlg_dexhand.zcan_wrapper.ZCANWrapperBase.open">[docs]</a>
     <span class="nd">@abstractmethod</span>
     <span class="k">def</span> <span class="nf">open</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
@@ -228,7 +220,7 @@
 
 
 <div class="viewcode-block" id="ZCANWrapperBase.configure_channel">
-<a class="viewcode-back" href="../../index.html#pyzlg_dexhand.zcan_wrapper.ZCANWrapperBase.configure_channel">[docs]</a>
+<a class="viewcode-back" href="../../api/zcan_wrapper.html#pyzlg_dexhand.zcan_wrapper.ZCANWrapperBase.configure_channel">[docs]</a>
     <span class="nd">@abstractmethod</span>
     <span class="k">def</span> <span class="nf">configure_channel</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
@@ -254,7 +246,7 @@
 
 
 <div class="viewcode-block" id="ZCANWrapperBase.set_filter">
-<a class="viewcode-back" href="../../index.html#pyzlg_dexhand.zcan_wrapper.ZCANWrapperBase.set_filter">[docs]</a>
+<a class="viewcode-back" href="../../api/zcan_wrapper.html#pyzlg_dexhand.zcan_wrapper.ZCANWrapperBase.set_filter">[docs]</a>
     <span class="nd">@abstractmethod</span>
     <span class="k">def</span> <span class="nf">set_filter</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">channel</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">filters</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">ZCANFilterConfig</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Set message filters for a channel</span>
@@ -270,7 +262,7 @@
 
 
 <div class="viewcode-block" id="ZCANWrapperBase.send_fd_message">
-<a class="viewcode-back" href="../../index.html#pyzlg_dexhand.zcan_wrapper.ZCANWrapperBase.send_fd_message">[docs]</a>
+<a class="viewcode-back" href="../../api/zcan_wrapper.html#pyzlg_dexhand.zcan_wrapper.ZCANWrapperBase.send_fd_message">[docs]</a>
     <span class="nd">@abstractmethod</span>
     <span class="k">def</span> <span class="nf">send_fd_message</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
@@ -294,7 +286,7 @@
 
 
 <div class="viewcode-block" id="ZCANWrapperBase.receive_fd_messages">
-<a class="viewcode-back" href="../../index.html#pyzlg_dexhand.zcan_wrapper.ZCANWrapperBase.receive_fd_messages">[docs]</a>
+<a class="viewcode-back" href="../../api/zcan_wrapper.html#pyzlg_dexhand.zcan_wrapper.ZCANWrapperBase.receive_fd_messages">[docs]</a>
     <span class="nd">@abstractmethod</span>
     <span class="k">def</span> <span class="nf">receive_fd_messages</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">channel</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">max_messages</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">100</span><span class="p">,</span> <span class="n">timeout_ms</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">100</span>
@@ -313,7 +305,7 @@
 
 
 <div class="viewcode-block" id="ZCANWrapperBase.close">
-<a class="viewcode-back" href="../../index.html#pyzlg_dexhand.zcan_wrapper.ZCANWrapperBase.close">[docs]</a>
+<a class="viewcode-back" href="../../api/zcan_wrapper.html#pyzlg_dexhand.zcan_wrapper.ZCANWrapperBase.close">[docs]</a>
     <span class="nd">@abstractmethod</span>
     <span class="k">def</span> <span class="nf">close</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Close ZCAN device</span>
@@ -327,7 +319,7 @@
 
 
 <div class="viewcode-block" id="ZCANWrapper">
-<a class="viewcode-back" href="../../index.html#pyzlg_dexhand.zcan_wrapper.ZCANWrapper">[docs]</a>
+<a class="viewcode-back" href="../../api/zcan_wrapper.html#pyzlg_dexhand.zcan_wrapper.ZCANWrapper">[docs]</a>
 <span class="k">class</span> <span class="nc">ZCANWrapper</span><span class="p">(</span><span class="n">ZCANWrapperBase</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;High level wrapper for ZCAN operations&quot;&quot;&quot;</span>
 
@@ -338,7 +330,7 @@
     <span class="n">CMD_SET_SEND_QUEUE_EN</span> <span class="o">=</span> <span class="mh">0x103</span>
 
 <div class="viewcode-block" id="ZCANWrapper.__init__">
-<a class="viewcode-back" href="../../index.html#pyzlg_dexhand.zcan_wrapper.ZCANWrapper.__init__">[docs]</a>
+<a class="viewcode-back" href="../../api/zcan_wrapper.html#pyzlg_dexhand.zcan_wrapper.ZCANWrapper.__init__">[docs]</a>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">lib_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;../lib/libusbcanfd.so&quot;</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialize ZCAN wrapper</span>
 
@@ -363,7 +355,7 @@
 
 
 <div class="viewcode-block" id="ZCANWrapper.open">
-<a class="viewcode-back" href="../../index.html#pyzlg_dexhand.zcan_wrapper.ZCANWrapper.open">[docs]</a>
+<a class="viewcode-back" href="../../api/zcan_wrapper.html#pyzlg_dexhand.zcan_wrapper.ZCANWrapper.open">[docs]</a>
     <span class="k">def</span> <span class="nf">open</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">device_type</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">ZCANDeviceType</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -387,7 +379,7 @@
 
 
 <div class="viewcode-block" id="ZCANWrapper.configure_channel">
-<a class="viewcode-back" href="../../index.html#pyzlg_dexhand.zcan_wrapper.ZCANWrapper.configure_channel">[docs]</a>
+<a class="viewcode-back" href="../../api/zcan_wrapper.html#pyzlg_dexhand.zcan_wrapper.ZCANWrapper.configure_channel">[docs]</a>
     <span class="k">def</span> <span class="nf">configure_channel</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">channel</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
@@ -467,7 +459,7 @@
 
 
 <div class="viewcode-block" id="ZCANWrapper.set_filter">
-<a class="viewcode-back" href="../../index.html#pyzlg_dexhand.zcan_wrapper.ZCANWrapper.set_filter">[docs]</a>
+<a class="viewcode-back" href="../../api/zcan_wrapper.html#pyzlg_dexhand.zcan_wrapper.ZCANWrapper.set_filter">[docs]</a>
     <span class="k">def</span> <span class="nf">set_filter</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">channel</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">filters</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">ZCANFilterConfig</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Configure message filters for a channel</span>
 
@@ -498,7 +490,7 @@
 
 
 <div class="viewcode-block" id="ZCANWrapper.send_fd_message">
-<a class="viewcode-back" href="../../index.html#pyzlg_dexhand.zcan_wrapper.ZCANWrapper.send_fd_message">[docs]</a>
+<a class="viewcode-back" href="../../api/zcan_wrapper.html#pyzlg_dexhand.zcan_wrapper.ZCANWrapper.send_fd_message">[docs]</a>
     <span class="k">def</span> <span class="nf">send_fd_message</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">channel</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
@@ -571,7 +563,7 @@
 
 
 <div class="viewcode-block" id="ZCANWrapper.send_fd_messages">
-<a class="viewcode-back" href="../../index.html#pyzlg_dexhand.zcan_wrapper.ZCANWrapper.send_fd_messages">[docs]</a>
+<a class="viewcode-back" href="../../api/zcan_wrapper.html#pyzlg_dexhand.zcan_wrapper.ZCANWrapper.send_fd_messages">[docs]</a>
     <span class="k">def</span> <span class="nf">send_fd_messages</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">channel</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
@@ -613,7 +605,7 @@
 
 
 <div class="viewcode-block" id="ZCANWrapper.receive_fd_messages">
-<a class="viewcode-back" href="../../index.html#pyzlg_dexhand.zcan_wrapper.ZCANWrapper.receive_fd_messages">[docs]</a>
+<a class="viewcode-back" href="../../api/zcan_wrapper.html#pyzlg_dexhand.zcan_wrapper.ZCANWrapper.receive_fd_messages">[docs]</a>
     <span class="k">def</span> <span class="nf">receive_fd_messages</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">channel</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">max_messages</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">100</span><span class="p">,</span> <span class="n">timeout_ms</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">100</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">bytes</span><span class="p">,</span> <span class="nb">int</span><span class="p">]]:</span>
@@ -640,7 +632,7 @@
 
 
 <div class="viewcode-block" id="ZCANWrapper.close">
-<a class="viewcode-back" href="../../index.html#pyzlg_dexhand.zcan_wrapper.ZCANWrapper.close">[docs]</a>
+<a class="viewcode-back" href="../../api/zcan_wrapper.html#pyzlg_dexhand.zcan_wrapper.ZCANWrapper.close">[docs]</a>
     <span class="k">def</span> <span class="nf">close</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Close ZCAN device</span>
 
@@ -698,7 +690,7 @@
         <span class="k">return</span> <span class="n">config</span>
 
 <div class="viewcode-block" id="ZCANWrapper.handle_error">
-<a class="viewcode-back" href="../../index.html#pyzlg_dexhand.zcan_wrapper.ZCANWrapper.handle_error">[docs]</a>
+<a class="viewcode-back" href="../../api/zcan_wrapper.html#pyzlg_dexhand.zcan_wrapper.ZCANWrapper.handle_error">[docs]</a>
     <span class="k">def</span> <span class="nf">handle_error</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">channel</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Read and log error information from the device&quot;&quot;&quot;</span>
         <span class="n">error_msg</span> <span class="o">=</span> <span class="n">ZCANErrorMessage</span><span class="p">()</span>
@@ -717,7 +709,7 @@
 
 
 <div class="viewcode-block" id="ZCANWrapper.reset_channel">
-<a class="viewcode-back" href="../../index.html#pyzlg_dexhand.zcan_wrapper.ZCANWrapper.reset_channel">[docs]</a>
+<a class="viewcode-back" href="../../api/zcan_wrapper.html#pyzlg_dexhand.zcan_wrapper.ZCANWrapper.reset_channel">[docs]</a>
     <span class="k">def</span> <span class="nf">reset_channel</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">channel</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Reset a CAN channel after errors&quot;&quot;&quot;</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Resetting channel </span><span class="si">{</span><span class="n">channel</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
@@ -732,7 +724,7 @@
 
 
 <div class="viewcode-block" id="ZCANWrapper.monitor_channel_status">
-<a class="viewcode-back" href="../../index.html#pyzlg_dexhand.zcan_wrapper.ZCANWrapper.monitor_channel_status">[docs]</a>
+<a class="viewcode-back" href="../../api/zcan_wrapper.html#pyzlg_dexhand.zcan_wrapper.ZCANWrapper.monitor_channel_status">[docs]</a>
     <span class="k">def</span> <span class="nf">monitor_channel_status</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">channel</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Monitor channel status and handle errors&quot;&quot;&quot;</span>
         <span class="n">status</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">zcan</span><span class="o">.</span><span class="n">read_channel_status</span><span class="p">(</span>
@@ -785,7 +777,7 @@
 
 
 <div class="viewcode-block" id="ZCANWrapper.dump_channel_state">
-<a class="viewcode-back" href="../../index.html#pyzlg_dexhand.zcan_wrapper.ZCANWrapper.dump_channel_state">[docs]</a>
+<a class="viewcode-back" href="../../api/zcan_wrapper.html#pyzlg_dexhand.zcan_wrapper.ZCANWrapper.dump_channel_state">[docs]</a>
     <span class="k">def</span> <span class="nf">dump_channel_state</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">channel</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Dump complete channel state for debugging&quot;&quot;&quot;</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">=== Channel </span><span class="si">{</span><span class="n">channel</span><span class="si">}</span><span class="s2"> State Dump ===&quot;</span><span class="p">)</span>
@@ -812,7 +804,7 @@
 
 
 <div class="viewcode-block" id="ZCANWrapper.dump_frame">
-<a class="viewcode-back" href="../../index.html#pyzlg_dexhand.zcan_wrapper.ZCANWrapper.dump_frame">[docs]</a>
+<a class="viewcode-back" href="../../api/zcan_wrapper.html#pyzlg_dexhand.zcan_wrapper.ZCANWrapper.dump_frame">[docs]</a>
     <span class="k">def</span> <span class="nf">dump_frame</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message</span><span class="p">:</span> <span class="n">ZCANFDMessage</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Dump complete frame details for debugging&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">logger</span><span class="o">.</span><span class="n">isEnabledFor</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">DEBUG</span><span class="p">):</span>
@@ -840,12 +832,12 @@
 
 
 <div class="viewcode-block" id="MockZCANWrapper">
-<a class="viewcode-back" href="../../index.html#pyzlg_dexhand.zcan_wrapper.MockZCANWrapper">[docs]</a>
+<a class="viewcode-back" href="../../api/zcan_wrapper.html#pyzlg_dexhand.zcan_wrapper.MockZCANWrapper">[docs]</a>
 <span class="k">class</span> <span class="nc">MockZCANWrapper</span><span class="p">(</span><span class="n">ZCANWrapperBase</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Mock implementation for testing&quot;&quot;&quot;</span>
 
 <div class="viewcode-block" id="MockZCANWrapper.__init__">
-<a class="viewcode-back" href="../../index.html#pyzlg_dexhand.zcan_wrapper.MockZCANWrapper.__init__">[docs]</a>
+<a class="viewcode-back" href="../../api/zcan_wrapper.html#pyzlg_dexhand.zcan_wrapper.MockZCANWrapper.__init__">[docs]</a>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialize mock wrapper&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">is_open</span> <span class="o">=</span> <span class="kc">False</span>
@@ -854,7 +846,7 @@
 
 
 <div class="viewcode-block" id="MockZCANWrapper.open">
-<a class="viewcode-back" href="../../index.html#pyzlg_dexhand.zcan_wrapper.MockZCANWrapper.open">[docs]</a>
+<a class="viewcode-back" href="../../api/zcan_wrapper.html#pyzlg_dexhand.zcan_wrapper.MockZCANWrapper.open">[docs]</a>
     <span class="k">def</span> <span class="nf">open</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">device_type</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">ZCANDeviceType</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -866,7 +858,7 @@
 
 
 <div class="viewcode-block" id="MockZCANWrapper.configure_channel">
-<a class="viewcode-back" href="../../index.html#pyzlg_dexhand.zcan_wrapper.MockZCANWrapper.configure_channel">[docs]</a>
+<a class="viewcode-back" href="../../api/zcan_wrapper.html#pyzlg_dexhand.zcan_wrapper.MockZCANWrapper.configure_channel">[docs]</a>
     <span class="k">def</span> <span class="nf">configure_channel</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">channel</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
@@ -886,7 +878,7 @@
 
 
 <div class="viewcode-block" id="MockZCANWrapper.set_filter">
-<a class="viewcode-back" href="../../index.html#pyzlg_dexhand.zcan_wrapper.MockZCANWrapper.set_filter">[docs]</a>
+<a class="viewcode-back" href="../../api/zcan_wrapper.html#pyzlg_dexhand.zcan_wrapper.MockZCANWrapper.set_filter">[docs]</a>
     <span class="k">def</span> <span class="nf">set_filter</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">channel</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">filters</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">ZCANFilterConfig</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Mock ZCAN: Setting filters for channel </span><span class="si">{</span><span class="n">channel</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">channel</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">channels</span><span class="p">:</span>
@@ -896,7 +888,7 @@
 
 
 <div class="viewcode-block" id="MockZCANWrapper.send_fd_message">
-<a class="viewcode-back" href="../../index.html#pyzlg_dexhand.zcan_wrapper.MockZCANWrapper.send_fd_message">[docs]</a>
+<a class="viewcode-back" href="../../api/zcan_wrapper.html#pyzlg_dexhand.zcan_wrapper.MockZCANWrapper.send_fd_message">[docs]</a>
     <span class="k">def</span> <span class="nf">send_fd_message</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">channel</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
@@ -922,7 +914,7 @@
 
 
 <div class="viewcode-block" id="MockZCANWrapper.receive_fd_messages">
-<a class="viewcode-back" href="../../index.html#pyzlg_dexhand.zcan_wrapper.MockZCANWrapper.receive_fd_messages">[docs]</a>
+<a class="viewcode-back" href="../../api/zcan_wrapper.html#pyzlg_dexhand.zcan_wrapper.MockZCANWrapper.receive_fd_messages">[docs]</a>
     <span class="k">def</span> <span class="nf">receive_fd_messages</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">channel</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">max_messages</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">100</span><span class="p">,</span> <span class="n">timeout_ms</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">100</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">bytes</span><span class="p">,</span> <span class="nb">int</span><span class="p">]]:</span>
@@ -932,7 +924,7 @@
 
 
 <div class="viewcode-block" id="MockZCANWrapper.close">
-<a class="viewcode-back" href="../../index.html#pyzlg_dexhand.zcan_wrapper.MockZCANWrapper.close">[docs]</a>
+<a class="viewcode-back" href="../../api/zcan_wrapper.html#pyzlg_dexhand.zcan_wrapper.MockZCANWrapper.close">[docs]</a>
     <span class="k">def</span> <span class="nf">close</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Mock ZCAN: Closing device&quot;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">is_open</span> <span class="o">=</span> <span class="kc">False</span>
@@ -941,7 +933,7 @@
 
 
 <div class="viewcode-block" id="MockZCANWrapper.get_message_history">
-<a class="viewcode-back" href="../../index.html#pyzlg_dexhand.zcan_wrapper.MockZCANWrapper.get_message_history">[docs]</a>
+<a class="viewcode-back" href="../../api/zcan_wrapper.html#pyzlg_dexhand.zcan_wrapper.MockZCANWrapper.get_message_history">[docs]</a>
     <span class="k">def</span> <span class="nf">get_message_history</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">dict</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Get history of sent messages for testing</span>
 
@@ -952,7 +944,7 @@
 
 
 <div class="viewcode-block" id="MockZCANWrapper.clear_message_history">
-<a class="viewcode-back" href="../../index.html#pyzlg_dexhand.zcan_wrapper.MockZCANWrapper.clear_message_history">[docs]</a>
+<a class="viewcode-back" href="../../api/zcan_wrapper.html#pyzlg_dexhand.zcan_wrapper.MockZCANWrapper.clear_message_history">[docs]</a>
     <span class="k">def</span> <span class="nf">clear_message_history</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Clear message history&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">message_history</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span></div>
