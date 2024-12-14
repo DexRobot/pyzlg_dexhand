@@ -2,10 +2,10 @@ DexHand:
   # Configuration for left/right dexterous hand
   left_hand:
     channel: 0
-    hall_scale: [2.1, 2.1, 1.8, 4.0, 2.2, 1.6, 2.2, 1.6, 2.2, 1.6, 2.2, 1.6]  # Scale coefficients for hall position modes (0x33/0x55)
+    hall_scale: [2.1, 2.1, 1.8, 4.0, 2.2, 1.6, 2.2, 1.6, 2.2, 1.6, 2.2, 1.6]  # Scale coefficients for hall position mode; do not edit unless you know what you are doing
   right_hand:
     channel: 0
-    hall_scale: [2.1, 2.1, 1.8, 4.0, 2.2, 1.6, 2.2, 1.6, 2.2, 1.6, 2.2, 1.6]  # Scale coefficients for hall position modes (0x33/0x55)
+    hall_scale: [2.1, 2.1, 1.8, 4.0, 2.2, 1.6, 2.2, 1.6, 2.2, 1.6, 2.2, 1.6]  # Scale coefficients for hall position mode; do not edit unless you know what you are doing
 
   ROS_Node:
     hands: ['left']  # List of hands to control: 'left', 'right', or both

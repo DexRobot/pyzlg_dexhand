@@ -17,7 +17,7 @@ This package provides:
 - Linux environment
 - Python 3.8+
 - ZLG USBCANFD adapter (tested with USBCANFD-200U)
-- ROS2 (optional, for ROS interface)
+- ROS1/ROS2 (optional, for ROS interface)
 
 ## Installation
 
@@ -38,6 +38,8 @@ The setup script will:
 - Configure appropriate permissions
 
 You may need to log out and back in for the changes to take effect.
+
+3. Edit `config/config.yaml` to match your hardware setup, especially channels and ZCAN device type.
 
 ## Usage Examples
 
@@ -74,15 +76,49 @@ right_hand.clear_errors()    # Clear all error states
 You can explore the API with tab completion and help commands.
 
 
-### 3. ROS2 Integration
+### 3. ROS Integration
 
 ```bash
 # Start node with default config
-python examples/ros2_demo/dexhand_ros2.py
+python examples/ros_node/dexhand_ros.py
 
 # Test movements with an example publisher
-python examples/ros2_demo/dexhand_ros2_test.py --hands right --cycle-time 3.0
+python examples/ros_node/dexhand_ros_publisher_demo.py --hands right --cycle-time 3.0
 ```
+
+### ROS Integration
+
+The SDK provides a ROS interface that supports both ROS1 (rospy) and ROS2 (rclpy) environments, automatically detecting and using the appropriate framework.
+
+Usage:
+
+```bash
+# Launch the ROS node with default configuration
+python examples/ros_node/dexhand_ros.py
+
+# Run the demo publisher (for testing)
+python examples/ros_node/dexhand_ros_publisher_demo.py --hands right --cycle-time 3.0
+```
+
+Interface:
+
+| Topic (default) | Type | Direction | Description |
+|-------|------|-----------|-------------|
+| `/joint_commands` | `sensor_msgs/JointState` | Input | Joint position commands |
+| `/joint_states` | `sensor_msgs/JointState` | Output | Joint position feedback (Coming soon) |
+| `/tactile_feedback` | TBD | Output | Tactile sensor data (Coming soon) |
+
+Topic names configurable via `config/config.yaml`.
+
+| Service | Type | Description |
+|---------|------|-------------|
+| `/reset_hands` | `std_srvs/Trigger` | Reset hands to default position |
+
+Notes:
+
+- Joint names in commands match the URDF file specifications
+- Configuration can be customized through `config/config.yaml`
+- All features work identically in both ROS1 and ROS2 environments
 
 ### 4. Programming Interface
 
@@ -108,6 +144,17 @@ feedback = hand.get_feedback()
 print(f"Thumb angle: {feedback.joints['th_rot'].angle}")
 print(f"Tactile force: {feedback.tactile['th'].normal_force}")
 ```
+
+Notes:
+
+- Control Modes
+
+  - `CASCADED_PID`: Provides precise position control with higher stiffness
+  - `PROTECT_HALL_POSITION`: Offers smoother response but requires joints to be in zero position at power-on
+
+- Error Handling
+
+  - When a finger's motion is obstructed by an object, it may enter an error state and become unresponsive to control signals. For reliable continuous control, call `hand.clear_errors()` after sending each command
 
 ## Architecture
 
@@ -166,24 +213,11 @@ Logs include:
 - Error states
 - Timing information
 
-## Control Modes
-
-Supported control modes:
-
-- `ZERO_TORQUE` (0x00): Motors disabled
-- `CURRENT` (0x11): Direct current control
-- `SPEED` (0x22): Velocity control
-- `HALL_POSITION` (0x33): Position control using hall sensors
-- `CASCADED_PID` (0x44): Cascaded position/velocity control
-- `PROTECT_HALL_POSITION` (0x55): Protected position control with limits
-
 ## Configuration
 
 Configuration files in `config/`:
 
 - `config.yaml`: Left/Right hand parameters, ROS2 node settings, and ZCAN configuration
-
-> Please change the right Channel ID to match your hardware setup.
 
 ## Contributing
 
