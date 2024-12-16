@@ -71,9 +71,3 @@ For issues, questions, or contributions:
 * Check our `GitHub Issues <https://github.com/dexrobot/pyzlg_dexhand/issues>`_
 * Submit pull requests via GitHub
 
-Indices and tables
-================
-
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
