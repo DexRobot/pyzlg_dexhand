@@ -1,3 +1,5 @@
+[English](README.md) | [中文](README_zh.md)
+
 # DexHand Python Interface
 
 Python interface for controlling dexterous robotic hands over CANFD using ZLG USBCANFD adapters. Provides both direct control and ROS2 integration.
