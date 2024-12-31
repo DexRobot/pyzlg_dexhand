@@ -29,26 +29,19 @@
 
 ## 安装
 
-1. 确保已安装 Git LFS。**否则，CANFD 适配器的库将无法正确加载**。
-
-   ```bash
-   sudo apt install git-lfs      # 以 Ubuntu 为例
-   git lfs install
-   ```
-
-2. 克隆仓库：
+1. 下载或克隆仓库：
 
    ```bash
    git clone https://gitee.com/DexRobot/pyzlg_dexhand.git
    ```
 
-3. 安装软件包：
+2. 安装软件包：
 
    ```bash
    pip install -e .
    ```
 
-4. 配置 USB 权限：
+3. 配置 USB 权限：
 
    ```bash
    sudo ./tools/setup_usb_can.sh
@@ -63,7 +56,7 @@
 
    **你可能需要注销并重新登录才能使更改生效。**
 
-5. 编辑 `config/config.yaml` 以匹配你的硬件设置，特别是**通道和 ZCAN 设备类型**。
+4. 编辑 `config/config.yaml` 以匹配你的硬件设置，特别是**通道和 ZCAN 设备类型**。
 
 ## 使用示例
 

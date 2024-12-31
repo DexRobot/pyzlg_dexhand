@@ -29,26 +29,19 @@ Please refer to the following diagram:
 
 ## Installation
 
-1. Make sure you have Git LFS installed. **Otherwise, the library for the CANFD adapter will not be loaded correctly**.
-
-   ```bash
-   sudo apt install git-lfs      # For Ubuntu, for example
-   git lfs install
-   ```
-
-2. Clone the repository:
+1. Download or clone the repository:
 
    ```bash
    git clone https://gitee.com/DexRobot/pyzlg_dexhand.git
    ```
 
-3. Install the package:
+2. Install the package:
 
    ```bash
    pip install -e .
    ```
 
-4. Configure USB permissions:
+3. Configure USB permissions:
 
    ```bash
    sudo ./tools/setup_usb_can.sh
@@ -63,7 +56,7 @@ Please refer to the following diagram:
 
    **You may need to log out and back in for the changes to take effect.**
 
-5. Edit `config/config.yaml` to match your hardware setup, especially **channels and ZCAN device type**.
+4. Edit `config/config.yaml` to match your hardware setup, especially **channels and ZCAN device type**.
 
 ## Usage Examples
 
