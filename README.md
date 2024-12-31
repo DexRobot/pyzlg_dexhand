@@ -27,25 +27,41 @@ Please refer to the following diagram:
 
 ## Installation
 
-1. Install the package:
-```bash
-pip install -e .
-```
+1. Make sure you have Git LFS installed. **Otherwise, the library for the CANFD adapter will not be loaded correctly**.
 
-2. Configure USB permissions:
-```bash
-sudo ./tools/setup_usb_can.sh
-```
+   ```bash
+   sudo apt install git-lfs      # For Ubuntu, for example
+   git lfs install
+   ```
 
-The setup script will:
-- Create a canbus group
-- Add your user to the group
-- Set up udev rules for the USBCANFD adapter
-- Configure appropriate permissions
+2. Clone the repository:
 
-You may need to log out and back in for the changes to take effect.
+   ```bash
+   git clone https://gitee.com/DexRobot/pyzlg_dexhand.git
+   ```
 
-3. Edit `config/config.yaml` to match your hardware setup, especially channels and ZCAN device type.
+3. Install the package:
+
+   ```bash
+   pip install -e .
+   ```
+
+4. Configure USB permissions:
+
+   ```bash
+   sudo ./tools/setup_usb_can.sh
+   ```
+
+   The setup script will:
+
+   - Create a canbus group
+   - Add your user to the group
+   - Set up udev rules for the USBCANFD adapter
+   - Configure appropriate permissions
+
+   **You may need to log out and back in for the changes to take effect.**
+
+5. Edit `config/config.yaml` to match your hardware setup, especially **channels and ZCAN device type**.
 
 ## Usage Examples
 
@@ -70,7 +86,8 @@ python tools/hardware_test/test_dexhand_interactive.py --hands right
 This provides an IPython shell with initialized hand objects and helper functions.
 
 Example commands:
-```
+
+```python
 right_hand.move_joints(th_rot=30)  # Rotate thumb
 right_hand.move_joints(ff_mcp=60, ff_dip=60)  # Curl index finger
 right_hand.move_joints(ff_spr=20, control_mode=ControlMode.PROTECT_HALL_POSITION)  # Spread all fingers, with alternative control mode
@@ -80,7 +97,6 @@ right_hand.clear_errors()    # Clear all error states
 ```
 
 You can explore the API with tab completion and help commands.
-
 
 ### 3. ROS Integration
 
@@ -98,16 +114,16 @@ python examples/ros_node/dexhand_ros_publisher_demo.py --hands right --cycle-tim
 
 Interface:
 
-| Topic (default) | Type | Direction | Description |
-|-------|------|-----------|-------------|
-| `/joint_commands` | `sensor_msgs/JointState` | Input | Joint position commands |
-| `/joint_states` | `sensor_msgs/JointState` | Output | Joint position feedback (Coming soon) |
-| `/tactile_feedback` | TBD | Output | Tactile sensor data (Coming soon) |
+| Topic (default)     | Type                     | Direction | Description                           |
+| ------------------- | ------------------------ | --------- | ------------------------------------- |
+| `/joint_commands`   | `sensor_msgs/JointState` | Input     | Joint position commands               |
+| `/joint_states`     | `sensor_msgs/JointState` | Output    | Joint position feedback (Coming soon) |
+| `/tactile_feedback` | TBD                      | Output    | Tactile sensor data (Coming soon)     |
 
 Topic names configurable via `config/config.yaml`.
 
-| Service | Type | Description |
-|---------|------|-------------|
+| Service        | Type               | Description                     |
+| -------------- | ------------------ | ------------------------------- |
 | `/reset_hands` | `std_srvs/Trigger` | Reset hands to default position |
 
 Notes:
@@ -204,6 +220,7 @@ logger.plot_session(show=True, save=True)
 ```
 
 Logs include:
+
 - Joint commands and feedback
 - Tactile sensor data
 - Error states

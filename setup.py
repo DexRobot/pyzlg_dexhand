@@ -11,7 +11,7 @@ setup(
         "ipython",
         "matplotlib",
         "pandas",
-        "ros_compat @ git+https://github.com/dexrobot/ros_compat.git",
+        "ros_compat @ git+https://gitee.com/dexrobot/ros_compat.git",
     ],
     extras_require={
         "test": ["pytest", "pytest-cov"],
@@ -21,4 +21,8 @@ setup(
             "sphinx-autodoc-typehints",
         ],
     },
+    package_data={
+        'pyzlg_dexhand': ['../lib/*'],
+    },
+    include_package_data=True,
 )

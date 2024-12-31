@@ -38,6 +38,9 @@ fi
 
 # Create/update udev rule
 UDEV_RULE_FILE="/etc/udev/rules.d/99-zlg-can.rules"
+UDEV_RULE='# ZLG USBCANFD
+SUBSYSTEM=="usb", ATTRS{idVendor}=="3068", ATTRS{idProduct}=="0009", GROUP="canbus", MODE="0660"'
+
 
 # Detect the CAN device model
 CAN_DEVICE_MODEL=""
