@@ -89,7 +89,9 @@ class DexHandTester:
             raise ValueError(f"Invalid hand selection. Must be 'left' or 'right'")
 
         # Create ZCAN interface
-        self.zcan = ZCANWrapper() if len(hand_names) > 1 else None
+        self.zcan = ZCANWrapper()
+        if not self.zcan.open():
+            raise RuntimeError("Failed to open ZCAN device")
 
         # Initialize hands
         self.hands = {}
