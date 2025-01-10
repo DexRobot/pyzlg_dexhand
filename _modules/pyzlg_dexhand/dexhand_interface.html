@@ -6,7 +6,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>pyzlg_dexhand.dexhand_interface &mdash; pyzlg_dexhand 0.1.0 documentation</title>
-      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
 
   
@@ -70,27 +70,27 @@
            <div itemprop="articleBody">
              
   <h1>Source code for pyzlg_dexhand.dexhand_interface</h1><div class="highlight"><pre>
-<span></span><span class="kn">from</span> <span class="nn">dataclasses</span> <span class="kn">import</span> <span class="n">dataclass</span><span class="p">,</span> <span class="n">asdict</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Union</span><span class="p">,</span> <span class="n">Tuple</span>
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">import</span> <span class="nn">os</span>
-<span class="kn">import</span> <span class="nn">yaml</span>
-<span class="kn">import</span> <span class="nn">logging</span>
-<span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Dict</span>
-<span class="kn">import</span> <span class="nn">time</span>
+<span></span><span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataclass</span><span class="p">,</span> <span class="n">asdict</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Union</span><span class="p">,</span> <span class="n">Tuple</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">yaml</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Dict</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">time</span>
 
-<span class="kn">from</span> <span class="nn">.zcan_wrapper</span> <span class="kn">import</span> <span class="n">ZCANWrapper</span>
-<span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">dexhand_protocol</span> <span class="k">as</span> <span class="n">protocol</span>
-<span class="kn">from</span> <span class="nn">.dexhand_protocol</span> <span class="kn">import</span> <span class="n">BoardID</span>
-<span class="kn">from</span> <span class="nn">.dexhand_protocol.commands</span> <span class="kn">import</span> <span class="p">(</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.zcan_wrapper</span><span class="w"> </span><span class="kn">import</span> <span class="n">ZCANWrapper</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.</span><span class="w"> </span><span class="kn">import</span> <span class="n">dexhand_protocol</span> <span class="k">as</span> <span class="n">protocol</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.dexhand_protocol</span><span class="w"> </span><span class="kn">import</span> <span class="n">BoardID</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.dexhand_protocol.commands</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">ControlMode</span><span class="p">,</span>
     <span class="n">MotorCommand</span><span class="p">,</span>
     <span class="n">ClearErrorCommand</span><span class="p">,</span>
     <span class="n">FeedbackConfigCommand</span><span class="p">,</span>
     <span class="n">FeedbackMode</span><span class="p">,</span>
 <span class="p">)</span>
-<span class="kn">from</span> <span class="nn">.dexhand_protocol.messages</span> <span class="kn">import</span> <span class="p">(</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.dexhand_protocol.messages</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">BoardFeedback</span><span class="p">,</span>
     <span class="n">ErrorInfo</span><span class="p">,</span>
     <span class="n">MessageType</span><span class="p">,</span>
@@ -104,7 +104,7 @@
 <div class="viewcode-block" id="HandConfig">
 <a class="viewcode-back" href="../../api/dexhand_interface.html#pyzlg_dexhand.dexhand_interface.HandConfig">[docs]</a>
 <span class="nd">@dataclass</span>
-<span class="k">class</span> <span class="nc">HandConfig</span><span class="p">:</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">HandConfig</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Configuration for hand hardware&quot;&quot;&quot;</span>
 
     <span class="n">channel</span><span class="p">:</span> <span class="nb">int</span>  <span class="c1"># CAN channel number</span>
@@ -113,7 +113,7 @@
 
 
 <span class="nd">@dataclass</span>
-<span class="k">class</span> <span class="nc">BoardState</span><span class="p">:</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">BoardState</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Feedback and Error collected for a single board.&quot;&quot;&quot;</span>
 
     <span class="n">feedback_timestamp</span><span class="p">:</span> <span class="nb">float</span>  <span class="c1"># Timestamp of last feedback</span>
@@ -128,7 +128,7 @@
 <div class="viewcode-block" id="JointFeedback">
 <a class="viewcode-back" href="../../api/dexhand_interface.html#pyzlg_dexhand.dexhand_interface.JointFeedback">[docs]</a>
 <span class="nd">@dataclass</span>
-<span class="k">class</span> <span class="nc">JointFeedback</span><span class="p">:</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">JointFeedback</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Feedback for a specific joint command&quot;&quot;&quot;</span>
 
     <span class="n">timestamp</span><span class="p">:</span> <span class="nb">float</span>  <span class="c1"># When feedback was received</span>
@@ -140,7 +140,7 @@
 <div class="viewcode-block" id="StampedTactileFeedback">
 <a class="viewcode-back" href="../../api/dexhand_interface.html#pyzlg_dexhand.dexhand_interface.StampedTactileFeedback">[docs]</a>
 <span class="nd">@dataclass</span>
-<span class="k">class</span> <span class="nc">StampedTactileFeedback</span><span class="p">:</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">StampedTactileFeedback</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Timestamped tactile feedback for a fingertip&quot;&quot;&quot;</span>
 
     <span class="n">timestamp</span><span class="p">:</span> <span class="nb">float</span>  <span class="c1"># When feedback was received</span>
@@ -157,7 +157,7 @@
 <div class="viewcode-block" id="HandFeedback">
 <a class="viewcode-back" href="../../api/dexhand_interface.html#pyzlg_dexhand.dexhand_interface.HandFeedback">[docs]</a>
 <span class="nd">@dataclass</span>
-<span class="k">class</span> <span class="nc">HandFeedback</span><span class="p">:</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">HandFeedback</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Feedback data for whole hand&quot;&quot;&quot;</span>
 
     <span class="n">query_timestamp</span><span class="p">:</span> <span class="nb">float</span>  <span class="c1"># When feedback was requested</span>
@@ -168,7 +168,7 @@
 
 <div class="viewcode-block" id="DexHandBase">
 <a class="viewcode-back" href="../../api/dexhand_interface.html#pyzlg_dexhand.dexhand_interface.DexHandBase">[docs]</a>
-<span class="k">class</span> <span class="nc">DexHandBase</span><span class="p">:</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">DexHandBase</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Base class for dexterous hand control&quot;&quot;&quot;</span>
 
     <span class="n">NUM_MOTORS</span> <span class="o">=</span> <span class="mi">12</span>  <span class="c1"># Total motors in hand</span>
@@ -198,7 +198,7 @@
 
 <div class="viewcode-block" id="DexHandBase.__init__">
 <a class="viewcode-back" href="../../api/dexhand_interface.html#pyzlg_dexhand.dexhand_interface.DexHandBase.__init__">[docs]</a>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">base_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">zcan</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">ZCANWrapper</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">base_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">zcan</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">ZCANWrapper</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialize dexterous hand interface</span>
 
 <span class="sd">        Args:</span>
@@ -229,7 +229,7 @@
         <span class="p">}</span></div>
 
 
-    <span class="k">def</span> <span class="nf">_init_hall_scaling</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_init_hall_scaling</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialize scaling factors for hall position modes&quot;&quot;&quot;</span>
         <span class="c1"># Conversion factor for hall position modes (from protocol spec):</span>
         <span class="c1"># - 6 counts per revolution</span>
@@ -241,7 +241,7 @@
 
 <div class="viewcode-block" id="DexHandBase.init">
 <a class="viewcode-back" href="../../api/dexhand_interface.html#pyzlg_dexhand.dexhand_interface.DexHandBase.init">[docs]</a>
-    <span class="k">def</span> <span class="nf">init</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">device_index</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">init</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">device_index</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialize CAN communication</span>
 
 <span class="sd">        Args:</span>
@@ -263,7 +263,7 @@
         <span class="k">return</span> <span class="kc">True</span></div>
 
 
-    <span class="k">def</span> <span class="nf">_get_command_id</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">msg_type</span><span class="p">:</span> <span class="n">MessageType</span><span class="p">,</span> <span class="n">board_idx</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_get_command_id</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">msg_type</span><span class="p">:</span> <span class="n">MessageType</span><span class="p">,</span> <span class="n">board_idx</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Get command CAN ID for a board index&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="mi">0</span> <span class="o">&lt;=</span> <span class="n">board_idx</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">NUM_BOARDS</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Invalid board index: </span><span class="si">{</span><span class="n">board_idx</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
@@ -271,7 +271,7 @@
 
 <div class="viewcode-block" id="DexHandBase.set_feedback_mode">
 <a class="viewcode-back" href="../../api/dexhand_interface.html#pyzlg_dexhand.dexhand_interface.DexHandBase.set_feedback_mode">[docs]</a>
-    <span class="k">def</span> <span class="nf">set_feedback_mode</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">set_feedback_mode</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">mode</span><span class="p">:</span> <span class="n">FeedbackMode</span><span class="p">,</span> <span class="n">period_ms</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">enable</span><span class="p">:</span> <span class="nb">bool</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Configure feedback mode for all boards</span>
@@ -305,7 +305,7 @@
         <span class="k">return</span> <span class="kc">True</span></div>
 
 
-    <span class="k">def</span> <span class="nf">_send_motion_command</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_send_motion_command</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">board_idx</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
         <span class="n">motor1_pos</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
@@ -347,7 +347,7 @@
 
         <span class="k">return</span> <span class="kc">True</span>
 
-    <span class="k">def</span> <span class="nf">_refresh_board_states</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_refresh_board_states</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Receive CANFD frames to update the states for all boards.&quot;&quot;&quot;</span>
         <span class="c1"># Get all messages</span>
         <span class="n">messages</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">zcan</span><span class="o">.</span><span class="n">receive_fd_messages</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">channel</span><span class="p">)</span>
@@ -378,7 +378,7 @@
             <span class="k">except</span> <span class="ne">ValueError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
                 <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Failed to process message: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">_clear_board_error</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">board_idx</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_clear_board_error</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">board_idx</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Attempt to clear error state for a board</span>
 
 <span class="sd">        Args:</span>
@@ -401,7 +401,7 @@
 
 <div class="viewcode-block" id="DexHandBase.move_joints">
 <a class="viewcode-back" href="../../api/dexhand_interface.html#pyzlg_dexhand.dexhand_interface.DexHandBase.move_joints">[docs]</a>
-    <span class="k">def</span> <span class="nf">move_joints</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">move_joints</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">th_rot</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>  <span class="c1"># thumb rotation</span>
         <span class="n">th_mcp</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>  <span class="c1"># thumb metacarpophalangeal</span>
@@ -488,7 +488,7 @@
 
 <div class="viewcode-block" id="DexHandBase.get_feedback">
 <a class="viewcode-back" href="../../api/dexhand_interface.html#pyzlg_dexhand.dexhand_interface.DexHandBase.get_feedback">[docs]</a>
-    <span class="k">def</span> <span class="nf">get_feedback</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">HandFeedback</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_feedback</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">HandFeedback</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Get feedback from all joints and tactile sensors</span>
 
 <span class="sd">        Returns:</span>
@@ -546,7 +546,7 @@
 
 <div class="viewcode-block" id="DexHandBase.get_errors">
 <a class="viewcode-back" href="../../api/dexhand_interface.html#pyzlg_dexhand.dexhand_interface.DexHandBase.get_errors">[docs]</a>
-    <span class="k">def</span> <span class="nf">get_errors</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">Optional</span><span class="p">[</span><span class="n">ErrorInfo</span><span class="p">]]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_errors</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">Optional</span><span class="p">[</span><span class="n">ErrorInfo</span><span class="p">]]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Get error information for whole hand</span>
 
 <span class="sd">        Returns:</span>
@@ -557,7 +557,7 @@
 
 <div class="viewcode-block" id="DexHandBase.clear_errors">
 <a class="viewcode-back" href="../../api/dexhand_interface.html#pyzlg_dexhand.dexhand_interface.DexHandBase.clear_errors">[docs]</a>
-    <span class="k">def</span> <span class="nf">clear_errors</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">clear_all</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">clear_errors</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">clear_all</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Clear all errors for the hand</span>
 
 <span class="sd">        Args:</span>
@@ -568,7 +568,7 @@
                 <span class="bp">self</span><span class="o">.</span><span class="n">_clear_board_error</span><span class="p">(</span><span class="n">board_idx</span><span class="p">)</span></div>
 
 
-    <span class="k">def</span> <span class="nf">_scale_angle</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_scale_angle</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">motor_idx</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">angle</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">control_mode</span><span class="p">:</span> <span class="n">ControlMode</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Scale angle based on control mode&quot;&quot;&quot;</span>
@@ -583,7 +583,7 @@
 
 <div class="viewcode-block" id="DexHandBase.reset_joints">
 <a class="viewcode-back" href="../../api/dexhand_interface.html#pyzlg_dexhand.dexhand_interface.DexHandBase.reset_joints">[docs]</a>
-    <span class="k">def</span> <span class="nf">reset_joints</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">reset_joints</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Reset all joints to their zero positions.</span>
 
 <span class="sd">        This is equivalent to setting all joint angles to 0 degrees.</span>
@@ -608,7 +608,7 @@
 
 <div class="viewcode-block" id="DexHandBase.close">
 <a class="viewcode-back" href="../../api/dexhand_interface.html#pyzlg_dexhand.dexhand_interface.DexHandBase.close">[docs]</a>
-    <span class="k">def</span> <span class="nf">close</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">close</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Close CAN communication&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_owns_zcan</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">zcan</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
@@ -618,12 +618,12 @@
 
 <div class="viewcode-block" id="LeftDexHand">
 <a class="viewcode-back" href="../../api/dexhand_interface.html#pyzlg_dexhand.dexhand_interface.LeftDexHand">[docs]</a>
-<span class="k">class</span> <span class="nc">LeftDexHand</span><span class="p">(</span><span class="n">DexHandBase</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">LeftDexHand</span><span class="p">(</span><span class="n">DexHandBase</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Control interface for left dexterous hand&quot;&quot;&quot;</span>
 
 <div class="viewcode-block" id="LeftDexHand.__init__">
 <a class="viewcode-back" href="../../api/dexhand_interface.html#pyzlg_dexhand.dexhand_interface.LeftDexHand.__init__">[docs]</a>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">zcan</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">ZCANWrapper</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">zcan</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">ZCANWrapper</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
         <span class="n">config_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
             <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="vm">__file__</span><span class="p">),</span> <span class="s2">&quot;../config&quot;</span><span class="p">,</span> <span class="s2">&quot;config.yaml&quot;</span>
         <span class="p">)</span>
@@ -640,12 +640,12 @@
 
 <div class="viewcode-block" id="RightDexHand">
 <a class="viewcode-back" href="../../api/dexhand_interface.html#pyzlg_dexhand.dexhand_interface.RightDexHand">[docs]</a>
-<span class="k">class</span> <span class="nc">RightDexHand</span><span class="p">(</span><span class="n">DexHandBase</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">RightDexHand</span><span class="p">(</span><span class="n">DexHandBase</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Control interface for right dexterous hand&quot;&quot;&quot;</span>
 
 <div class="viewcode-block" id="RightDexHand.__init__">
 <a class="viewcode-back" href="../../api/dexhand_interface.html#pyzlg_dexhand.dexhand_interface.RightDexHand.__init__">[docs]</a>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">zcan</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">ZCANWrapper</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">zcan</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">ZCANWrapper</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
         <span class="n">config_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
             <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="vm">__file__</span><span class="p">),</span> <span class="s2">&quot;../config&quot;</span><span class="p">,</span> <span class="s2">&quot;config.yaml&quot;</span>
         <span class="p">)</span>

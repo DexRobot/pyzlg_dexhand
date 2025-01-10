@@ -6,7 +6,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>pyzlg_dexhand.dexhand_protocol &mdash; pyzlg_dexhand 0.1.0 documentation</title>
-      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
 
   
@@ -76,12 +76,12 @@
 <span class="sd">modules for host-to-board commands and board-to-host messages.</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
-<span class="kn">from</span> <span class="nn">enum</span> <span class="kn">import</span> <span class="n">IntEnum</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Optional</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">enum</span><span class="w"> </span><span class="kn">import</span> <span class="n">IntEnum</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Optional</span>
 
 <div class="viewcode-block" id="MessageType">
 <a class="viewcode-back" href="../../api/dexhand_protocol.html#pyzlg_dexhand.dexhand_protocol.MessageType">[docs]</a>
-<span class="k">class</span> <span class="nc">MessageType</span><span class="p">(</span><span class="n">IntEnum</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">MessageType</span><span class="p">(</span><span class="n">IntEnum</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;CAN message type identifiers and their base addresses&quot;&quot;&quot;</span>
     <span class="n">MOTION_COMMAND</span> <span class="o">=</span> <span class="mh">0x100</span>     <span class="c1"># Host -&gt; Hand: Motion control</span>
     <span class="n">CONFIG_COMMAND</span> <span class="o">=</span> <span class="mh">0x00</span>      <span class="c1"># Host -&gt; Hand: Configuration</span>
@@ -94,13 +94,13 @@
 
 <div class="viewcode-block" id="BoardID">
 <a class="viewcode-back" href="../../api/dexhand_protocol.html#pyzlg_dexhand.dexhand_protocol.BoardID">[docs]</a>
-<span class="k">class</span> <span class="nc">BoardID</span><span class="p">(</span><span class="n">IntEnum</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">BoardID</span><span class="p">(</span><span class="n">IntEnum</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Base ID values for left and right hand boards&quot;&quot;&quot;</span>
     <span class="n">LEFT_HAND_BASE</span> <span class="o">=</span> <span class="mh">0x01</span>
     <span class="n">RIGHT_HAND_BASE</span> <span class="o">=</span> <span class="mh">0x07</span></div>
 
 
-<span class="k">def</span> <span class="nf">get_message_type</span><span class="p">(</span><span class="n">can_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">MessageType</span><span class="p">]:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_message_type</span><span class="p">(</span><span class="n">can_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">MessageType</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Determine message type from CAN ID&quot;&quot;&quot;</span>
     <span class="n">base</span> <span class="o">=</span> <span class="n">can_id</span> <span class="o">&amp;</span> <span class="mh">0xF80</span>  <span class="c1"># Keep top 7 bits</span>
     <span class="k">try</span><span class="p">:</span>

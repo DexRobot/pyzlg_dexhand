@@ -6,7 +6,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>pyzlg_dexhand.zcan &mdash; pyzlg_dexhand 0.1.0 documentation</title>
-      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
 
   
@@ -70,17 +70,17 @@
            <div itemprop="articleBody">
              
   <h1>Source code for pyzlg_dexhand.zcan</h1><div class="highlight"><pre>
-<span></span><span class="kn">from</span> <span class="nn">ctypes</span> <span class="kn">import</span> <span class="o">*</span>
-<span class="kn">from</span> <span class="nn">enum</span> <span class="kn">import</span> <span class="n">IntEnum</span><span class="p">,</span> <span class="n">auto</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">List</span>
-<span class="kn">import</span> <span class="nn">logging</span>
+<span></span><span class="kn">from</span><span class="w"> </span><span class="nn">ctypes</span><span class="w"> </span><span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">enum</span><span class="w"> </span><span class="kn">import</span> <span class="n">IntEnum</span><span class="p">,</span> <span class="n">auto</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">List</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
 
 <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
 
 
 <div class="viewcode-block" id="ZCANDeviceType">
 <a class="viewcode-back" href="../../api/zcan_wrapper.html#pyzlg_dexhand.zcan.ZCANDeviceType">[docs]</a>
-<span class="k">class</span> <span class="nc">ZCANDeviceType</span><span class="p">(</span><span class="n">IntEnum</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">ZCANDeviceType</span><span class="p">(</span><span class="n">IntEnum</span><span class="p">):</span>
     <span class="n">ZCAN_USBCANFD_200U</span> <span class="o">=</span> <span class="mi">41</span>
     <span class="n">ZCAN_USBCANFD_100U</span> <span class="o">=</span> <span class="mi">42</span>
     <span class="n">ZCAN_USBCAN_2E_U</span> <span class="o">=</span> <span class="mi">21</span>
@@ -90,7 +90,7 @@
 
 <div class="viewcode-block" id="ZCANStatus">
 <a class="viewcode-back" href="../../api/zcan_wrapper.html#pyzlg_dexhand.zcan.ZCANStatus">[docs]</a>
-<span class="k">class</span> <span class="nc">ZCANStatus</span><span class="p">(</span><span class="n">IntEnum</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">ZCANStatus</span><span class="p">(</span><span class="n">IntEnum</span><span class="p">):</span>
     <span class="n">ERROR</span> <span class="o">=</span> <span class="mi">0</span>
     <span class="n">OK</span> <span class="o">=</span> <span class="mi">1</span>
     <span class="n">ONLINE</span> <span class="o">=</span> <span class="mi">2</span>
@@ -101,7 +101,7 @@
 
 <div class="viewcode-block" id="ZCANMessageType">
 <a class="viewcode-back" href="../../api/zcan_wrapper.html#pyzlg_dexhand.zcan.ZCANMessageType">[docs]</a>
-<span class="k">class</span> <span class="nc">ZCANMessageType</span><span class="p">(</span><span class="n">IntEnum</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">ZCANMessageType</span><span class="p">(</span><span class="n">IntEnum</span><span class="p">):</span>
     <span class="n">NORMAL</span> <span class="o">=</span> <span class="mi">0</span>
     <span class="n">SINGLE</span> <span class="o">=</span> <span class="mi">1</span>
     <span class="n">SELF_TEST</span> <span class="o">=</span> <span class="mi">2</span>
@@ -109,7 +109,7 @@
 
 
 
-<span class="k">class</span> <span class="nc">ZCANMessageInfo</span><span class="p">(</span><span class="n">Structure</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">ZCANMessageInfo</span><span class="p">(</span><span class="n">Structure</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;CAN message info flags&quot;&quot;&quot;</span>
 
     <span class="n">_fields_</span> <span class="o">=</span> <span class="p">[</span>
@@ -128,7 +128,7 @@
     <span class="p">]</span>
 
 
-<span class="k">class</span> <span class="nc">ZCANMessageHeader</span><span class="p">(</span><span class="n">Structure</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">ZCANMessageHeader</span><span class="p">(</span><span class="n">Structure</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;CAN message header&quot;&quot;&quot;</span>
 
     <span class="n">_fields_</span> <span class="o">=</span> <span class="p">[</span>
@@ -141,19 +141,19 @@
     <span class="p">]</span>
 
 
-<span class="k">class</span> <span class="nc">ZCANMessage</span><span class="p">(</span><span class="n">Structure</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">ZCANMessage</span><span class="p">(</span><span class="n">Structure</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Standard CAN2.0 message&quot;&quot;&quot;</span>
 
     <span class="n">_fields_</span> <span class="o">=</span> <span class="p">[(</span><span class="s2">&quot;header&quot;</span><span class="p">,</span> <span class="n">ZCANMessageHeader</span><span class="p">),</span> <span class="p">(</span><span class="s2">&quot;data&quot;</span><span class="p">,</span> <span class="n">c_uint8</span> <span class="o">*</span> <span class="mi">8</span><span class="p">)]</span>
 
 
-<span class="k">class</span> <span class="nc">ZCANFDMessage</span><span class="p">(</span><span class="n">Structure</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">ZCANFDMessage</span><span class="p">(</span><span class="n">Structure</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;CANFD message with up to 64 bytes&quot;&quot;&quot;</span>
 
     <span class="n">_fields_</span> <span class="o">=</span> <span class="p">[(</span><span class="s2">&quot;header&quot;</span><span class="p">,</span> <span class="n">ZCANMessageHeader</span><span class="p">),</span> <span class="p">(</span><span class="s2">&quot;data&quot;</span><span class="p">,</span> <span class="n">c_uint8</span> <span class="o">*</span> <span class="mi">64</span><span class="p">)]</span>
 
 
-<span class="k">class</span> <span class="nc">ZCANErrorMessageHeader</span><span class="p">(</span><span class="n">Structure</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">ZCANErrorMessageHeader</span><span class="p">(</span><span class="n">Structure</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Header for CAN error messages&quot;&quot;&quot;</span>
 
     <span class="n">_fields_</span> <span class="o">=</span> <span class="p">[</span>
@@ -166,7 +166,7 @@
     <span class="p">]</span>
 
 
-<span class="k">class</span> <span class="nc">ZCANErrorMessage</span><span class="p">(</span><span class="n">Structure</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">ZCANErrorMessage</span><span class="p">(</span><span class="n">Structure</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Error message from CAN device&quot;&quot;&quot;</span>
 
     <span class="n">_fields_</span> <span class="o">=</span> <span class="p">[</span>
@@ -175,7 +175,7 @@
     <span class="p">]</span>
 
 
-<span class="k">class</span> <span class="nc">ZCANErrorMessageHeader</span><span class="p">(</span><span class="n">Structure</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">ZCANErrorMessageHeader</span><span class="p">(</span><span class="n">Structure</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Header for CAN error messages&quot;&quot;&quot;</span>
 
     <span class="n">_fields_</span> <span class="o">=</span> <span class="p">[</span>
@@ -188,7 +188,7 @@
     <span class="p">]</span>
 
 
-<span class="k">class</span> <span class="nc">ZCANErrorMessage</span><span class="p">(</span><span class="n">Structure</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">ZCANErrorMessage</span><span class="p">(</span><span class="n">Structure</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Error message from CAN device&quot;&quot;&quot;</span>
 
     <span class="n">_fields_</span> <span class="o">=</span> <span class="p">[</span>
@@ -197,7 +197,7 @@
     <span class="p">]</span>
 
 
-<span class="k">class</span> <span class="nc">BitConfig</span><span class="p">(</span><span class="n">Structure</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">BitConfig</span><span class="p">(</span><span class="n">Structure</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Bit timing configuration for CAN/CANFD&quot;&quot;&quot;</span>
 
     <span class="n">_fields_</span> <span class="o">=</span> <span class="p">[</span>
@@ -209,7 +209,7 @@
     <span class="p">]</span>
 
 
-<span class="k">class</span> <span class="nc">ZCANCANFDInit</span><span class="p">(</span><span class="n">Structure</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">ZCANCANFDInit</span><span class="p">(</span><span class="n">Structure</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Configuration for CANFD initialization&quot;&quot;&quot;</span>
 
     <span class="n">_fields_</span> <span class="o">=</span> <span class="p">[</span>
@@ -220,7 +220,7 @@
     <span class="p">]</span>
 
 
-<span class="k">class</span> <span class="nc">ZCAN_STAT</span><span class="p">(</span><span class="n">Structure</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">ZCAN_STAT</span><span class="p">(</span><span class="n">Structure</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Controller status information&quot;&quot;&quot;</span>
 
     <span class="n">_fields_</span> <span class="o">=</span> <span class="p">[</span>
@@ -236,10 +236,10 @@
     <span class="p">]</span>
 
 
-<span class="k">class</span> <span class="nc">ZCAN</span><span class="p">:</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">ZCAN</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Low level wrapper around ZLG USBCANFD driver&quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">lib_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;./libusbcanfd.so&quot;</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">lib_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;./libusbcanfd.so&quot;</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialize ZCAN wrapper</span>
 
 <span class="sd">        Args:</span>
@@ -248,7 +248,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_lib</span> <span class="o">=</span> <span class="n">cdll</span><span class="o">.</span><span class="n">LoadLibrary</span><span class="p">(</span><span class="n">lib_path</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_configure_lib_functions</span><span class="p">()</span>
 
-    <span class="k">def</span> <span class="nf">_configure_lib_functions</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_configure_lib_functions</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Configure function signatures for the loaded library&quot;&quot;&quot;</span>
         <span class="c1"># OpenDevice</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_lib</span><span class="o">.</span><span class="n">VCI_OpenDevice</span><span class="o">.</span><span class="n">argtypes</span> <span class="o">=</span> <span class="p">[</span><span class="n">c_uint32</span><span class="p">,</span> <span class="n">c_uint32</span><span class="p">,</span> <span class="n">c_uint32</span><span class="p">]</span>
@@ -310,7 +310,7 @@
         <span class="p">]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_lib</span><span class="o">.</span><span class="n">VCI_SetReference</span><span class="o">.</span><span class="n">restype</span> <span class="o">=</span> <span class="n">c_uint32</span>
 
-    <span class="k">def</span> <span class="nf">open_device</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">open_device</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">device_type</span><span class="p">:</span> <span class="n">ZCANDeviceType</span><span class="p">,</span> <span class="n">device_index</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">reserved</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Open USBCAN device</span>
@@ -328,7 +328,7 @@
         <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_lib</span><span class="o">.</span><span class="n">VCI_OpenDevice</span><span class="p">(</span><span class="n">device_type</span><span class="p">,</span> <span class="n">device_index</span><span class="p">,</span> <span class="n">reserved</span><span class="p">)</span>
         <span class="k">return</span> <span class="nb">bool</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">init_can</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">init_can</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">device_type</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
         <span class="n">device_index</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
@@ -355,7 +355,7 @@
         <span class="p">)</span>
         <span class="k">return</span> <span class="nb">bool</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">start_can</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">device_type</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">device_index</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">channel</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">start_can</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">device_type</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">device_index</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">channel</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Start CAN channel</span>
 
 <span class="sd">        Args:</span>
@@ -371,7 +371,7 @@
         <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_lib</span><span class="o">.</span><span class="n">VCI_StartCAN</span><span class="p">(</span><span class="n">device_type</span><span class="p">,</span> <span class="n">device_index</span><span class="p">,</span> <span class="n">channel</span><span class="p">)</span>
         <span class="k">return</span> <span class="nb">bool</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">transmit_fd</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">transmit_fd</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">device_type</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
         <span class="n">device_index</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
@@ -390,7 +390,7 @@
             <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Exception in transmit_fd: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
             <span class="k">return</span> <span class="mi">0</span>
 
-    <span class="k">def</span> <span class="nf">receive_fd</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">receive_fd</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">device_type</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
         <span class="n">device_index</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
@@ -418,7 +418,7 @@
         <span class="p">)</span>
         <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="n">message_array</span><span class="p">[:</span><span class="n">received</span><span class="p">]),</span> <span class="n">received</span>
 
-    <span class="k">def</span> <span class="nf">close_device</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">device_type</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">device_index</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">close_device</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">device_type</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">device_index</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Close USBCAN device</span>
 
 <span class="sd">        Args:</span>
@@ -431,7 +431,7 @@
         <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_lib</span><span class="o">.</span><span class="n">VCI_CloseDevice</span><span class="p">(</span><span class="n">device_type</span><span class="p">,</span> <span class="n">device_index</span><span class="p">)</span>
         <span class="k">return</span> <span class="nb">bool</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">get_reference</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_reference</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">device_type</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
         <span class="n">device_index</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
@@ -456,7 +456,7 @@
         <span class="p">)</span>
         <span class="k">return</span> <span class="nb">bool</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">set_reference</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">set_reference</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">device_type</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
         <span class="n">device_index</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
@@ -485,7 +485,7 @@
         <span class="p">)</span>
         <span class="k">return</span> <span class="nb">bool</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">read_error_info</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">read_error_info</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">device_type</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
         <span class="n">device_index</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
@@ -518,7 +518,7 @@
         <span class="p">)</span>
         <span class="k">return</span> <span class="nb">bool</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">read_channel_status</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">read_channel_status</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">device_type</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">device_index</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">channel</span><span class="p">:</span> <span class="nb">int</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">ZCAN_STAT</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Read channel status information</span>

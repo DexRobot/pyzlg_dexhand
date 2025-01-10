@@ -6,7 +6,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>pyzlg_dexhand.dexhand_protocol.commands &mdash; pyzlg_dexhand 0.1.0 documentation</title>
-      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
 
   
@@ -73,14 +73,14 @@
   <h1>Source code for pyzlg_dexhand.dexhand_protocol.commands</h1><div class="highlight"><pre>
 <span></span><span class="sd">&quot;&quot;&quot;Host to board command generation and encoding&quot;&quot;&quot;</span>
 
-<span class="kn">from</span> <span class="nn">enum</span> <span class="kn">import</span> <span class="n">IntEnum</span>
-<span class="kn">from</span> <span class="nn">dataclasses</span> <span class="kn">import</span> <span class="n">dataclass</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Union</span>
-<span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">MessageType</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">enum</span><span class="w"> </span><span class="kn">import</span> <span class="n">IntEnum</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataclass</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Union</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.</span><span class="w"> </span><span class="kn">import</span> <span class="n">MessageType</span>
 
 <div class="viewcode-block" id="CommandType">
 <a class="viewcode-back" href="../../../api/dexhand_protocol.html#pyzlg_dexhand.dexhand_interface.CommandType">[docs]</a>
-<span class="k">class</span> <span class="nc">CommandType</span><span class="p">(</span><span class="n">IntEnum</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">CommandType</span><span class="p">(</span><span class="n">IntEnum</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Command type identifiers&quot;&quot;&quot;</span>
     <span class="n">MOTOR_COMMAND</span> <span class="o">=</span> <span class="mh">0x00</span>      <span class="c1"># Motor control command</span>
     <span class="n">CLEAR_ERROR</span> <span class="o">=</span> <span class="mh">0xA4</span>        <span class="c1"># Clear error state</span>
@@ -89,7 +89,7 @@
 
 <div class="viewcode-block" id="ControlMode">
 <a class="viewcode-back" href="../../../api/dexhand_protocol.html#pyzlg_dexhand.dexhand_interface.ControlMode">[docs]</a>
-<span class="k">class</span> <span class="nc">ControlMode</span><span class="p">(</span><span class="n">IntEnum</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">ControlMode</span><span class="p">(</span><span class="n">IntEnum</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Motor control modes&quot;&quot;&quot;</span>
     <span class="n">ZERO_TORQUE</span> <span class="o">=</span> <span class="mh">0x00</span>
     <span class="n">CURRENT</span> <span class="o">=</span> <span class="mh">0x11</span>
@@ -101,7 +101,7 @@
 
 <div class="viewcode-block" id="FeedbackMode">
 <a class="viewcode-back" href="../../../api/dexhand_protocol.html#pyzlg_dexhand.dexhand_interface.FeedbackMode">[docs]</a>
-<span class="k">class</span> <span class="nc">FeedbackMode</span><span class="p">(</span><span class="n">IntEnum</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">FeedbackMode</span><span class="p">(</span><span class="n">IntEnum</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Feedback operation modes&quot;&quot;&quot;</span>
     <span class="n">PERIODIC</span> <span class="o">=</span> <span class="mh">0x01</span>   <span class="c1"># Send feedback at regular intervals</span>
     <span class="n">QUERY</span> <span class="o">=</span> <span class="mh">0x02</span>      <span class="c1"># Send feedback only when requested</span>
@@ -111,7 +111,7 @@
 <div class="viewcode-block" id="MotorCommand">
 <a class="viewcode-back" href="../../../api/dexhand_protocol.html#pyzlg_dexhand.dexhand_interface.MotorCommand">[docs]</a>
 <span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-<span class="k">class</span> <span class="nc">MotorCommand</span><span class="p">:</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">MotorCommand</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Command for a pair of motors&quot;&quot;&quot;</span>
     <span class="n">control_mode</span><span class="p">:</span> <span class="n">ControlMode</span>  <span class="c1"># Control mode (e.g., CASCADED_PID)</span>
     <span class="n">motor_enable</span><span class="p">:</span> <span class="nb">int</span>         <span class="c1"># Motor enable flags (0x01, 0x02, 0x03)</span>
@@ -122,7 +122,7 @@
 <div class="viewcode-block" id="ClearErrorCommand">
 <a class="viewcode-back" href="../../../api/dexhand_protocol.html#pyzlg_dexhand.dexhand_interface.ClearErrorCommand">[docs]</a>
 <span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-<span class="k">class</span> <span class="nc">ClearErrorCommand</span><span class="p">:</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">ClearErrorCommand</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Command to clear error state&quot;&quot;&quot;</span>
     <span class="k">pass</span>  <span class="c1"># No additional data needed</span></div>
 
@@ -130,7 +130,7 @@
 <div class="viewcode-block" id="FeedbackConfigCommand">
 <a class="viewcode-back" href="../../../api/dexhand_protocol.html#pyzlg_dexhand.dexhand_interface.FeedbackConfigCommand">[docs]</a>
 <span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-<span class="k">class</span> <span class="nc">FeedbackConfigCommand</span><span class="p">:</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">FeedbackConfigCommand</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Command to configure feedback behavior&quot;&quot;&quot;</span>
     <span class="n">mode</span><span class="p">:</span> <span class="n">FeedbackMode</span>     <span class="c1"># Feedback mode</span>
     <span class="n">period_ms</span><span class="p">:</span> <span class="nb">int</span>        <span class="c1"># Period in milliseconds (if periodic)</span>
@@ -141,7 +141,7 @@
 
 <div class="viewcode-block" id="encode_command">
 <a class="viewcode-back" href="../../../api/dexhand_protocol.html#pyzlg_dexhand.dexhand_interface.encode_command">[docs]</a>
-<span class="k">def</span> <span class="nf">encode_command</span><span class="p">(</span><span class="n">command</span><span class="p">:</span> <span class="n">Command</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">MessageType</span><span class="p">,</span> <span class="nb">bytes</span><span class="p">]:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">encode_command</span><span class="p">(</span><span class="n">command</span><span class="p">:</span> <span class="n">Command</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">MessageType</span><span class="p">,</span> <span class="nb">bytes</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Encode a command for transmission</span>
 
 <span class="sd">    Args:</span>
@@ -164,7 +164,7 @@
 
 
 
-<span class="k">def</span> <span class="nf">_encode_motor_command</span><span class="p">(</span><span class="n">command</span><span class="p">:</span> <span class="n">MotorCommand</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bytes</span><span class="p">:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_encode_motor_command</span><span class="p">(</span><span class="n">command</span><span class="p">:</span> <span class="n">MotorCommand</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bytes</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Encode a motor control command (internal helper)&quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="mi">0</span> <span class="o">&lt;=</span> <span class="n">command</span><span class="o">.</span><span class="n">motor_enable</span> <span class="o">&lt;=</span> <span class="mh">0x03</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Invalid motor enable flags: </span><span class="si">{</span><span class="n">command</span><span class="o">.</span><span class="n">motor_enable</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
@@ -184,7 +184,7 @@
         <span class="p">(</span><span class="n">command</span><span class="o">.</span><span class="n">motor2_pos</span> <span class="o">&gt;&gt;</span> <span class="mi">8</span><span class="p">)</span> <span class="o">&amp;</span> <span class="mh">0xFF</span>
     <span class="p">])</span>
 
-<span class="k">def</span> <span class="nf">_encode_feedback_config</span><span class="p">(</span><span class="n">command</span><span class="p">:</span> <span class="n">FeedbackConfigCommand</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bytes</span><span class="p">:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_encode_feedback_config</span><span class="p">(</span><span class="n">command</span><span class="p">:</span> <span class="n">FeedbackConfigCommand</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bytes</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Encode a feedback configuration command (internal helper)&quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="n">command</span><span class="o">.</span><span class="n">mode</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">FeedbackMode</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Invalid feedback mode: </span><span class="si">{</span><span class="n">command</span><span class="o">.</span><span class="n">mode</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>

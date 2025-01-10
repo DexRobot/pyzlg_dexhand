@@ -7,7 +7,7 @@
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>DexHand Protocol &mdash; pyzlg_dexhand 0.1.0 documentation</title>
-      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
 
   
@@ -649,7 +649,7 @@
 <h2>Example Usage<a class="headerlink" href="#example-usage" title="Link to this heading"></a></h2>
 <section id="command-generation">
 <h3>Command Generation<a class="headerlink" href="#command-generation" title="Link to this heading"></a></h3>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pyzlg_dexhand.dexhand_protocol.commands</span> <span class="kn">import</span> <span class="p">(</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pyzlg_dexhand.dexhand_protocol.commands</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">MotorCommand</span><span class="p">,</span>
     <span class="n">ControlMode</span><span class="p">,</span>
     <span class="n">encode_command</span>
@@ -670,7 +670,7 @@
 </section>
 <section id="id1">
 <h3>Message Processing<a class="headerlink" href="#id1" title="Link to this heading"></a></h3>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pyzlg_dexhand.dexhand_protocol.messages</span> <span class="kn">import</span> <span class="n">process_message</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pyzlg_dexhand.dexhand_protocol.messages</span><span class="w"> </span><span class="kn">import</span> <span class="n">process_message</span>
 
 <span class="c1"># Process received message</span>
 <span class="n">can_id</span> <span class="o">=</span> <span class="mh">0x181</span>  <span class="c1"># Example: Board 1 feedback</span>
