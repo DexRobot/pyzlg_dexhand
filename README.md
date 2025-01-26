@@ -70,7 +70,9 @@ python tools/hardware_test/test_dexhand.py --hands right
 
 This should move the hand through a series of predefined motions.
 
-### 2. Interactive Testing
+### 2. Interactive Control
+
+#### CLI Option
 
 Launch interactive control interface:
 
@@ -92,6 +94,22 @@ right_hand.clear_errors()    # Clear all error states
 ```
 
 You can explore the API with tab completion and help commands.
+
+#### GUI Option
+
+Firstly, install the `PyQt6` dependency:
+
+```bash
+pip install PyQt6    # Install other dependencies, via e.g., apt, if prompted
+```
+
+Then, run the GUI interface:
+
+```bash
+python examples/dexhand_gui.py
+```
+
+The GUI provides real-time joint angle control via sliders.
 
 ### 3. ROS Integration
 

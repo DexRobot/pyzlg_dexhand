@@ -64,28 +64,41 @@ Run hardware tests to verify your setup::
 
 This should move the hand through a series of predefined motions.
 
-2. Interactive Testing
-^^^^^^^^^^^^^^^^^^^
+2. Interactive Control
+^^^^^^^^^^^^^^^^^^
+
+CLI Option
+"""""""""
 
 Launch interactive control interface::
 
     python tools/hardware_test/test_dexhand_interactive.py --hands right
 
-This provides an IPython shell with initialized hand objects. Example commands::
+This provides an IPython shell with initialized hand objects and helper functions.
 
-    # Move individual joints
+Example commands::
+
     right_hand.move_joints(th_rot=30)  # Rotate thumb
     right_hand.move_joints(ff_mcp=60, ff_dip=60)  # Curl index finger
-    right_hand.move_joints(ff_spr=20, control_mode=ControlMode.PROTECT_HALL_POSITION)  # Spread fingers
-
-    # Get feedback
+    right_hand.move_joints(ff_spr=20, control_mode=ControlMode.PROTECT_HALL_POSITION)  # Spread all fingers, with alternative control mode
     right_hand.get_feedback()
-
-    # Reset and clear errors
     right_hand.reset_joints()
-    right_hand.clear_errors()
+    right_hand.clear_errors()    # Clear all error states
 
 You can explore the API with tab completion and help commands.
+
+GUI Option
+"""""""""
+
+Firstly, install the ``PyQt6`` dependency::
+
+    pip install PyQt6    # Install other dependencies, via e.g., apt, if prompted
+
+Then, run the GUI interface::
+
+    python examples/dexhand_gui.py
+
+The GUI provides real-time joint angle control via sliders.
 
 3. ROS Integration
 ^^^^^^^^^^^^^^^
