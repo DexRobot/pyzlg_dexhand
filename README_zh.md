@@ -70,7 +70,9 @@ python tools/hardware_test/test_dexhand.py --hands right
 
 这将使机器人手执行一系列预定义的动作。
 
-### 2. 交互式测试
+### 2. 交互式控制
+
+#### 命令行版本
 
 启动交互式控制界面：
 
@@ -92,6 +94,22 @@ right_hand.clear_errors()    # 清除所有错误状态
 ```
 
 你可以使用 tab 键补全和帮助命令来探索 API。
+
+#### 图形界面版本
+
+首先，安装 `PyQt6` 依赖：
+
+```bash
+pip install PyQt6    # 如有提示，需通过 apt 等方式安装其他依赖
+```
+
+然后，运行图形界面：
+
+```bash
+python examples/dexhand_gui.py
+```
+
+图形界面通过滑块提供实时的关节角度控制。
 
 ### 3. ROS 集成
 
