@@ -1,4 +1,4 @@
-Welcome to DexHand's documentation!
+DexHand Python Hardware Interface
 =================================
 
 Python interface for controlling dexterous robotic hands over CANFD using ZLG USBCANFD adapters. This package provides both direct control and ROS integration capabilities.
@@ -70,4 +70,3 @@ For issues, questions, or contributions:
 
 * Check our `GitHub Issues <https://github.com/dexrobot/pyzlg_dexhand/issues>`_
 * Submit pull requests via GitHub
-
