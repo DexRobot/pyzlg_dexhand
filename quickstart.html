@@ -20,7 +20,7 @@
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="API Reference" href="api/index.html" />
-    <link rel="prev" title="Welcome to DexHand’s documentation!" href="index.html" /> 
+    <link rel="prev" title="DexHand Python Hardware Interface" href="index.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -51,7 +51,11 @@
 <li class="toctree-l2"><a class="reference internal" href="#installation">Installation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#usage-examples">Usage Examples</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#hardware-testing">1. Hardware Testing</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#interactive-testing">2. Interactive Testing</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#interactive-control">2. Interactive Control</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#cli-option">CLI Option</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#gui-option">GUI Option</a></li>
+</ul>
+</li>
 <li class="toctree-l3"><a class="reference internal" href="#ros-integration">3. ROS Integration</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#interface">Interface</a></li>
 </ul>
@@ -156,27 +160,38 @@
 </div>
 <p>This should move the hand through a series of predefined motions.</p>
 </section>
-<section id="interactive-testing">
-<h3>2. Interactive Testing<a class="headerlink" href="#interactive-testing" title="Link to this heading"></a></h3>
+<section id="interactive-control">
+<h3>2. Interactive Control<a class="headerlink" href="#interactive-control" title="Link to this heading"></a></h3>
+<section id="cli-option">
+<h4>CLI Option<a class="headerlink" href="#cli-option" title="Link to this heading"></a></h4>
 <p>Launch interactive control interface:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">python</span> <span class="n">tools</span><span class="o">/</span><span class="n">hardware_test</span><span class="o">/</span><span class="n">test_dexhand_interactive</span><span class="o">.</span><span class="n">py</span> <span class="o">--</span><span class="n">hands</span> <span class="n">right</span>
 </pre></div>
 </div>
-<p>This provides an IPython shell with initialized hand objects. Example commands:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># Move individual joints</span>
-<span class="n">right_hand</span><span class="o">.</span><span class="n">move_joints</span><span class="p">(</span><span class="n">th_rot</span><span class="o">=</span><span class="mi">30</span><span class="p">)</span>  <span class="c1"># Rotate thumb</span>
+<p>This provides an IPython shell with initialized hand objects and helper functions.</p>
+<p>Example commands:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">right_hand</span><span class="o">.</span><span class="n">move_joints</span><span class="p">(</span><span class="n">th_rot</span><span class="o">=</span><span class="mi">30</span><span class="p">)</span>  <span class="c1"># Rotate thumb</span>
 <span class="n">right_hand</span><span class="o">.</span><span class="n">move_joints</span><span class="p">(</span><span class="n">ff_mcp</span><span class="o">=</span><span class="mi">60</span><span class="p">,</span> <span class="n">ff_dip</span><span class="o">=</span><span class="mi">60</span><span class="p">)</span>  <span class="c1"># Curl index finger</span>
-<span class="n">right_hand</span><span class="o">.</span><span class="n">move_joints</span><span class="p">(</span><span class="n">ff_spr</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">control_mode</span><span class="o">=</span><span class="n">ControlMode</span><span class="o">.</span><span class="n">PROTECT_HALL_POSITION</span><span class="p">)</span>  <span class="c1"># Spread fingers</span>
-
-<span class="c1"># Get feedback</span>
+<span class="n">right_hand</span><span class="o">.</span><span class="n">move_joints</span><span class="p">(</span><span class="n">ff_spr</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">control_mode</span><span class="o">=</span><span class="n">ControlMode</span><span class="o">.</span><span class="n">PROTECT_HALL_POSITION</span><span class="p">)</span>  <span class="c1"># Spread all fingers, with alternative control mode</span>
 <span class="n">right_hand</span><span class="o">.</span><span class="n">get_feedback</span><span class="p">()</span>
-
-<span class="c1"># Reset and clear errors</span>
 <span class="n">right_hand</span><span class="o">.</span><span class="n">reset_joints</span><span class="p">()</span>
-<span class="n">right_hand</span><span class="o">.</span><span class="n">clear_errors</span><span class="p">()</span>
+<span class="n">right_hand</span><span class="o">.</span><span class="n">clear_errors</span><span class="p">()</span>    <span class="c1"># Clear all error states</span>
 </pre></div>
 </div>
 <p>You can explore the API with tab completion and help commands.</p>
+</section>
+<section id="gui-option">
+<h4>GUI Option<a class="headerlink" href="#gui-option" title="Link to this heading"></a></h4>
+<p>Firstly, install the <code class="docutils literal notranslate"><span class="pre">PyQt6</span></code> dependency:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pip</span> <span class="n">install</span> <span class="n">PyQt6</span>    <span class="c1"># Install other dependencies, via e.g., apt, if prompted</span>
+</pre></div>
+</div>
+<p>Then, run the GUI interface:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">python</span> <span class="n">examples</span><span class="o">/</span><span class="n">dexhand_gui</span><span class="o">.</span><span class="n">py</span>
+</pre></div>
+</div>
+<p>The GUI provides real-time joint angle control via sliders.</p>
+</section>
 </section>
 <section id="ros-integration">
 <h3>3. ROS Integration<a class="headerlink" href="#ros-integration" title="Link to this heading"></a></h3>
@@ -289,7 +304,7 @@
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="index.html" class="btn btn-neutral float-left" title="Welcome to DexHand’s documentation!" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="index.html" class="btn btn-neutral float-left" title="DexHand Python Hardware Interface" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
         <a href="api/index.html" class="btn btn-neutral float-right" title="API Reference" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
