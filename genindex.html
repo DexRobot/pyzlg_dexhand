@@ -5,14 +5,14 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Index &mdash; pyzlg_dexhand 0.1.0 documentation</title>
+  <title>Index &mdash; pyzlg_dexhand 0.1.3 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
 
   
       <script src="_static/jquery.js?v=5d32c60e"></script>
       <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="_static/documentation_options.js?v=01f34227"></script>
+      <script src="_static/documentation_options.js?v=360bc84d"></script>
       <script src="_static/doctools.js?v=9bcbadda"></script>
       <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/js/theme.js"></script>
@@ -42,6 +42,8 @@
               <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quickstart Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="control_modes.html">Control Modes and Advanced Options</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ros_integration.html">ROS Integration</a></li>
 <li class="toctree-l1"><a class="reference internal" href="api/index.html">API Reference</a></li>
 </ul>
 
@@ -94,6 +96,7 @@
  | <a href="#T"><strong>T</strong></a>
  | <a href="#U"><strong>U</strong></a>
  | <a href="#V"><strong>V</strong></a>
+ | <a href="#W"><strong>W</strong></a>
  | <a href="#Z"><strong>Z</strong></a>
  
 </div>
@@ -190,7 +193,11 @@
         <li><a href="api/zcan_wrapper.html#pyzlg_dexhand.zcan_wrapper.ZCANWrapperBase.close">(pyzlg_dexhand.zcan_wrapper.ZCANWrapperBase method)</a>
 </li>
       </ul></li>
+      <li><a href="api/dexhand_protocol.html#pyzlg_dexhand.dexhand_protocol.MessageType.COMMAND_READ">COMMAND_READ (pyzlg_dexhand.dexhand_protocol.MessageType attribute)</a>
+</li>
       <li><a href="api/dexhand_logger.html#pyzlg_dexhand.dexhand_logger.CommandLogEntry.command_type">command_type (pyzlg_dexhand.dexhand_logger.CommandLogEntry attribute)</a>
+</li>
+      <li><a href="api/dexhand_protocol.html#pyzlg_dexhand.dexhand_protocol.MessageType.COMMAND_WRITE">COMMAND_WRITE (pyzlg_dexhand.dexhand_protocol.MessageType attribute)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
@@ -225,12 +232,18 @@
 </li>
       </ul></li>
       <li><a href="api/dexhand_interface.html#pyzlg_dexhand.dexhand_interface.ControlMode.CURRENT">CURRENT (pyzlg_dexhand.dexhand_interface.ControlMode attribute)</a>
+</li>
+      <li><a href="api/dexhand_interface.html#pyzlg_dexhand.dexhand_interface.JointCommand.current">current (pyzlg_dexhand.dexhand_interface.JointCommand attribute)</a>
 
       <ul>
-        <li><a href="api/dexhand_protocol.html#pyzlg_dexhand.dexhand_protocol.commands.ControlMode.CURRENT">(pyzlg_dexhand.dexhand_protocol.commands.ControlMode attribute)</a>
+        <li><a href="api/dexhand_interface.html#pyzlg_dexhand.dexhand_interface.JointFeedback.current">(pyzlg_dexhand.dexhand_interface.JointFeedback attribute)</a>
 </li>
       </ul></li>
+      <li><a href="api/dexhand_protocol.html#pyzlg_dexhand.dexhand_protocol.commands.ControlMode.CURRENT">CURRENT (pyzlg_dexhand.dexhand_protocol.commands.ControlMode attribute)</a>
+</li>
       <li><a href="api/dexhand_protocol.html#pyzlg_dexhand.dexhand_protocol.messages.MotorFeedback.current">current (pyzlg_dexhand.dexhand_protocol.messages.MotorFeedback attribute)</a>
+</li>
+      <li><a href="api/dexhand_protocol.html#pyzlg_dexhand.dexhand_protocol.messages.ErrorCode.CURRENT_OVERLOAD">CURRENT_OVERLOAD (pyzlg_dexhand.dexhand_protocol.messages.ErrorCode attribute)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -248,10 +261,10 @@
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="api/dexhand_interface.html#pyzlg_dexhand.dexhand_interface.StampedTactileFeedback.direction">direction (pyzlg_dexhand.dexhand_interface.StampedTactileFeedback attribute)</a>
+      <li><a href="api/dexhand_interface.html#pyzlg_dexhand.dexhand_interface.StampedTouchFeedback.direction">direction (pyzlg_dexhand.dexhand_interface.StampedTouchFeedback attribute)</a>
 
       <ul>
-        <li><a href="api/dexhand_protocol.html#pyzlg_dexhand.dexhand_protocol.messages.TactileFeedback.direction">(pyzlg_dexhand.dexhand_protocol.messages.TactileFeedback attribute)</a>
+        <li><a href="api/dexhand_protocol.html#pyzlg_dexhand.dexhand_protocol.messages.TouchFeedback.direction">(pyzlg_dexhand.dexhand_protocol.messages.TouchFeedback attribute)</a>
 </li>
       </ul></li>
       <li><a href="api/zcan_wrapper.html#pyzlg_dexhand.zcan_wrapper.ZCANWrapper.dump_channel_state">dump_channel_state() (pyzlg_dexhand.zcan_wrapper.ZCANWrapper method)</a>
@@ -268,23 +281,27 @@
 </li>
       <li><a href="api/dexhand_protocol.html#pyzlg_dexhand.dexhand_protocol.commands.encode_command">encode_command() (in module pyzlg_dexhand.dexhand_protocol.commands)</a>
 </li>
-      <li><a href="api/dexhand_protocol.html#pyzlg_dexhand.dexhand_protocol.messages.BoardFeedback.encoder1">encoder1 (pyzlg_dexhand.dexhand_protocol.messages.BoardFeedback attribute)</a>
-</li>
-      <li><a href="api/dexhand_protocol.html#pyzlg_dexhand.dexhand_protocol.messages.BoardFeedback.encoder2">encoder2 (pyzlg_dexhand.dexhand_protocol.messages.BoardFeedback attribute)</a>
-</li>
       <li><a href="api/dexhand_interface.html#pyzlg_dexhand.dexhand_interface.JointFeedback.encoder_position">encoder_position (pyzlg_dexhand.dexhand_interface.JointFeedback attribute)</a>
+</li>
+      <li><a href="api/dexhand_protocol.html#pyzlg_dexhand.dexhand_protocol.messages.MotorFeedback.encoder_value">encoder_value (pyzlg_dexhand.dexhand_protocol.messages.MotorFeedback attribute)</a>
 </li>
       <li><a href="api/zcan_wrapper.html#pyzlg_dexhand.zcan_wrapper.ZCANFilterConfig.end_id">end_id (pyzlg_dexhand.zcan_wrapper.ZCANFilterConfig attribute)</a>
 </li>
       <li><a href="api/dexhand_logger.html#pyzlg_dexhand.dexhand_logger.LogEntry.entry_type">entry_type (pyzlg_dexhand.dexhand_logger.LogEntry attribute)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="api/dexhand_protocol.html#pyzlg_dexhand.dexhand_protocol.messages.ProcessedMessage.error">error (pyzlg_dexhand.dexhand_protocol.messages.ProcessedMessage attribute)</a>
-</li>
       <li><a href="api/zcan_wrapper.html#pyzlg_dexhand.zcan.ZCANStatus.ERROR">ERROR (pyzlg_dexhand.zcan.ZCANStatus attribute)</a>
 </li>
-      <li><a href="api/dexhand_protocol.html#pyzlg_dexhand.dexhand_protocol.messages.ErrorInfo.error_code">error_code (pyzlg_dexhand.dexhand_protocol.messages.ErrorInfo attribute)</a>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/dexhand_interface.html#pyzlg_dexhand.dexhand_interface.JointFeedback.error_code">error_code (pyzlg_dexhand.dexhand_interface.JointFeedback attribute)</a>
+
+      <ul>
+        <li><a href="api/dexhand_protocol.html#pyzlg_dexhand.dexhand_protocol.messages.MotorFeedback.error_code">(pyzlg_dexhand.dexhand_protocol.messages.MotorFeedback attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="api/dexhand_protocol.html#pyzlg_dexhand.dexhand_protocol.messages.ErrorInfo.error_data">error_data (pyzlg_dexhand.dexhand_protocol.messages.ErrorInfo attribute)</a>
+</li>
+      <li><a href="api/dexhand_protocol.html#pyzlg_dexhand.dexhand_protocol.messages.ProcessedMessage.error_info">error_info (pyzlg_dexhand.dexhand_protocol.messages.ProcessedMessage attribute)</a>
 </li>
       <li><a href="api/dexhand_protocol.html#pyzlg_dexhand.dexhand_protocol.MessageType.ERROR_MESSAGE">ERROR_MESSAGE (pyzlg_dexhand.dexhand_protocol.MessageType attribute)</a>
 </li>
@@ -316,13 +333,19 @@
 <h2 id="G">G</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/dexhand_interface.html#pyzlg_dexhand.dexhand_interface.DexHandBase.get_board_firmware_version">get_board_firmware_version() (pyzlg_dexhand.dexhand_interface.DexHandBase method)</a>
+</li>
       <li><a href="api/dexhand_interface.html#pyzlg_dexhand.dexhand_interface.DexHandBase.get_errors">get_errors() (pyzlg_dexhand.dexhand_interface.DexHandBase method)</a>
+</li>
+      <li><a href="api/dexhand_interface.html#pyzlg_dexhand.dexhand_interface.DexHandBase.get_feedback">get_feedback() (pyzlg_dexhand.dexhand_interface.DexHandBase method)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="api/dexhand_interface.html#pyzlg_dexhand.dexhand_interface.DexHandBase.get_feedback">get_feedback() (pyzlg_dexhand.dexhand_interface.DexHandBase method)</a>
+      <li><a href="api/dexhand_interface.html#pyzlg_dexhand.dexhand_interface.DexHandBase.get_firmware_versions">get_firmware_versions() (pyzlg_dexhand.dexhand_interface.DexHandBase method)</a>
 </li>
       <li><a href="api/zcan_wrapper.html#pyzlg_dexhand.zcan_wrapper.MockZCANWrapper.get_message_history">get_message_history() (pyzlg_dexhand.zcan_wrapper.MockZCANWrapper method)</a>
+</li>
+      <li><a href="api/dexhand_protocol.html#pyzlg_dexhand.dexhand_protocol.MessageType.GLOBAL_COMMAND">GLOBAL_COMMAND (pyzlg_dexhand.dexhand_protocol.MessageType attribute)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -330,6 +353,8 @@
 <h2 id="H">H</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/dexhand_protocol.html#pyzlg_dexhand.dexhand_protocol.messages.ErrorCode.HALL_ERROR">HALL_ERROR (pyzlg_dexhand.dexhand_protocol.messages.ErrorCode attribute)</a>
+</li>
       <li><a href="api/dexhand_interface.html#pyzlg_dexhand.dexhand_interface.ControlMode.HALL_POSITION">HALL_POSITION (pyzlg_dexhand.dexhand_interface.ControlMode attribute)</a>
 
       <ul>
@@ -354,10 +379,22 @@
 <h2 id="I">I</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="api/dexhand_interface.html#pyzlg_dexhand.dexhand_interface.DexHandBase.init">init() (pyzlg_dexhand.dexhand_interface.DexHandBase method)</a>
+      <li><a href="api/dexhand_interface.html#pyzlg_dexhand.dexhand_interface.JointFeedback.impedance">impedance (pyzlg_dexhand.dexhand_interface.JointFeedback attribute)</a>
+
+      <ul>
+        <li><a href="api/dexhand_protocol.html#pyzlg_dexhand.dexhand_protocol.messages.MotorFeedback.impedance">(pyzlg_dexhand.dexhand_protocol.messages.MotorFeedback attribute)</a>
 </li>
+      </ul></li>
+      <li><a href="api/dexhand_interface.html#pyzlg_dexhand.dexhand_interface.ControlMode.IMPEDANCE_GRASP">IMPEDANCE_GRASP (pyzlg_dexhand.dexhand_interface.ControlMode attribute)</a>
+
+      <ul>
+        <li><a href="api/dexhand_protocol.html#pyzlg_dexhand.dexhand_protocol.commands.ControlMode.IMPEDANCE_GRASP">(pyzlg_dexhand.dexhand_protocol.commands.ControlMode attribute)</a>
+</li>
+      </ul></li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/dexhand_interface.html#pyzlg_dexhand.dexhand_interface.DexHandBase.init">init() (pyzlg_dexhand.dexhand_interface.DexHandBase method)</a>
+</li>
       <li><a href="api/dexhand_protocol.html#pyzlg_dexhand.dexhand_protocol.MessageType.INVALID">INVALID (pyzlg_dexhand.dexhand_protocol.MessageType attribute)</a>
 </li>
   </ul></td>
@@ -369,6 +406,8 @@
       <li><a href="api/dexhand_logger.html#pyzlg_dexhand.dexhand_logger.CommandLogEntry.joint_commands">joint_commands (pyzlg_dexhand.dexhand_logger.CommandLogEntry attribute)</a>
 </li>
       <li><a href="api/dexhand_interface.html#pyzlg_dexhand.dexhand_interface.DexHandBase.joint_names">joint_names (pyzlg_dexhand.dexhand_interface.DexHandBase attribute)</a>
+</li>
+      <li><a href="api/dexhand_interface.html#pyzlg_dexhand.dexhand_interface.JointCommand">JointCommand (class in pyzlg_dexhand.dexhand_interface)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
@@ -408,6 +447,12 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/dexhand_protocol.html#pyzlg_dexhand.dexhand_protocol.MessageType">MessageType (class in pyzlg_dexhand.dexhand_protocol)</a>
 </li>
+      <li><a href="api/dexhand_interface.html#pyzlg_dexhand.dexhand_interface.ControlMode.MIT_TORQUE">MIT_TORQUE (pyzlg_dexhand.dexhand_interface.ControlMode attribute)</a>
+
+      <ul>
+        <li><a href="api/dexhand_protocol.html#pyzlg_dexhand.dexhand_protocol.commands.ControlMode.MIT_TORQUE">(pyzlg_dexhand.dexhand_protocol.commands.ControlMode attribute)</a>
+</li>
+      </ul></li>
       <li><a href="api/zcan_wrapper.html#pyzlg_dexhand.zcan_wrapper.MockZCANWrapper">MockZCANWrapper (class in pyzlg_dexhand.zcan_wrapper)</a>
 </li>
       <li><a href="api/dexhand_protocol.html#pyzlg_dexhand.dexhand_protocol.commands.FeedbackConfigCommand.mode">mode (pyzlg_dexhand.dexhand_protocol.commands.FeedbackConfigCommand attribute)</a>
@@ -420,33 +465,25 @@
 </li>
       <li><a href="api/dexhand_protocol.html#pyzlg_dexhand.dexhand_protocol.messages.BoardFeedback.motor1">motor1 (pyzlg_dexhand.dexhand_protocol.messages.BoardFeedback attribute)</a>
 </li>
-      <li><a href="api/dexhand_protocol.html#pyzlg_dexhand.dexhand_protocol.messages.ErrorCode.MOTOR1_CURRENT_OVERLOAD">MOTOR1_CURRENT_OVERLOAD (pyzlg_dexhand.dexhand_protocol.messages.ErrorCode attribute)</a>
+      <li><a href="api/dexhand_protocol.html#pyzlg_dexhand.dexhand_protocol.commands.MotorCommand.motor1_current">motor1_current (pyzlg_dexhand.dexhand_protocol.commands.MotorCommand attribute)</a>
 </li>
       <li><a href="api/dexhand_protocol.html#pyzlg_dexhand.dexhand_protocol.messages.BoardError.MOTOR1_ERROR">MOTOR1_ERROR (pyzlg_dexhand.dexhand_protocol.messages.BoardError attribute)</a>
 </li>
-      <li><a href="api/dexhand_protocol.html#pyzlg_dexhand.dexhand_protocol.messages.ErrorCode.MOTOR1_HALL_ERROR">MOTOR1_HALL_ERROR (pyzlg_dexhand.dexhand_protocol.messages.ErrorCode attribute)</a>
-</li>
-      <li><a href="api/dexhand_protocol.html#pyzlg_dexhand.dexhand_protocol.messages.ErrorCode.MOTOR1_PARAM_ERROR">MOTOR1_PARAM_ERROR (pyzlg_dexhand.dexhand_protocol.messages.ErrorCode attribute)</a>
-</li>
       <li><a href="api/dexhand_protocol.html#pyzlg_dexhand.dexhand_protocol.commands.MotorCommand.motor1_pos">motor1_pos (pyzlg_dexhand.dexhand_protocol.commands.MotorCommand attribute)</a>
-</li>
-      <li><a href="api/dexhand_protocol.html#pyzlg_dexhand.dexhand_protocol.messages.ErrorCode.MOTOR1_STALL_ERROR">MOTOR1_STALL_ERROR (pyzlg_dexhand.dexhand_protocol.messages.ErrorCode attribute)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/dexhand_protocol.html#pyzlg_dexhand.dexhand_protocol.commands.MotorCommand.motor1_speed">motor1_speed (pyzlg_dexhand.dexhand_protocol.commands.MotorCommand attribute)</a>
+</li>
       <li><a href="api/dexhand_protocol.html#pyzlg_dexhand.dexhand_protocol.messages.BoardFeedback.motor2">motor2 (pyzlg_dexhand.dexhand_protocol.messages.BoardFeedback attribute)</a>
 </li>
-      <li><a href="api/dexhand_protocol.html#pyzlg_dexhand.dexhand_protocol.messages.ErrorCode.MOTOR2_CURRENT_OVERLOAD">MOTOR2_CURRENT_OVERLOAD (pyzlg_dexhand.dexhand_protocol.messages.ErrorCode attribute)</a>
+      <li><a href="api/dexhand_protocol.html#pyzlg_dexhand.dexhand_protocol.commands.MotorCommand.motor2_current">motor2_current (pyzlg_dexhand.dexhand_protocol.commands.MotorCommand attribute)</a>
 </li>
       <li><a href="api/dexhand_protocol.html#pyzlg_dexhand.dexhand_protocol.messages.BoardError.MOTOR2_ERROR">MOTOR2_ERROR (pyzlg_dexhand.dexhand_protocol.messages.BoardError attribute)</a>
 </li>
-      <li><a href="api/dexhand_protocol.html#pyzlg_dexhand.dexhand_protocol.messages.ErrorCode.MOTOR2_HALL_ERROR">MOTOR2_HALL_ERROR (pyzlg_dexhand.dexhand_protocol.messages.ErrorCode attribute)</a>
-</li>
-      <li><a href="api/dexhand_protocol.html#pyzlg_dexhand.dexhand_protocol.messages.ErrorCode.MOTOR2_PARAM_ERROR">MOTOR2_PARAM_ERROR (pyzlg_dexhand.dexhand_protocol.messages.ErrorCode attribute)</a>
-</li>
       <li><a href="api/dexhand_protocol.html#pyzlg_dexhand.dexhand_protocol.commands.MotorCommand.motor2_pos">motor2_pos (pyzlg_dexhand.dexhand_protocol.commands.MotorCommand attribute)</a>
 </li>
-      <li><a href="api/dexhand_protocol.html#pyzlg_dexhand.dexhand_protocol.messages.ErrorCode.MOTOR2_STALL_ERROR">MOTOR2_STALL_ERROR (pyzlg_dexhand.dexhand_protocol.messages.ErrorCode attribute)</a>
+      <li><a href="api/dexhand_protocol.html#pyzlg_dexhand.dexhand_protocol.commands.MotorCommand.motor2_speed">motor2_speed (pyzlg_dexhand.dexhand_protocol.commands.MotorCommand attribute)</a>
 </li>
       <li><a href="api/dexhand_protocol.html#pyzlg_dexhand.dexhand_protocol.commands.CommandType.MOTOR_COMMAND">MOTOR_COMMAND (pyzlg_dexhand.dexhand_protocol.commands.CommandType attribute)</a>
 </li>
@@ -468,18 +505,18 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/zcan_wrapper.html#pyzlg_dexhand.zcan.ZCANMessageType.NORMAL">NORMAL (pyzlg_dexhand.zcan.ZCANMessageType attribute)</a>
 </li>
-      <li><a href="api/dexhand_interface.html#pyzlg_dexhand.dexhand_interface.StampedTactileFeedback.normal_force">normal_force (pyzlg_dexhand.dexhand_interface.StampedTactileFeedback attribute)</a>
+      <li><a href="api/dexhand_interface.html#pyzlg_dexhand.dexhand_interface.StampedTouchFeedback.normal_force">normal_force (pyzlg_dexhand.dexhand_interface.StampedTouchFeedback attribute)</a>
 
       <ul>
-        <li><a href="api/dexhand_protocol.html#pyzlg_dexhand.dexhand_protocol.messages.TactileFeedback.normal_force">(pyzlg_dexhand.dexhand_protocol.messages.TactileFeedback attribute)</a>
+        <li><a href="api/dexhand_protocol.html#pyzlg_dexhand.dexhand_protocol.messages.TouchFeedback.normal_force">(pyzlg_dexhand.dexhand_protocol.messages.TouchFeedback attribute)</a>
 </li>
       </ul></li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="api/dexhand_interface.html#pyzlg_dexhand.dexhand_interface.StampedTactileFeedback.normal_force_delta">normal_force_delta (pyzlg_dexhand.dexhand_interface.StampedTactileFeedback attribute)</a>
+      <li><a href="api/dexhand_interface.html#pyzlg_dexhand.dexhand_interface.StampedTouchFeedback.normal_force_delta">normal_force_delta (pyzlg_dexhand.dexhand_interface.StampedTouchFeedback attribute)</a>
 
       <ul>
-        <li><a href="api/dexhand_protocol.html#pyzlg_dexhand.dexhand_protocol.messages.TactileFeedback.normal_force_delta">(pyzlg_dexhand.dexhand_protocol.messages.TactileFeedback attribute)</a>
+        <li><a href="api/dexhand_protocol.html#pyzlg_dexhand.dexhand_protocol.messages.TouchFeedback.normal_force_delta">(pyzlg_dexhand.dexhand_protocol.messages.TouchFeedback attribute)</a>
 </li>
       </ul></li>
       <li><a href="api/dexhand_interface.html#pyzlg_dexhand.dexhand_interface.DexHandBase.NUM_BOARDS">NUM_BOARDS (pyzlg_dexhand.dexhand_interface.DexHandBase attribute)</a>
@@ -516,20 +553,26 @@
 <h2 id="P">P</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/dexhand_protocol.html#pyzlg_dexhand.dexhand_protocol.messages.ErrorCode.PARAM_ERROR">PARAM_ERROR (pyzlg_dexhand.dexhand_protocol.messages.ErrorCode attribute)</a>
+</li>
       <li><a href="api/dexhand_protocol.html#pyzlg_dexhand.dexhand_protocol.commands.FeedbackConfigCommand.period_ms">period_ms (pyzlg_dexhand.dexhand_protocol.commands.FeedbackConfigCommand attribute)</a>
 </li>
       <li><a href="api/dexhand_protocol.html#pyzlg_dexhand.dexhand_protocol.commands.FeedbackMode.PERIODIC">PERIODIC (pyzlg_dexhand.dexhand_protocol.commands.FeedbackMode attribute)</a>
 </li>
       <li><a href="api/dexhand_logger.html#pyzlg_dexhand.dexhand_logger.DexHandLogger.plot_session">plot_session() (pyzlg_dexhand.dexhand_logger.DexHandLogger method)</a>
 </li>
-      <li><a href="api/dexhand_protocol.html#pyzlg_dexhand.dexhand_protocol.messages.MotorFeedback.position">position (pyzlg_dexhand.dexhand_protocol.messages.MotorFeedback attribute)</a>
+      <li><a href="api/dexhand_interface.html#pyzlg_dexhand.dexhand_interface.JointCommand.position">position (pyzlg_dexhand.dexhand_interface.JointCommand attribute)</a>
+
+      <ul>
+        <li><a href="api/dexhand_protocol.html#pyzlg_dexhand.dexhand_protocol.messages.MotorFeedback.position">(pyzlg_dexhand.dexhand_protocol.messages.MotorFeedback attribute)</a>
 </li>
+      </ul></li>
       <li><a href="api/dexhand_protocol.html#pyzlg_dexhand.dexhand_protocol.messages.BoardFeedback.position_sensor1">position_sensor1 (pyzlg_dexhand.dexhand_protocol.messages.BoardFeedback attribute)</a>
-</li>
-      <li><a href="api/dexhand_protocol.html#pyzlg_dexhand.dexhand_protocol.messages.BoardFeedback.position_sensor2">position_sensor2 (pyzlg_dexhand.dexhand_protocol.messages.BoardFeedback attribute)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/dexhand_protocol.html#pyzlg_dexhand.dexhand_protocol.messages.BoardFeedback.position_sensor2">position_sensor2 (pyzlg_dexhand.dexhand_protocol.messages.BoardFeedback attribute)</a>
+</li>
       <li><a href="api/dexhand_protocol.html#pyzlg_dexhand.dexhand_protocol.messages.process_message">process_message() (in module pyzlg_dexhand.dexhand_protocol.messages)</a>
 </li>
       <li><a href="api/dexhand_protocol.html#pyzlg_dexhand.dexhand_protocol.messages.ProcessedMessage">ProcessedMessage (class in pyzlg_dexhand.dexhand_protocol.messages)</a>
@@ -540,10 +583,10 @@
         <li><a href="api/dexhand_protocol.html#pyzlg_dexhand.dexhand_protocol.commands.ControlMode.PROTECT_HALL_POSITION">(pyzlg_dexhand.dexhand_protocol.commands.ControlMode attribute)</a>
 </li>
       </ul></li>
-      <li><a href="api/dexhand_interface.html#pyzlg_dexhand.dexhand_interface.StampedTactileFeedback.proximity">proximity (pyzlg_dexhand.dexhand_interface.StampedTactileFeedback attribute)</a>
+      <li><a href="api/dexhand_interface.html#pyzlg_dexhand.dexhand_interface.StampedTouchFeedback.proximity">proximity (pyzlg_dexhand.dexhand_interface.StampedTouchFeedback attribute)</a>
 
       <ul>
-        <li><a href="api/dexhand_protocol.html#pyzlg_dexhand.dexhand_protocol.messages.TactileFeedback.proximity">(pyzlg_dexhand.dexhand_protocol.messages.TactileFeedback attribute)</a>
+        <li><a href="api/dexhand_protocol.html#pyzlg_dexhand.dexhand_protocol.messages.TouchFeedback.proximity">(pyzlg_dexhand.dexhand_protocol.messages.TouchFeedback attribute)</a>
 </li>
       </ul></li>
   </ul></td>
@@ -564,6 +607,8 @@
 <h2 id="R">R</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/dexhand_interface.html#pyzlg_dexhand.dexhand_interface.DexHandBase.read_flash_memory">read_flash_memory() (pyzlg_dexhand.dexhand_interface.DexHandBase method)</a>
+</li>
       <li><a href="api/zcan_wrapper.html#pyzlg_dexhand.zcan_wrapper.MockZCANWrapper.receive_fd_messages">receive_fd_messages() (pyzlg_dexhand.zcan_wrapper.MockZCANWrapper method)</a>
 
       <ul>
@@ -572,10 +617,10 @@
         <li><a href="api/zcan_wrapper.html#pyzlg_dexhand.zcan_wrapper.ZCANWrapperBase.receive_fd_messages">(pyzlg_dexhand.zcan_wrapper.ZCANWrapperBase method)</a>
 </li>
       </ul></li>
-      <li><a href="api/zcan_wrapper.html#pyzlg_dexhand.zcan_wrapper.ZCANWrapper.reset_channel">reset_channel() (pyzlg_dexhand.zcan_wrapper.ZCANWrapper method)</a>
-</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/zcan_wrapper.html#pyzlg_dexhand.zcan_wrapper.ZCANWrapper.reset_channel">reset_channel() (pyzlg_dexhand.zcan_wrapper.ZCANWrapper method)</a>
+</li>
       <li><a href="api/dexhand_interface.html#pyzlg_dexhand.dexhand_interface.DexHandBase.reset_joints">reset_joints() (pyzlg_dexhand.dexhand_interface.DexHandBase method)</a>
 </li>
       <li><a href="api/dexhand_protocol.html#pyzlg_dexhand.dexhand_protocol.BoardID.RIGHT_HAND_BASE">RIGHT_HAND_BASE (pyzlg_dexhand.dexhand_protocol.BoardID attribute)</a>
@@ -592,7 +637,11 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/dexhand_logger.html#pyzlg_dexhand.dexhand_logger.DexHandLogger.save_metadata">save_metadata() (pyzlg_dexhand.dexhand_logger.DexHandLogger method)</a>
 </li>
+      <li><a href="api/dexhand_interface.html#pyzlg_dexhand.dexhand_interface.DexHandBase.save_to_flash">save_to_flash() (pyzlg_dexhand.dexhand_interface.DexHandBase method)</a>
+</li>
       <li><a href="api/zcan_wrapper.html#pyzlg_dexhand.zcan.ZCANMessageType.SELF_TEST">SELF_TEST (pyzlg_dexhand.zcan.ZCANMessageType attribute)</a>
+</li>
+      <li><a href="api/dexhand_interface.html#pyzlg_dexhand.dexhand_interface.DexHandBase.send_broadcast_command">send_broadcast_command() (pyzlg_dexhand.dexhand_interface.DexHandBase method)</a>
 </li>
       <li><a href="api/zcan_wrapper.html#pyzlg_dexhand.zcan_wrapper.MockZCANWrapper.send_fd_message">send_fd_message() (pyzlg_dexhand.zcan_wrapper.MockZCANWrapper method)</a>
 
@@ -603,6 +652,10 @@
 </li>
       </ul></li>
       <li><a href="api/zcan_wrapper.html#pyzlg_dexhand.zcan_wrapper.ZCANWrapper.send_fd_messages">send_fd_messages() (pyzlg_dexhand.zcan_wrapper.ZCANWrapper method)</a>
+</li>
+      <li><a href="api/dexhand_interface.html#pyzlg_dexhand.dexhand_interface.DexHandBase.send_global_command">send_global_command() (pyzlg_dexhand.dexhand_interface.DexHandBase method)</a>
+</li>
+      <li><a href="api/dexhand_interface.html#pyzlg_dexhand.dexhand_interface.DexHandBase.send_motion_command">send_motion_command() (pyzlg_dexhand.dexhand_interface.DexHandBase method)</a>
 </li>
       <li><a href="api/dexhand_protocol.html#pyzlg_dexhand.dexhand_protocol.messages.ProcessedMessage.sender_id">sender_id (pyzlg_dexhand.dexhand_protocol.messages.ProcessedMessage attribute)</a>
 </li>
@@ -618,6 +671,14 @@
       </ul></li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/dexhand_interface.html#pyzlg_dexhand.dexhand_interface.DexHandBase.set_pressure_limit_enable">set_pressure_limit_enable() (pyzlg_dexhand.dexhand_interface.DexHandBase method)</a>
+</li>
+      <li><a href="api/dexhand_interface.html#pyzlg_dexhand.dexhand_interface.DexHandBase.set_pressure_limit_value">set_pressure_limit_value() (pyzlg_dexhand.dexhand_interface.DexHandBase method)</a>
+</li>
+      <li><a href="api/dexhand_interface.html#pyzlg_dexhand.dexhand_interface.DexHandBase.set_safe_temperature">set_safe_temperature() (pyzlg_dexhand.dexhand_interface.DexHandBase method)</a>
+</li>
+      <li><a href="api/dexhand_interface.html#pyzlg_dexhand.dexhand_interface.DexHandBase.set_stall_time">set_stall_time() (pyzlg_dexhand.dexhand_interface.DexHandBase method)</a>
+</li>
       <li><a href="api/zcan_wrapper.html#pyzlg_dexhand.zcan.ZCANMessageType.SINGLE">SINGLE (pyzlg_dexhand.zcan.ZCANMessageType attribute)</a>
 </li>
       <li><a href="api/zcan_wrapper.html#pyzlg_dexhand.zcan.ZCANMessageType.SINGLE_SELF_TEST">SINGLE_SELF_TEST (pyzlg_dexhand.zcan.ZCANMessageType attribute)</a>
@@ -630,7 +691,9 @@
         <li><a href="api/dexhand_protocol.html#pyzlg_dexhand.dexhand_protocol.commands.ControlMode.SPEED">(pyzlg_dexhand.dexhand_protocol.commands.ControlMode attribute)</a>
 </li>
       </ul></li>
-      <li><a href="api/dexhand_interface.html#pyzlg_dexhand.dexhand_interface.StampedTactileFeedback">StampedTactileFeedback (class in pyzlg_dexhand.dexhand_interface)</a>
+      <li><a href="api/dexhand_protocol.html#pyzlg_dexhand.dexhand_protocol.messages.ErrorCode.STALL_ERROR">STALL_ERROR (pyzlg_dexhand.dexhand_protocol.messages.ErrorCode attribute)</a>
+</li>
+      <li><a href="api/dexhand_interface.html#pyzlg_dexhand.dexhand_interface.StampedTouchFeedback">StampedTouchFeedback (class in pyzlg_dexhand.dexhand_interface)</a>
 </li>
       <li><a href="api/zcan_wrapper.html#pyzlg_dexhand.zcan_wrapper.ZCANFilterConfig.start_id">start_id (pyzlg_dexhand.zcan_wrapper.ZCANFilterConfig attribute)</a>
 </li>
@@ -642,44 +705,44 @@
 <h2 id="T">T</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="api/dexhand_interface.html#pyzlg_dexhand.dexhand_interface.HandFeedback.tactile">tactile (pyzlg_dexhand.dexhand_interface.HandFeedback attribute)</a>
+      <li><a href="api/dexhand_interface.html#pyzlg_dexhand.dexhand_interface.StampedTouchFeedback.tangential_force">tangential_force (pyzlg_dexhand.dexhand_interface.StampedTouchFeedback attribute)</a>
 
       <ul>
-        <li><a href="api/dexhand_logger.html#pyzlg_dexhand.dexhand_logger.FeedbackLogEntry.tactile">(pyzlg_dexhand.dexhand_logger.FeedbackLogEntry attribute)</a>
-</li>
-        <li><a href="api/dexhand_protocol.html#pyzlg_dexhand.dexhand_protocol.messages.BoardFeedback.tactile">(pyzlg_dexhand.dexhand_protocol.messages.BoardFeedback attribute)</a>
+        <li><a href="api/dexhand_protocol.html#pyzlg_dexhand.dexhand_protocol.messages.TouchFeedback.tangential_force">(pyzlg_dexhand.dexhand_protocol.messages.TouchFeedback attribute)</a>
 </li>
       </ul></li>
-      <li><a href="api/dexhand_protocol.html#pyzlg_dexhand.dexhand_protocol.messages.TactileFeedback">TactileFeedback (class in pyzlg_dexhand.dexhand_protocol.messages)</a>
-</li>
-      <li><a href="api/dexhand_interface.html#pyzlg_dexhand.dexhand_interface.StampedTactileFeedback.tangential_force">tangential_force (pyzlg_dexhand.dexhand_interface.StampedTactileFeedback attribute)</a>
+      <li><a href="api/dexhand_interface.html#pyzlg_dexhand.dexhand_interface.StampedTouchFeedback.tangential_force_delta">tangential_force_delta (pyzlg_dexhand.dexhand_interface.StampedTouchFeedback attribute)</a>
 
       <ul>
-        <li><a href="api/dexhand_protocol.html#pyzlg_dexhand.dexhand_protocol.messages.TactileFeedback.tangential_force">(pyzlg_dexhand.dexhand_protocol.messages.TactileFeedback attribute)</a>
+        <li><a href="api/dexhand_protocol.html#pyzlg_dexhand.dexhand_protocol.messages.TouchFeedback.tangential_force_delta">(pyzlg_dexhand.dexhand_protocol.messages.TouchFeedback attribute)</a>
 </li>
       </ul></li>
-      <li><a href="api/dexhand_interface.html#pyzlg_dexhand.dexhand_interface.StampedTactileFeedback.tangential_force_delta">tangential_force_delta (pyzlg_dexhand.dexhand_interface.StampedTactileFeedback attribute)</a>
+      <li><a href="api/dexhand_interface.html#pyzlg_dexhand.dexhand_interface.StampedTouchFeedback.temperature">temperature (pyzlg_dexhand.dexhand_interface.StampedTouchFeedback attribute)</a>
 
       <ul>
-        <li><a href="api/dexhand_protocol.html#pyzlg_dexhand.dexhand_protocol.messages.TactileFeedback.tangential_force_delta">(pyzlg_dexhand.dexhand_protocol.messages.TactileFeedback attribute)</a>
-</li>
-      </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="api/dexhand_interface.html#pyzlg_dexhand.dexhand_interface.StampedTactileFeedback.temperature">temperature (pyzlg_dexhand.dexhand_interface.StampedTactileFeedback attribute)</a>
-
-      <ul>
-        <li><a href="api/dexhand_protocol.html#pyzlg_dexhand.dexhand_protocol.messages.TactileFeedback.temperature">(pyzlg_dexhand.dexhand_protocol.messages.TactileFeedback attribute)</a>
+        <li><a href="api/dexhand_protocol.html#pyzlg_dexhand.dexhand_protocol.messages.TouchFeedback.temperature">(pyzlg_dexhand.dexhand_protocol.messages.TouchFeedback attribute)</a>
 </li>
       </ul></li>
       <li><a href="api/dexhand_interface.html#pyzlg_dexhand.dexhand_interface.JointFeedback.timestamp">timestamp (pyzlg_dexhand.dexhand_interface.JointFeedback attribute)</a>
 
       <ul>
-        <li><a href="api/dexhand_interface.html#pyzlg_dexhand.dexhand_interface.StampedTactileFeedback.timestamp">(pyzlg_dexhand.dexhand_interface.StampedTactileFeedback attribute)</a>
+        <li><a href="api/dexhand_interface.html#pyzlg_dexhand.dexhand_interface.StampedTouchFeedback.timestamp">(pyzlg_dexhand.dexhand_interface.StampedTouchFeedback attribute)</a>
 </li>
         <li><a href="api/dexhand_logger.html#pyzlg_dexhand.dexhand_logger.LogEntry.timestamp">(pyzlg_dexhand.dexhand_logger.LogEntry attribute)</a>
 </li>
       </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/dexhand_interface.html#pyzlg_dexhand.dexhand_interface.HandFeedback.touch">touch (pyzlg_dexhand.dexhand_interface.HandFeedback attribute)</a>
+
+      <ul>
+        <li><a href="api/dexhand_logger.html#pyzlg_dexhand.dexhand_logger.FeedbackLogEntry.touch">(pyzlg_dexhand.dexhand_logger.FeedbackLogEntry attribute)</a>
+</li>
+        <li><a href="api/dexhand_protocol.html#pyzlg_dexhand.dexhand_protocol.messages.BoardFeedback.touch">(pyzlg_dexhand.dexhand_protocol.messages.BoardFeedback attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="api/dexhand_protocol.html#pyzlg_dexhand.dexhand_protocol.messages.TouchFeedback">TouchFeedback (class in pyzlg_dexhand.dexhand_protocol.messages)</a>
+</li>
       <li><a href="api/zcan_wrapper.html#pyzlg_dexhand.zcan_wrapper.BitTimingConfig.tseg1">tseg1 (pyzlg_dexhand.zcan_wrapper.BitTimingConfig attribute)</a>
 </li>
       <li><a href="api/zcan_wrapper.html#pyzlg_dexhand.zcan_wrapper.BitTimingConfig.tseg2">tseg2 (pyzlg_dexhand.zcan_wrapper.BitTimingConfig attribute)</a>
@@ -704,7 +767,21 @@
 <h2 id="V">V</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="api/dexhand_protocol.html#pyzlg_dexhand.dexhand_protocol.messages.MotorFeedback.velocity">velocity (pyzlg_dexhand.dexhand_protocol.messages.MotorFeedback attribute)</a>
+      <li><a href="api/dexhand_interface.html#pyzlg_dexhand.dexhand_interface.JointCommand.velocity">velocity (pyzlg_dexhand.dexhand_interface.JointCommand attribute)</a>
+
+      <ul>
+        <li><a href="api/dexhand_interface.html#pyzlg_dexhand.dexhand_interface.JointFeedback.velocity">(pyzlg_dexhand.dexhand_interface.JointFeedback attribute)</a>
+</li>
+        <li><a href="api/dexhand_protocol.html#pyzlg_dexhand.dexhand_protocol.messages.MotorFeedback.velocity">(pyzlg_dexhand.dexhand_protocol.messages.MotorFeedback attribute)</a>
+</li>
+      </ul></li>
+  </ul></td>
+</tr></table>
+
+<h2 id="W">W</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/dexhand_interface.html#pyzlg_dexhand.dexhand_interface.DexHandBase.write_flash_memory">write_flash_memory() (pyzlg_dexhand.dexhand_interface.DexHandBase method)</a>
 </li>
   </ul></td>
 </tr></table>

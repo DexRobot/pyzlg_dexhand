@@ -6,14 +6,14 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>DexHand Logger &mdash; pyzlg_dexhand 0.1.0 documentation</title>
+  <title>DexHand Logger &mdash; pyzlg_dexhand 0.1.3 documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
 
   
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../_static/documentation_options.js?v=01f34227"></script>
+      <script src="../_static/documentation_options.js?v=360bc84d"></script>
       <script src="../_static/doctools.js?v=9bcbadda"></script>
       <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/js/theme.js"></script>
@@ -44,6 +44,8 @@
               <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../quickstart.html">Quickstart Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../control_modes.html">Control Modes and Advanced Options</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../ros_integration.html">ROS Integration</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="index.html">API Reference</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="dexhand_interface.html">DexHand Interface</a></li>
 <li class="toctree-l2"><a class="reference internal" href="dexhand_protocol.html">DexHand Protocol</a></li>
@@ -121,7 +123,7 @@
 <h3>Log Entry Types<a class="headerlink" href="#log-entry-types" title="Link to this heading"></a></h3>
 <dl class="py class">
 <dt class="sig sig-object py" id="pyzlg_dexhand.dexhand_logger.LogEntry">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pyzlg_dexhand.dexhand_logger.</span></span><span class="sig-name descname"><span class="pre">LogEntry</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">timestamp</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hand</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">entry_type</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyzlg_dexhand/dexhand_logger.html#LogEntry"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyzlg_dexhand.dexhand_logger.LogEntry" title="Link to this definition"></a></dt>
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pyzlg_dexhand.dexhand_logger.</span></span><span class="sig-name descname"><span class="pre">LogEntry</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">timestamp</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hand</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">entry_type</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyzlg_dexhand/dexhand_logger.html#LogEntry"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyzlg_dexhand.dexhand_logger.LogEntry" title="Link to this definition"></a></dt>
 <dd><p>Base class for log entries</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="pyzlg_dexhand.dexhand_logger.LogEntry.entry_type">
@@ -142,7 +144,7 @@
 
 <dl class="py class">
 <dt class="sig sig-object py" id="pyzlg_dexhand.dexhand_logger.CommandLogEntry">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pyzlg_dexhand.dexhand_logger.</span></span><span class="sig-name descname"><span class="pre">CommandLogEntry</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">timestamp</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hand</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">entry_type</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">command_type</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">joint_commands</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">control_mode</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyzlg_dexhand/dexhand_logger.html#CommandLogEntry"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyzlg_dexhand.dexhand_logger.CommandLogEntry" title="Link to this definition"></a></dt>
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pyzlg_dexhand.dexhand_logger.</span></span><span class="sig-name descname"><span class="pre">CommandLogEntry</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">timestamp</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hand</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">entry_type</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">command_type</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">joint_commands</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">control_mode</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyzlg_dexhand/dexhand_logger.html#CommandLogEntry"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyzlg_dexhand.dexhand_logger.CommandLogEntry" title="Link to this definition"></a></dt>
 <dd><p>Log entry for a hand command</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="pyzlg_dexhand.dexhand_logger.CommandLogEntry.command_type">
@@ -163,7 +165,7 @@
 
 <dl class="py class">
 <dt class="sig sig-object py" id="pyzlg_dexhand.dexhand_logger.FeedbackLogEntry">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pyzlg_dexhand.dexhand_logger.</span></span><span class="sig-name descname"><span class="pre">FeedbackLogEntry</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">timestamp</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hand</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">entry_type</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">joints</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tactile</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyzlg_dexhand/dexhand_logger.html#FeedbackLogEntry"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyzlg_dexhand.dexhand_logger.FeedbackLogEntry" title="Link to this definition"></a></dt>
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pyzlg_dexhand.dexhand_logger.</span></span><span class="sig-name descname"><span class="pre">FeedbackLogEntry</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">timestamp</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hand</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">entry_type</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">joints</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">touch</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyzlg_dexhand/dexhand_logger.html#FeedbackLogEntry"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyzlg_dexhand.dexhand_logger.FeedbackLogEntry" title="Link to this definition"></a></dt>
 <dd><p>Log entry for hand feedback</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="pyzlg_dexhand.dexhand_logger.FeedbackLogEntry.joints">
@@ -171,8 +173,8 @@
 <dd></dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="pyzlg_dexhand.dexhand_logger.FeedbackLogEntry.tactile">
-<span class="sig-name descname"><span class="pre">tactile</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">Dict</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code><span class="pre">,</span> <a class="reference internal" href="dexhand_interface.html#pyzlg_dexhand.dexhand_interface.StampedTactileFeedback" title="pyzlg_dexhand.dexhand_interface.StampedTactileFeedback"><code class="xref py py-class docutils literal notranslate"><span class="pre">StampedTactileFeedback</span></code></a><span class="pre">]</span></em><a class="headerlink" href="#pyzlg_dexhand.dexhand_logger.FeedbackLogEntry.tactile" title="Link to this definition"></a></dt>
+<dt class="sig sig-object py" id="pyzlg_dexhand.dexhand_logger.FeedbackLogEntry.touch">
+<span class="sig-name descname"><span class="pre">touch</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">Dict</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code><span class="pre">,</span> <a class="reference internal" href="dexhand_interface.html#pyzlg_dexhand.dexhand_interface.StampedTouchFeedback" title="pyzlg_dexhand.dexhand_interface.StampedTouchFeedback"><code class="xref py py-class docutils literal notranslate"><span class="pre">StampedTouchFeedback</span></code></a><span class="pre">]</span></em><a class="headerlink" href="#pyzlg_dexhand.dexhand_logger.FeedbackLogEntry.touch" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -185,23 +187,35 @@
 <h3>Main Logger<a class="headerlink" href="#main-logger" title="Link to this heading"></a></h3>
 <dl class="py class">
 <dt class="sig sig-object py" id="pyzlg_dexhand.dexhand_logger.DexHandLogger">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pyzlg_dexhand.dexhand_logger.</span></span><span class="sig-name descname"><span class="pre">DexHandLogger</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">log_dir</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'dexhand_logs'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyzlg_dexhand/dexhand_logger.html#DexHandLogger"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyzlg_dexhand.dexhand_logger.DexHandLogger" title="Link to this definition"></a></dt>
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pyzlg_dexhand.dexhand_logger.</span></span><span class="sig-name descname"><span class="pre">DexHandLogger</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">log_dir</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'dexhand_logs'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log_level</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">LogLevel.INFO</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyzlg_dexhand/dexhand_logger.html#DexHandLogger"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyzlg_dexhand.dexhand_logger.DexHandLogger" title="Link to this definition"></a></dt>
 <dd><p>Logger for dexterous hand commands and feedback with background writing</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="pyzlg_dexhand.dexhand_logger.DexHandLogger.__init__">
-<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">log_dir</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'dexhand_logs'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyzlg_dexhand/dexhand_logger.html#DexHandLogger.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyzlg_dexhand.dexhand_logger.DexHandLogger.__init__" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">log_dir</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'dexhand_logs'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log_level</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">LogLevel.INFO</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyzlg_dexhand/dexhand_logger.html#DexHandLogger.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyzlg_dexhand.dexhand_logger.DexHandLogger.__init__" title="Link to this definition"></a></dt>
 <dd><p>Initialize hand logger</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>log_dir</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span>) – Directory to store log files</p>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>log_dir</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span>) – Directory to store log files</p></li>
+<li><p><strong>log_level</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">LogLevel</span></code>]</span>) – default for LogLevel.INFO:0,All control commands, parameter read and write commands, all feedback information, error messages;
+LogLevel.DEBUG:1,All parameter setting commands, parameter setting feedback information, all error messages;
+LogLevel.ERROR:2,All error messages;</p></li>
+</ul>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pyzlg_dexhand.dexhand_logger.DexHandLogger.close">
-<span class="sig-name descname"><span class="pre">close</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyzlg_dexhand/dexhand_logger.html#DexHandLogger.close"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyzlg_dexhand.dexhand_logger.DexHandLogger.close" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">close</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">log_level</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyzlg_dexhand/dexhand_logger.html#DexHandLogger.close"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyzlg_dexhand.dexhand_logger.DexHandLogger.close" title="Link to this definition"></a></dt>
 <dd><p>Close the logger and save any remaining data</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>log_level</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">LogLevel</span></code>]</span>) – default for LogLevel.INFO:0,All control commands, parameter read and write commands, all feedback information, error messages;
+LogLevel.DEBUG:1,All parameter setting commands, parameter setting feedback information, all error messages;
+LogLevel.ERROR:2,All error messages;</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
@@ -258,7 +272,7 @@ during analysis or after the session.</p>
 <dd><p>Save session metadata</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>metadata</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">Dict</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code>]</span>) – Dictionary of metadata to save</p>
+<dd class="field-odd"><p><strong>metadata</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">Dict</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code>]</span>) – Dicti= LogLevel.INFOonary of metadata to save</p>
 </dd>
 </dl>
 </dd></dl>
@@ -270,7 +284,7 @@ during analysis or after the session.</p>
 <h3>Background Writer<a class="headerlink" href="#background-writer" title="Link to this heading"></a></h3>
 <dl class="py class">
 <dt class="sig sig-object py" id="pyzlg_dexhand.dexhand_logger.LogWriter">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pyzlg_dexhand.dexhand_logger.</span></span><span class="sig-name descname"><span class="pre">LogWriter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">session_dir</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyzlg_dexhand/dexhand_logger.html#LogWriter"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyzlg_dexhand.dexhand_logger.LogWriter" title="Link to this definition"></a></dt>
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pyzlg_dexhand.dexhand_logger.</span></span><span class="sig-name descname"><span class="pre">LogWriter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">session_dir</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyzlg_dexhand/dexhand_logger.html#LogWriter"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyzlg_dexhand.dexhand_logger.LogWriter" title="Link to this definition"></a></dt>
 <dd><p>Background thread for writing log entries to files</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="pyzlg_dexhand.dexhand_logger.LogWriter.__init__">
@@ -319,7 +333,7 @@ else to the thread.</p>
 <span class="n">logger</span><span class="o">.</span><span class="n">log_command</span><span class="p">(</span>
     <span class="n">command_type</span><span class="o">=</span><span class="s2">&quot;move_joints&quot;</span><span class="p">,</span>
     <span class="n">joint_commands</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;th_rot&quot;</span><span class="p">:</span> <span class="mi">30</span><span class="p">,</span> <span class="s2">&quot;th_mcp&quot;</span><span class="p">:</span> <span class="mi">45</span><span class="p">},</span>
-    <span class="n">control_mode</span><span class="o">=</span><span class="n">ControlMode</span><span class="o">.</span><span class="n">CASCADED_PID</span><span class="p">,</span>
+    <span class="n">control_mode</span><span class="o">=</span><span class="n">ControlMode</span><span class="o">.</span><span class="n">IMPEDANCE_GRASP</span><span class="p">,</span>
     <span class="n">hand</span><span class="o">=</span><span class="s2">&quot;right&quot;</span>
 <span class="p">)</span>
 
@@ -374,9 +388,9 @@ else to the thread.</p>
     ├── right_commands.jsonl
     ├── right_feedback.jsonl
     ├── left_joints.png
-    ├── left_tactile.png
+    ├── left_touch.png
     ├── right_joints.png
-    └── right_tactile.png
+    └── right_touch.png
 </pre></div>
 </div>
 </section>
@@ -392,7 +406,7 @@ else to the thread.</p>
         <span class="s2">&quot;th_rot&quot;</span><span class="p">:</span> <span class="mf">30.0</span><span class="p">,</span>
         <span class="s2">&quot;th_mcp&quot;</span><span class="p">:</span> <span class="mf">45.0</span>
     <span class="p">},</span>
-    <span class="s2">&quot;control_mode&quot;</span><span class="p">:</span> <span class="s2">&quot;CASCADED_PID&quot;</span>
+    <span class="s2">&quot;control_mode&quot;</span><span class="p">:</span> <span class="s2">&quot;IMPEDANCE_GRASP&quot;</span>
 <span class="p">}</span>
 </pre></div>
 </div>
@@ -408,7 +422,7 @@ else to the thread.</p>
             <span class="s2">&quot;encoder_position&quot;</span><span class="p">:</span> <span class="mi">1000</span>
         <span class="p">}</span>
     <span class="p">},</span>
-    <span class="s2">&quot;tactile&quot;</span><span class="p">:</span> <span class="p">{</span>
+    <span class="s2">&quot;touch&quot;</span><span class="p">:</span> <span class="p">{</span>
         <span class="s2">&quot;th&quot;</span><span class="p">:</span> <span class="p">{</span>
             <span class="s2">&quot;timestamp&quot;</span><span class="p">:</span> <span class="mf">1234567890.123</span><span class="p">,</span>
             <span class="s2">&quot;normal_force&quot;</span><span class="p">:</span> <span class="mf">1.5</span><span class="p">,</span>

@@ -6,20 +6,20 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Quickstart Guide &mdash; pyzlg_dexhand 0.1.0 documentation</title>
+  <title>Quickstart Guide &mdash; pyzlg_dexhand 0.1.3 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
 
   
       <script src="_static/jquery.js?v=5d32c60e"></script>
       <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="_static/documentation_options.js?v=01f34227"></script>
+      <script src="_static/documentation_options.js?v=360bc84d"></script>
       <script src="_static/doctools.js?v=9bcbadda"></script>
       <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="API Reference" href="api/index.html" />
+    <link rel="next" title="Control Modes and Advanced Options" href="control_modes.html" />
     <link rel="prev" title="DexHand Python Hardware Interface" href="index.html" /> 
 </head>
 
@@ -58,6 +58,7 @@
 </li>
 <li class="toctree-l3"><a class="reference internal" href="#ros-integration">3. ROS Integration</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#interface">Interface</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#message-format-details">Message Format Details</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="#programming-interface">4. Programming Interface</a></li>
@@ -69,6 +70,8 @@
 <li class="toctree-l2"><a class="reference internal" href="#next-steps">Next Steps</a></li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="control_modes.html">Control Modes and Advanced Options</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ros_integration.html">ROS Integration</a></li>
 <li class="toctree-l1"><a class="reference internal" href="api/index.html">API Reference</a></li>
 </ul>
 
@@ -173,6 +176,14 @@
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">right_hand</span><span class="o">.</span><span class="n">move_joints</span><span class="p">(</span><span class="n">th_rot</span><span class="o">=</span><span class="mi">30</span><span class="p">)</span>  <span class="c1"># Rotate thumb</span>
 <span class="n">right_hand</span><span class="o">.</span><span class="n">move_joints</span><span class="p">(</span><span class="n">ff_mcp</span><span class="o">=</span><span class="mi">60</span><span class="p">,</span> <span class="n">ff_dip</span><span class="o">=</span><span class="mi">60</span><span class="p">)</span>  <span class="c1"># Curl index finger</span>
 <span class="n">right_hand</span><span class="o">.</span><span class="n">move_joints</span><span class="p">(</span><span class="n">ff_spr</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">control_mode</span><span class="o">=</span><span class="n">ControlMode</span><span class="o">.</span><span class="n">PROTECT_HALL_POSITION</span><span class="p">)</span>  <span class="c1"># Spread all fingers, with alternative control mode</span>
+
+<span class="c1"># Advanced control with current and velocity specified</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pyzlg_dexhand</span><span class="w"> </span><span class="kn">import</span> <span class="n">JointCommand</span>
+<span class="n">right_hand</span><span class="o">.</span><span class="n">move_joints</span><span class="p">(</span>
+    <span class="n">th_rot</span><span class="o">=</span><span class="n">JointCommand</span><span class="p">(</span><span class="n">position</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span> <span class="n">current</span><span class="o">=</span><span class="mi">25</span><span class="p">,</span> <span class="n">velocity</span><span class="o">=</span><span class="mi">12000</span><span class="p">),</span>  <span class="c1"># Full control</span>
+    <span class="n">ff_mcp</span><span class="o">=</span><span class="n">JointCommand</span><span class="p">(</span><span class="n">position</span><span class="o">=</span><span class="mi">60</span><span class="p">,</span> <span class="n">current</span><span class="o">=</span><span class="mi">30</span><span class="p">)</span>  <span class="c1"># Position and current</span>
+<span class="p">)</span>
+
 <span class="n">right_hand</span><span class="o">.</span><span class="n">get_feedback</span><span class="p">()</span>
 <span class="n">right_hand</span><span class="o">.</span><span class="n">reset_joints</span><span class="p">()</span>
 <span class="n">right_hand</span><span class="o">.</span><span class="n">clear_errors</span><span class="p">()</span>    <span class="c1"># Clear all error states</span>
@@ -202,11 +213,65 @@
 
 <span class="c1"># Run the demo publisher</span>
 <span class="n">python</span> <span class="n">examples</span><span class="o">/</span><span class="n">ros_node</span><span class="o">/</span><span class="n">dexhand_ros_publisher_demo</span><span class="o">.</span><span class="n">py</span> <span class="o">--</span><span class="n">hands</span> <span class="n">right</span> <span class="o">--</span><span class="n">cycle</span><span class="o">-</span><span class="n">time</span> <span class="mf">3.0</span>
+
+<span class="c1"># Run continuous joint motion publisher</span>
+<span class="n">python</span> <span class="n">examples</span><span class="o">/</span><span class="n">ros_node</span><span class="o">/</span><span class="n">continuous_joint_publisher</span><span class="o">.</span><span class="n">py</span> <span class="o">--</span><span class="n">pattern</span> <span class="n">sine</span> <span class="o">--</span><span class="n">amplitude</span> <span class="mi">30</span> <span class="o">--</span><span class="n">period</span> <span class="mi">5</span>
 </pre></div>
 </div>
 <section id="interface">
 <h4>Interface<a class="headerlink" href="#interface" title="Link to this heading"></a></h4>
 <p><strong>Topics:</strong></p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Topic (default)</p></th>
+<th class="head"><p>Type</p></th>
+<th class="head"><p>Direction</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>/left_hand_joint_commands</p></td>
+<td><p>sensor_msgs/JointState</p></td>
+<td><p>Input</p></td>
+<td><p>Left hand joint commands</p></td>
+</tr>
+<tr class="row-odd"><td><p>/right_hand_joint_commands</p></td>
+<td><p>sensor_msgs/JointState</p></td>
+<td><p>Input</p></td>
+<td><p>Right hand joint commands</p></td>
+</tr>
+<tr class="row-even"><td><p>/left_hand_joint_states</p></td>
+<td><p>sensor_msgs/JointState</p></td>
+<td><p>Output</p></td>
+<td><p>Left hand joint feedback</p></td>
+</tr>
+<tr class="row-odd"><td><p>/right_hand_joint_states</p></td>
+<td><p>sensor_msgs/JointState</p></td>
+<td><p>Output</p></td>
+<td><p>Right hand joint feedback</p></td>
+</tr>
+<tr class="row-even"><td><p>/left_touch_sensors</p></td>
+<td><p>Float64MultiArray</p></td>
+<td><p>Output</p></td>
+<td><p>Left hand touch sensor data</p></td>
+</tr>
+<tr class="row-odd"><td><p>/right_touch_sensors</p></td>
+<td><p>Float64MultiArray</p></td>
+<td><p>Output</p></td>
+<td><p>Right hand touch sensor data</p></td>
+</tr>
+<tr class="row-even"><td><p>/left_motor_feedback</p></td>
+<td><p>Float64MultiArray</p></td>
+<td><p>Output</p></td>
+<td><p>Left hand detailed motor data</p></td>
+</tr>
+<tr class="row-odd"><td><p>/right_motor_feedback</p></td>
+<td><p>Float64MultiArray</p></td>
+<td><p>Output</p></td>
+<td><p>Right hand detailed motor data</p></td>
+</tr>
+</tbody>
+</table>
 <p><strong>Services:</strong></p>
 <table class="docutils align-default">
 <thead>
@@ -229,28 +294,72 @@
 <li><p>All features work identically in both ROS1 and ROS2 environments</p></li>
 </ul>
 </section>
+<section id="message-format-details">
+<h4>Message Format Details<a class="headerlink" href="#message-format-details" title="Link to this heading"></a></h4>
+<p><strong>Input (JointState):</strong></p>
+<ul class="simple">
+<li><p>Standard <code class="docutils literal notranslate"><span class="pre">sensor_msgs/JointState</span></code> message</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">position</span></code> field contains desired joint angles in degrees</p></li>
+<li><p>Joint names should match URDF joint names</p></li>
+</ul>
+<p><strong>Output (Touch Sensor - Float64MultiArray):</strong></p>
+<ul class="simple">
+<li><p>Array format: <code class="docutils literal notranslate"><span class="pre">[t,</span> <span class="pre">f_n,</span> <span class="pre">f_n_δ,</span> <span class="pre">f_t,</span> <span class="pre">f_t_δ,</span> <span class="pre">dir,</span> <span class="pre">prox,</span> <span class="pre">temp,</span> <span class="pre">...]</span></code></p></li>
+<li><p>Data for 5 fingers with 8 values per finger (40 total values)</p></li>
+<li><p>Values per finger:
+- timestamp: Time in seconds
+- normal_force: Force perpendicular to fingertip (N)
+- normal_force_delta: Change in normal force (raw units)
+- tangential_force: Force parallel to fingertip (N)
+- tangential_force_delta: Change in tangential force (raw units)
+- direction: Force direction (0-359 degrees, -1 for invalid)
+- proximity: Object proximity reading (raw units)
+- temperature: Fingertip temperature (Celsius)</p></li>
+</ul>
+<p><strong>Output (Motor Feedback - Float64MultiArray):</strong></p>
+<ul class="simple">
+<li><p>Array format: <code class="docutils literal notranslate"><span class="pre">[t,</span> <span class="pre">angle,</span> <span class="pre">encoder,</span> <span class="pre">current,</span> <span class="pre">velocity,</span> <span class="pre">error,</span> <span class="pre">impedance,</span> <span class="pre">...]</span></code></p></li>
+<li><p>Data for 12 motors with 7 values per motor (84 total values)</p></li>
+<li><p>Values per motor:
+- timestamp: Time in seconds
+- angle: Joint angle (degrees)
+- encoder_position: Raw encoder value
+- current: Motor current (mA)
+- velocity: Motor velocity (rpm)
+- error_code: Motor error code (0 = no error)
+- impedance: Motor impedance value</p></li>
+</ul>
+</section>
 </section>
 <section id="programming-interface">
 <h3>4. Programming Interface<a class="headerlink" href="#programming-interface" title="Link to this heading"></a></h3>
 <p>Example code:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pyzlg_dexhand</span><span class="w"> </span><span class="kn">import</span> <span class="n">LeftDexHand</span><span class="p">,</span> <span class="n">RightDexHand</span><span class="p">,</span> <span class="n">ControlMode</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pyzlg_dexhand</span><span class="w"> </span><span class="kn">import</span> <span class="n">LeftDexHand</span><span class="p">,</span> <span class="n">RightDexHand</span><span class="p">,</span> <span class="n">ControlMode</span><span class="p">,</span> <span class="n">JointCommand</span>
 
 <span class="c1"># Initialize hand</span>
 <span class="n">hand</span> <span class="o">=</span> <span class="n">RightDexHand</span><span class="p">()</span>
 <span class="n">hand</span><span class="o">.</span><span class="n">init</span><span class="p">()</span>
 
-<span class="c1"># Move thumb</span>
+<span class="c1"># Basic position control</span>
 <span class="n">hand</span><span class="o">.</span><span class="n">move_joints</span><span class="p">(</span>
     <span class="n">th_rot</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span>  <span class="c1"># Thumb rotation (0-150 degrees)</span>
     <span class="n">th_mcp</span><span class="o">=</span><span class="mi">45</span><span class="p">,</span>  <span class="c1"># Thumb MCP flexion (0-90 degrees)</span>
     <span class="n">th_dip</span><span class="o">=</span><span class="mi">45</span><span class="p">,</span>  <span class="c1"># Thumb coupled distal flexion</span>
-    <span class="n">control_mode</span><span class="o">=</span><span class="n">ControlMode</span><span class="o">.</span><span class="n">CASCADED_PID</span>
+    <span class="n">control_mode</span><span class="o">=</span><span class="n">ControlMode</span><span class="o">.</span><span class="n">CASCADED_PID</span>  <span class="c1"># Default control mode</span>
+<span class="p">)</span>
+
+<span class="c1"># Advanced control with JointCommand for fine-tuning</span>
+<span class="n">hand</span><span class="o">.</span><span class="n">move_joints</span><span class="p">(</span>
+    <span class="n">th_rot</span><span class="o">=</span><span class="n">JointCommand</span><span class="p">(</span><span class="n">position</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span> <span class="n">current</span><span class="o">=</span><span class="mi">25</span><span class="p">,</span> <span class="n">velocity</span><span class="o">=</span><span class="mi">12000</span><span class="p">),</span>  <span class="c1"># Full control</span>
+    <span class="n">th_mcp</span><span class="o">=</span><span class="n">JointCommand</span><span class="p">(</span><span class="n">position</span><span class="o">=</span><span class="mi">45</span><span class="p">,</span> <span class="n">current</span><span class="o">=</span><span class="mi">30</span><span class="p">),</span>  <span class="c1"># Position and current only</span>
+    <span class="n">th_dip</span><span class="o">=</span><span class="mi">45</span><span class="p">,</span>  <span class="c1"># Basic position control</span>
+    <span class="n">control_mode</span><span class="o">=</span><span class="n">ControlMode</span><span class="o">.</span><span class="n">IMPEDANCE_GRASP</span>
 <span class="p">)</span>
 
 <span class="c1"># Get feedback</span>
 <span class="n">feedback</span> <span class="o">=</span> <span class="n">hand</span><span class="o">.</span><span class="n">get_feedback</span><span class="p">()</span>
 <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Thumb angle: </span><span class="si">{</span><span class="n">feedback</span><span class="o">.</span><span class="n">joints</span><span class="p">[</span><span class="s1">&#39;th_rot&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">angle</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Tactile force: </span><span class="si">{</span><span class="n">feedback</span><span class="o">.</span><span class="n">tactile</span><span class="p">[</span><span class="s1">&#39;th&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">normal_force</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Touch sensor force: </span><span class="si">{</span><span class="n">feedback</span><span class="o">.</span><span class="n">touch</span><span class="p">[</span><span class="s1">&#39;th&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">normal_force</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 </section>
@@ -259,6 +368,8 @@
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">CASCADED_PID</span></code>: Provides precise position control with higher stiffness</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">PROTECT_HALL_POSITION</span></code>: Offers smoother response but requires joints to be in zero position at power-on</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">MIT_TORQUE</span></code>: High-precision torque control mode that maintains stable force after object contact. Allows for dynamic force adjustments while maintaining position tracking. Ideal for delicate interaction tasks.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">IMPEDANCE_GRASP</span></code>: Optimized for safe grasping operations. Automatically detects contact with objects and reduces force to prevent damage. Recommended for adaptive grasping of delicate objects with varying stiffness.</p></li>
 </ul>
 </section>
 <section id="error-handling">
@@ -305,7 +416,7 @@
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
         <a href="index.html" class="btn btn-neutral float-left" title="DexHand Python Hardware Interface" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="api/index.html" class="btn btn-neutral float-right" title="API Reference" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="control_modes.html" class="btn btn-neutral float-right" title="Control Modes and Advanced Options" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

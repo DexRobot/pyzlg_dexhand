@@ -55,7 +55,7 @@ Basic Logging
     logger.log_command(
         command_type="move_joints",
         joint_commands={"th_rot": 30, "th_mcp": 45},
-        control_mode=ControlMode.CASCADED_PID,
+        control_mode=ControlMode.IMPEDANCE_GRASP,
         hand="right"
     )
 
@@ -112,9 +112,9 @@ Each logging session creates a timestamped directory::
         ├── right_commands.jsonl
         ├── right_feedback.jsonl
         ├── left_joints.png
-        ├── left_tactile.png
+        ├── left_touch.png
         ├── right_joints.png
-        └── right_tactile.png
+        └── right_touch.png
 
 File Formats
 ^^^^^^^^^^
@@ -130,7 +130,7 @@ Command Log (JSONL)::
             "th_rot": 30.0,
             "th_mcp": 45.0
         },
-        "control_mode": "CASCADED_PID"
+        "control_mode": "IMPEDANCE_GRASP"
     }
 
 Feedback Log (JSONL)::
@@ -146,7 +146,7 @@ Feedback Log (JSONL)::
                 "encoder_position": 1000
             }
         },
-        "tactile": {
+        "touch": {
             "th": {
                 "timestamp": 1234567890.123,
                 "normal_force": 1.5,

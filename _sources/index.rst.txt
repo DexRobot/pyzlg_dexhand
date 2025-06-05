@@ -10,7 +10,8 @@ Features
 * Joint-space control interface with feedback processing
 * Built-in data logging and visualization tools
 * ROS integration with both ROS1 and ROS2 support
-* Hardware testing utilities
+* Hardware testing utilities with GUI slider interface
+* Advanced control modes for precision grasping and force control
 
 Documentation Contents
 --------------------
@@ -20,6 +21,8 @@ Documentation Contents
    :caption: Contents:
 
    quickstart
+   control_modes
+   ros_integration
    api/index
 
 Getting Started
@@ -57,11 +60,18 @@ Next Steps
 
     python tools/hardware_test/test_dexhand_interactive.py --hands right
 
+* Use the GUI slider interface for visual control::
+
+    pip install PyQt6
+    python examples/dexhand_gui.py
+
 * Experiment with ROS integration::
 
     python examples/ros_node/dexhand_ros.py
 
 * Check out the :doc:`api/dexhand_logger` for data collection and analysis
+
+* Explore advanced control modes in :doc:`control_modes`
 
 Support
 -------

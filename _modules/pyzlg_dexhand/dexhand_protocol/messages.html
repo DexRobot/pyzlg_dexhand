@@ -5,14 +5,14 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>pyzlg_dexhand.dexhand_protocol.messages &mdash; pyzlg_dexhand 0.1.0 documentation</title>
+  <title>pyzlg_dexhand.dexhand_protocol.messages &mdash; pyzlg_dexhand 0.1.3 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
 
   
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=01f34227"></script>
+      <script src="../../../_static/documentation_options.js?v=360bc84d"></script>
       <script src="../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../_static/js/theme.js"></script>
@@ -42,6 +42,8 @@
               <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../quickstart.html">Quickstart Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../control_modes.html">Control Modes and Advanced Options</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../ros_integration.html">ROS Integration</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../api/index.html">API Reference</a></li>
 </ul>
 
@@ -77,10 +79,20 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Tuple</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">.</span><span class="w"> </span><span class="kn">import</span> <span class="n">MessageType</span><span class="p">,</span> <span class="n">get_message_type</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.</span><span class="w"> </span><span class="kn">import</span> <span class="n">MessageType</span><span class="p">,</span> <span class="n">get_message_type</span><span class="p">,</span><span class="n">FlashStorageTable</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">.commands</span><span class="w"> </span><span class="kn">import</span> <span class="n">CommandType</span>
 
 <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+<span class="k">class</span><span class="w"> </span><span class="nc">LogLevel</span><span class="p">(</span><span class="n">IntEnum</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Logging levels&quot;&quot;&quot;</span>
+    <span class="n">INFO</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">DEBUG</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="n">ERROR</span> <span class="o">=</span> <span class="mi">2</span>
+
+<span class="k">class</span><span class="w"> </span><span class="nc">WarningError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Warning error message&quot;&quot;&quot;</span>
+    <span class="n">HALL_LIMIT_MODE</span> <span class="o">=</span> <span class="mh">0x01</span> <span class="c1"># Hall limit mode active</span>
 
 <div class="viewcode-block" id="BoardError">
 <a class="viewcode-back" href="../../../api/dexhand_protocol.html#pyzlg_dexhand.dexhand_protocol.messages.BoardError">[docs]</a>
@@ -95,15 +107,17 @@
 <a class="viewcode-back" href="../../../api/dexhand_protocol.html#pyzlg_dexhand.dexhand_protocol.messages.ErrorCode">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">ErrorCode</span><span class="p">(</span><span class="n">IntEnum</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Error codes from protocol&quot;&quot;&quot;</span>
-    <span class="n">MOTOR1_CURRENT_OVERLOAD</span> <span class="o">=</span> <span class="mh">0x0001</span>
-    <span class="n">MOTOR1_HALL_ERROR</span> <span class="o">=</span> <span class="mh">0x0002</span>
-    <span class="n">MOTOR1_STALL_ERROR</span> <span class="o">=</span> <span class="mh">0x0004</span>
-    <span class="n">MOTOR1_PARAM_ERROR</span> <span class="o">=</span> <span class="mh">0x0008</span>
-    <span class="n">MOTOR2_CURRENT_OVERLOAD</span> <span class="o">=</span> <span class="mh">0x0010</span>
-    <span class="n">MOTOR2_HALL_ERROR</span> <span class="o">=</span> <span class="mh">0x0020</span>
-    <span class="n">MOTOR2_STALL_ERROR</span> <span class="o">=</span> <span class="mh">0x0040</span>
-    <span class="n">MOTOR2_PARAM_ERROR</span> <span class="o">=</span> <span class="mh">0x0080</span></div>
+    <span class="n">CURRENT_OVERLOAD</span> <span class="o">=</span> <span class="mh">0x01</span>
+    <span class="n">HALL_ERROR</span> <span class="o">=</span> <span class="mh">0x02</span>
+    <span class="n">STALL_ERROR</span> <span class="o">=</span> <span class="mh">0x03</span>
+    <span class="n">PARAM_ERROR</span> <span class="o">=</span> <span class="mh">0x04</span></div>
 
+
+<span class="k">class</span><span class="w"> </span><span class="nc">ErrorMessageType</span><span class="p">(</span><span class="n">IntEnum</span><span class="p">):</span>  
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Specific error message types&quot;&quot;&quot;</span>  
+    <span class="n">MOTOR_ERROR</span> <span class="o">=</span> <span class="mh">0xEE</span>        <span class="c1"># Detailed motor errors  </span>
+    <span class="n">WARNING</span> <span class="o">=</span> <span class="mh">0xEF</span>            <span class="c1"># System warnings  </span>
+    <span class="n">OVERHEATING</span> <span class="o">=</span> <span class="mh">0xFF</span>        <span class="c1"># Overheating condition</span>
 
 <div class="viewcode-block" id="MotorFeedback">
 <a class="viewcode-back" href="../../../api/dexhand_protocol.html#pyzlg_dexhand.dexhand_protocol.messages.MotorFeedback">[docs]</a>
@@ -113,21 +127,24 @@
     <span class="n">current</span><span class="p">:</span> <span class="nb">int</span>        <span class="c1"># Current in mA</span>
     <span class="n">velocity</span><span class="p">:</span> <span class="nb">int</span>       <span class="c1"># Speed in rpm</span>
     <span class="n">position</span><span class="p">:</span> <span class="nb">int</span>       <span class="c1"># Position in encoder counts</span>
-    <span class="n">angle</span><span class="p">:</span> <span class="nb">float</span>        <span class="c1"># Angle in degrees</span></div>
+    <span class="n">angle</span><span class="p">:</span> <span class="nb">float</span>        <span class="c1"># Angle in degrees</span>
+    <span class="n">encoder_value</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>   <span class="c1"># Raw encoder value (0-4095), angle = encoder/11.38</span>
+    <span class="n">error_code</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>      <span class="c1"># Motor error code</span>
+    <span class="n">impedance</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>     <span class="c1"># Motor impedance reading (float value)</span></div>
 
 
-<div class="viewcode-block" id="TactileFeedback">
-<a class="viewcode-back" href="../../../api/dexhand_protocol.html#pyzlg_dexhand.dexhand_protocol.messages.TactileFeedback">[docs]</a>
+<div class="viewcode-block" id="TouchFeedback">
+<a class="viewcode-back" href="../../../api/dexhand_protocol.html#pyzlg_dexhand.dexhand_protocol.messages.TouchFeedback">[docs]</a>
 <span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-<span class="k">class</span><span class="w"> </span><span class="nc">TactileFeedback</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Feedback from tactile sensor&quot;&quot;&quot;</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">TouchFeedback</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Feedback from touch sensor&quot;&quot;&quot;</span>
     <span class="n">normal_force</span><span class="p">:</span> <span class="nb">float</span>           <span class="c1"># Normal force in N</span>
     <span class="n">normal_force_delta</span><span class="p">:</span> <span class="nb">int</span>       <span class="c1"># Change in normal force (raw units)</span>
     <span class="n">tangential_force</span><span class="p">:</span> <span class="nb">float</span>       <span class="c1"># Tangential force in N</span>
     <span class="n">tangential_force_delta</span><span class="p">:</span> <span class="nb">int</span>   <span class="c1"># Change in tangential force (raw units)</span>
     <span class="n">direction</span><span class="p">:</span> <span class="nb">int</span>                <span class="c1"># Force direction (0-359 degrees, fingertip is 0)</span>
-    <span class="n">proximity</span><span class="p">:</span> <span class="nb">int</span>               <span class="c1"># Proximity value (raw units)</span>
-    <span class="n">temperature</span><span class="p">:</span> <span class="nb">int</span>             <span class="c1"># Temperature in Celsius</span></div>
+    <span class="n">proximity</span><span class="p">:</span> <span class="nb">int</span>                <span class="c1"># Proximity value (raw units)</span>
+    <span class="n">temperature</span><span class="p">:</span> <span class="nb">int</span>              <span class="c1"># Temperature in Celsius</span></div>
 
 
 <div class="viewcode-block" id="BoardFeedback">
@@ -139,9 +156,7 @@
     <span class="n">motor2</span><span class="p">:</span> <span class="n">MotorFeedback</span>
     <span class="n">position_sensor1</span><span class="p">:</span> <span class="nb">float</span>  <span class="c1"># First position sensor reading</span>
     <span class="n">position_sensor2</span><span class="p">:</span> <span class="nb">float</span>  <span class="c1"># Second position sensor reading</span>
-    <span class="n">tactile</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">TactileFeedback</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="n">encoder1</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span>  <span class="c1"># Raw encoder 1 value (0-4095)</span>
-    <span class="n">encoder2</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span>  <span class="c1"># Raw encoder 2 value (0-4095)</span></div>
+    <span class="n">touch</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">TouchFeedback</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span></div>
 
 
 <div class="viewcode-block" id="ErrorInfo">
@@ -150,9 +165,10 @@
 <span class="k">class</span><span class="w"> </span><span class="nc">ErrorInfo</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Error information from a board&quot;&quot;&quot;</span>
     <span class="n">error_type</span><span class="p">:</span> <span class="n">BoardError</span>    <span class="c1"># Which motors have errors</span>
-    <span class="n">error_code</span><span class="p">:</span> <span class="nb">int</span>         <span class="c1"># Raw error code</span>
+    <span class="n">error_data</span><span class="p">:</span> <span class="nb">bytes</span> <span class="c1"># Error information dictionary</span>
     <span class="n">description</span><span class="p">:</span> <span class="nb">str</span>        <span class="c1"># Human-readable error description</span></div>
 
+    
 
 <div class="viewcode-block" id="ProcessedMessage">
 <a class="viewcode-back" href="../../../api/dexhand_protocol.html#pyzlg_dexhand.dexhand_protocol.messages.ProcessedMessage">[docs]</a>
@@ -162,8 +178,15 @@
     <span class="n">sender_id</span><span class="p">:</span> <span class="nb">int</span>
     <span class="n">msg_type</span><span class="p">:</span> <span class="n">MessageType</span>
     <span class="n">feedback</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">BoardFeedback</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="n">error</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">ErrorInfo</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span></div>
+    <span class="n">error_info</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">ErrorInfo</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span></div>
 
+
+<span class="nd">@dataclass</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">WriteMessage</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Message to be written to the board&quot;&quot;&quot;</span>
+    <span class="n">sender_id</span><span class="p">:</span> <span class="nb">int</span>
+    <span class="n">msg_type</span><span class="p">:</span> <span class="n">MessageType</span>
+    <span class="n">feedback</span><span class="p">:</span> <span class="nb">bool</span>
 
 <div class="viewcode-block" id="process_message">
 <a class="viewcode-back" href="../../../api/dexhand_protocol.html#pyzlg_dexhand.dexhand_protocol.messages.process_message">[docs]</a>
@@ -182,7 +205,7 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">msg_type</span> <span class="o">=</span> <span class="n">get_message_type</span><span class="p">(</span><span class="n">can_id</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">msg_type</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Invalid message ID: </span><span class="si">{</span><span class="n">can_id</span><span class="si">:</span><span class="s2">x</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Invalid message ID: </span><span class="si">{</span><span class="n">can_id</span><span class="si">:</span><span class="s2">x</span><span class="si">}</span><span class="s2"> (mask: </span><span class="si">{</span><span class="n">can_id</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="mh">0xF80</span><span class="si">:</span><span class="s2">x</span><span class="si">}</span><span class="s2">)&quot;</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="n">msg_type</span> <span class="o">==</span> <span class="n">MessageType</span><span class="o">.</span><span class="n">MOTION_FEEDBACK</span><span class="p">:</span>
         <span class="n">feedback</span> <span class="o">=</span> <span class="n">_decode_feedback</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
@@ -198,7 +221,7 @@
             <span class="k">return</span> <span class="n">ProcessedMessage</span><span class="p">(</span>
                 <span class="n">sender_id</span><span class="o">=</span><span class="n">can_id</span><span class="p">,</span>
                 <span class="n">msg_type</span><span class="o">=</span><span class="n">MessageType</span><span class="o">.</span><span class="n">ERROR_MESSAGE</span><span class="p">,</span>
-                <span class="n">error</span><span class="o">=</span><span class="n">error</span>
+                <span class="n">error_info</span><span class="o">=</span><span class="n">error</span>
             <span class="p">)</span>
         <span class="k">except</span> <span class="ne">ValueError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Failed to decode error message: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
@@ -235,43 +258,89 @@
         <span class="n">pos1</span> <span class="o">=</span> <span class="nb">int</span><span class="o">.</span><span class="n">from_bytes</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="mi">12</span><span class="p">:</span><span class="mi">14</span><span class="p">],</span> <span class="s1">&#39;little&#39;</span><span class="p">,</span> <span class="n">signed</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> <span class="o">/</span> <span class="mf">100.0</span>
         <span class="n">pos2</span> <span class="o">=</span> <span class="nb">int</span><span class="o">.</span><span class="n">from_bytes</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="mi">14</span><span class="p">:</span><span class="mi">16</span><span class="p">],</span> <span class="s1">&#39;little&#39;</span><span class="p">,</span> <span class="n">signed</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> <span class="o">/</span> <span class="mf">100.0</span>
 
-        <span class="c1"># Create motor feedback objects once</span>
+        <span class="c1"># Create basic motor feedback objects</span>
         <span class="n">motor1</span> <span class="o">=</span> <span class="n">MotorFeedback</span><span class="p">(</span><span class="n">current1</span><span class="p">,</span> <span class="n">velocity1</span><span class="p">,</span> <span class="n">position1</span><span class="p">,</span> <span class="n">pos1</span><span class="p">)</span>
         <span class="n">motor2</span> <span class="o">=</span> <span class="n">MotorFeedback</span><span class="p">(</span><span class="n">current2</span><span class="p">,</span> <span class="n">velocity2</span><span class="p">,</span> <span class="n">position2</span><span class="p">,</span> <span class="n">pos2</span><span class="p">)</span>
 
         <span class="c1"># Optional data</span>
-        <span class="n">tactile</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="n">encoder1</span> <span class="o">=</span> <span class="mi">0</span>
-        <span class="n">encoder2</span> <span class="o">=</span> <span class="mi">0</span>
-
-        <span class="c1"># Decode tactile if present</span>
-        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">42</span><span class="p">:</span>
-            <span class="n">tactile</span> <span class="o">=</span> <span class="n">TactileFeedback</span><span class="p">(</span>
-                <span class="n">normal_force</span><span class="o">=</span><span class="n">struct</span><span class="o">.</span><span class="n">unpack</span><span class="p">(</span><span class="s1">&#39;&lt;f&#39;</span><span class="p">,</span> <span class="n">data</span><span class="p">[</span><span class="mi">16</span><span class="p">:</span><span class="mi">20</span><span class="p">])[</span><span class="mi">0</span><span class="p">],</span>
-                <span class="n">normal_force_delta</span><span class="o">=</span><span class="nb">int</span><span class="o">.</span><span class="n">from_bytes</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="mi">20</span><span class="p">:</span><span class="mi">24</span><span class="p">],</span> <span class="s1">&#39;little&#39;</span><span class="p">),</span>
-                <span class="n">tangential_force</span><span class="o">=</span><span class="n">struct</span><span class="o">.</span><span class="n">unpack</span><span class="p">(</span><span class="s1">&#39;&lt;f&#39;</span><span class="p">,</span> <span class="n">data</span><span class="p">[</span><span class="mi">24</span><span class="p">:</span><span class="mi">28</span><span class="p">])[</span><span class="mi">0</span><span class="p">],</span>
-                <span class="n">tangential_force_delta</span><span class="o">=</span><span class="nb">int</span><span class="o">.</span><span class="n">from_bytes</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="mi">28</span><span class="p">:</span><span class="mi">32</span><span class="p">],</span> <span class="s1">&#39;little&#39;</span><span class="p">),</span>
-                <span class="n">direction</span><span class="o">=</span><span class="nb">int</span><span class="o">.</span><span class="n">from_bytes</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="mi">32</span><span class="p">:</span><span class="mi">34</span><span class="p">],</span> <span class="s1">&#39;little&#39;</span><span class="p">),</span>
-                <span class="n">proximity</span><span class="o">=</span><span class="nb">int</span><span class="o">.</span><span class="n">from_bytes</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="mi">34</span><span class="p">:</span><span class="mi">38</span><span class="p">],</span> <span class="s1">&#39;little&#39;</span><span class="p">),</span>
-                <span class="n">temperature</span><span class="o">=</span><span class="nb">int</span><span class="o">.</span><span class="n">from_bytes</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="mi">38</span><span class="p">:</span><span class="mi">42</span><span class="p">],</span> <span class="s1">&#39;little&#39;</span><span class="p">)</span>
+        <span class="n">touch</span> <span class="o">=</span> <span class="kc">None</span>
+        
+        <span class="c1"># Adaptively decode based on message length</span>
+        <span class="n">data_len</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+        
+        <span class="c1"># Handle different message lengths (16, 42, or 56 bytes)</span>
+        <span class="c1"># Add extended motor data (D42-D55) if available</span>
+        <span class="k">if</span> <span class="n">data_len</span> <span class="o">&gt;=</span> <span class="mi">42</span><span class="p">:</span>
+            <span class="c1"># Get encoder values (D42-D45)</span>
+            <span class="n">encoder1</span> <span class="o">=</span> <span class="nb">int</span><span class="o">.</span><span class="n">from_bytes</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="mi">42</span><span class="p">:</span><span class="mi">44</span><span class="p">],</span> <span class="s1">&#39;little&#39;</span><span class="p">)</span> <span class="k">if</span> <span class="n">data_len</span> <span class="o">&gt;=</span> <span class="mi">44</span> <span class="k">else</span> <span class="kc">None</span>
+            <span class="n">encoder2</span> <span class="o">=</span> <span class="nb">int</span><span class="o">.</span><span class="n">from_bytes</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="mi">44</span><span class="p">:</span><span class="mi">46</span><span class="p">],</span> <span class="s1">&#39;little&#39;</span><span class="p">)</span> <span class="k">if</span> <span class="n">data_len</span> <span class="o">&gt;=</span> <span class="mi">46</span> <span class="k">else</span> <span class="kc">None</span>
+            
+            <span class="c1"># Get error codes (D46-D47)</span>
+            <span class="n">motor1_error</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="mi">46</span><span class="p">]</span> <span class="k">if</span> <span class="n">data_len</span> <span class="o">&gt;=</span> <span class="mi">47</span> <span class="k">else</span> <span class="kc">None</span>
+            <span class="n">motor2_error</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="mi">47</span><span class="p">]</span> <span class="k">if</span> <span class="n">data_len</span> <span class="o">&gt;=</span> <span class="mi">48</span> <span class="k">else</span> <span class="kc">None</span>
+            
+            <span class="c1"># Get impedance values (D48-D55)</span>
+            <span class="n">motor1_impedance</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="n">motor2_impedance</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="k">if</span> <span class="n">data_len</span> <span class="o">&gt;=</span> <span class="mi">52</span><span class="p">:</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">motor1_impedance</span> <span class="o">=</span> <span class="n">struct</span><span class="o">.</span><span class="n">unpack</span><span class="p">(</span><span class="s1">&#39;&lt;f&#39;</span><span class="p">,</span> <span class="n">data</span><span class="p">[</span><span class="mi">48</span><span class="p">:</span><span class="mi">52</span><span class="p">])[</span><span class="mi">0</span><span class="p">]</span>
+                <span class="k">except</span> <span class="n">struct</span><span class="o">.</span><span class="n">error</span><span class="p">:</span>
+                    <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;Failed to decode motor1 impedance&quot;</span><span class="p">)</span>
+            
+            <span class="k">if</span> <span class="n">data_len</span> <span class="o">&gt;=</span> <span class="mi">56</span><span class="p">:</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">motor2_impedance</span> <span class="o">=</span> <span class="n">struct</span><span class="o">.</span><span class="n">unpack</span><span class="p">(</span><span class="s1">&#39;&lt;f&#39;</span><span class="p">,</span> <span class="n">data</span><span class="p">[</span><span class="mi">52</span><span class="p">:</span><span class="mi">56</span><span class="p">])[</span><span class="mi">0</span><span class="p">]</span>
+                <span class="k">except</span> <span class="n">struct</span><span class="o">.</span><span class="n">error</span><span class="p">:</span>
+                    <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;Failed to decode motor2 impedance&quot;</span><span class="p">)</span>
+            
+            <span class="c1"># Update motor objects with extended data</span>
+            <span class="n">motor1</span> <span class="o">=</span> <span class="n">MotorFeedback</span><span class="p">(</span>
+                <span class="n">current</span><span class="o">=</span><span class="n">current1</span><span class="p">,</span> 
+                <span class="n">velocity</span><span class="o">=</span><span class="n">velocity1</span><span class="p">,</span> 
+                <span class="n">position</span><span class="o">=</span><span class="n">position1</span><span class="p">,</span> 
+                <span class="n">angle</span><span class="o">=</span><span class="n">pos1</span><span class="p">,</span>
+                <span class="n">encoder_value</span><span class="o">=</span><span class="n">encoder1</span><span class="p">,</span>
+                <span class="n">error_code</span><span class="o">=</span><span class="n">motor1_error</span><span class="p">,</span>
+                <span class="n">impedance</span><span class="o">=</span><span class="n">motor1_impedance</span>
             <span class="p">)</span>
-            <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">tactile</span><span class="o">.</span><span class="n">normal_force</span><span class="p">)</span> <span class="ow">or</span> <span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">tactile</span><span class="o">.</span><span class="n">tangential_force</span><span class="p">):</span>
-                <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;Invalid tactile sensor data: normal/tangential force is NaN&quot;</span><span class="p">)</span>
+            
+            <span class="n">motor2</span> <span class="o">=</span> <span class="n">MotorFeedback</span><span class="p">(</span>
+                <span class="n">current</span><span class="o">=</span><span class="n">current2</span><span class="p">,</span> 
+                <span class="n">velocity</span><span class="o">=</span><span class="n">velocity2</span><span class="p">,</span> 
+                <span class="n">position</span><span class="o">=</span><span class="n">position2</span><span class="p">,</span> 
+                <span class="n">angle</span><span class="o">=</span><span class="n">pos2</span><span class="p">,</span>
+                <span class="n">encoder_value</span><span class="o">=</span><span class="n">encoder2</span><span class="p">,</span>
+                <span class="n">error_code</span><span class="o">=</span><span class="n">motor2_error</span><span class="p">,</span>
+                <span class="n">impedance</span><span class="o">=</span><span class="n">motor2_impedance</span>
+            <span class="p">)</span>
 
-        <span class="c1"># Decode encoders if present</span>
-        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">46</span><span class="p">:</span>
-            <span class="n">encoder1</span> <span class="o">=</span> <span class="nb">int</span><span class="o">.</span><span class="n">from_bytes</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="mi">42</span><span class="p">:</span><span class="mi">44</span><span class="p">],</span> <span class="s1">&#39;little&#39;</span><span class="p">)</span>
-            <span class="n">encoder2</span> <span class="o">=</span> <span class="nb">int</span><span class="o">.</span><span class="n">from_bytes</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="mi">44</span><span class="p">:</span><span class="mi">46</span><span class="p">],</span> <span class="s1">&#39;little&#39;</span><span class="p">)</span>
+        <span class="c1"># Decode touch sensor data if present</span>
+        <span class="c1"># Touch data starts at index 16, need at least 42 bytes for complete touch sensor data</span>
+        <span class="k">if</span> <span class="n">data_len</span> <span class="o">&gt;=</span> <span class="mi">42</span><span class="p">:</span>  <span class="c1"># Full touch sensor data available</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">touch</span> <span class="o">=</span> <span class="n">TouchFeedback</span><span class="p">(</span>
+                    <span class="n">normal_force</span><span class="o">=</span><span class="n">struct</span><span class="o">.</span><span class="n">unpack</span><span class="p">(</span><span class="s1">&#39;&lt;f&#39;</span><span class="p">,</span> <span class="n">data</span><span class="p">[</span><span class="mi">16</span><span class="p">:</span><span class="mi">20</span><span class="p">])[</span><span class="mi">0</span><span class="p">],</span>
+                    <span class="n">normal_force_delta</span><span class="o">=</span><span class="nb">int</span><span class="o">.</span><span class="n">from_bytes</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="mi">20</span><span class="p">:</span><span class="mi">24</span><span class="p">],</span> <span class="s1">&#39;little&#39;</span><span class="p">),</span>
+                    <span class="n">tangential_force</span><span class="o">=</span><span class="n">struct</span><span class="o">.</span><span class="n">unpack</span><span class="p">(</span><span class="s1">&#39;&lt;f&#39;</span><span class="p">,</span> <span class="n">data</span><span class="p">[</span><span class="mi">24</span><span class="p">:</span><span class="mi">28</span><span class="p">])[</span><span class="mi">0</span><span class="p">],</span>
+                    <span class="n">tangential_force_delta</span><span class="o">=</span><span class="nb">int</span><span class="o">.</span><span class="n">from_bytes</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="mi">28</span><span class="p">:</span><span class="mi">32</span><span class="p">],</span> <span class="s1">&#39;little&#39;</span><span class="p">),</span>
+                    <span class="n">direction</span><span class="o">=</span><span class="nb">int</span><span class="o">.</span><span class="n">from_bytes</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="mi">32</span><span class="p">:</span><span class="mi">34</span><span class="p">],</span> <span class="s1">&#39;little&#39;</span><span class="p">),</span>
+                    <span class="n">proximity</span><span class="o">=</span><span class="nb">int</span><span class="o">.</span><span class="n">from_bytes</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="mi">34</span><span class="p">:</span><span class="mi">38</span><span class="p">],</span> <span class="s1">&#39;little&#39;</span><span class="p">),</span>
+                    <span class="n">temperature</span><span class="o">=</span><span class="nb">int</span><span class="o">.</span><span class="n">from_bytes</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="mi">38</span><span class="p">:</span><span class="mi">42</span><span class="p">],</span> <span class="s1">&#39;little&#39;</span><span class="p">),</span>
+                <span class="p">)</span>
+                <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">touch</span><span class="o">.</span><span class="n">normal_force</span><span class="p">)</span> <span class="ow">or</span> <span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">touch</span><span class="o">.</span><span class="n">tangential_force</span><span class="p">):</span>
+                    <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;Invalid touch sensor data: normal/tangential force is NaN&quot;</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Failed to decode touch data: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="n">touch</span> <span class="o">=</span> <span class="kc">None</span>
 
-        <span class="c1"># Create BoardFeedback instance once with all data</span>
+        <span class="c1"># Create BoardFeedback instance with all available data</span>
         <span class="k">return</span> <span class="n">BoardFeedback</span><span class="p">(</span>
             <span class="n">motor1</span><span class="o">=</span><span class="n">motor1</span><span class="p">,</span>
             <span class="n">motor2</span><span class="o">=</span><span class="n">motor2</span><span class="p">,</span>
             <span class="n">position_sensor1</span><span class="o">=</span><span class="n">pos1</span><span class="p">,</span>
             <span class="n">position_sensor2</span><span class="o">=</span><span class="n">pos2</span><span class="p">,</span>
-            <span class="n">tactile</span><span class="o">=</span><span class="n">tactile</span><span class="p">,</span>
-            <span class="n">encoder1</span><span class="o">=</span><span class="n">encoder1</span><span class="p">,</span>
-            <span class="n">encoder2</span><span class="o">=</span><span class="n">encoder2</span>
+            <span class="n">touch</span><span class="o">=</span><span class="n">touch</span><span class="p">,</span>
         <span class="p">)</span>
 
     <span class="k">except</span> <span class="p">(</span><span class="n">struct</span><span class="o">.</span><span class="n">error</span><span class="p">,</span> <span class="ne">TypeError</span><span class="p">)</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
@@ -279,28 +348,106 @@
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_decode_error</span><span class="p">(</span><span class="n">data</span><span class="p">:</span> <span class="nb">bytes</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ErrorInfo</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Decode an error message (internal helper)&quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">3</span> <span class="ow">or</span> <span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="mh">0xEE</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Invalid error message format&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Invalid error message format: too short&quot;</span><span class="p">)</span>
+
+    <span class="c1"># Initialize default values</span>
+    <span class="n">error_type</span> <span class="o">=</span> <span class="n">BoardError</span><span class="o">.</span><span class="n">BOTH_MOTORS_ERROR</span>
+    <span class="n">error_data</span> <span class="o">=</span> <span class="sa">b</span><span class="s1">&#39;&#39;</span>
+    <span class="n">description</span> <span class="o">=</span> <span class="s2">&quot;Unknown error&quot;</span>
 
     <span class="k">try</span><span class="p">:</span>
-        <span class="n">error_type</span> <span class="o">=</span> <span class="n">BoardError</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
-        <span class="n">error_code</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
-    <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Invalid error type/code: </span><span class="si">{</span><span class="n">data</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="si">}</span><span class="s2">, </span><span class="si">{</span><span class="n">data</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-
-    <span class="c1"># Build error description</span>
-    <span class="n">descriptions</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="k">for</span> <span class="n">code</span> <span class="ow">in</span> <span class="n">ErrorCode</span><span class="p">:</span>
-        <span class="k">if</span> <span class="n">error_code</span> <span class="o">&amp;</span> <span class="n">code</span><span class="p">:</span>
-            <span class="n">descriptions</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">code</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;_&#39;</span><span class="p">,</span> <span class="s1">&#39; &#39;</span><span class="p">))</span>
-
-    <span class="n">description</span> <span class="o">=</span> <span class="s1">&#39;; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">descriptions</span><span class="p">)</span> <span class="k">if</span> <span class="n">descriptions</span> <span class="k">else</span> <span class="s2">&quot;unknown error&quot;</span>
+        <span class="c1"># Standard error message format (0xEE)</span>
+        <span class="k">if</span> <span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">ErrorMessageType</span><span class="o">.</span><span class="n">MOTOR_ERROR</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">3</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Invalid standard error message format&quot;</span><span class="p">)</span>
+                
+            <span class="n">error_type</span> <span class="o">=</span> <span class="n">BoardError</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+            <span class="n">error_data</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="mi">2</span><span class="p">:</span><span class="mi">4</span><span class="p">]</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">4</span> <span class="k">else</span> <span class="nb">bytes</span><span class="p">([</span><span class="n">data</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="mi">0</span><span class="p">])</span>
+            
+            <span class="c1"># Build error descriptions</span>
+            <span class="n">descriptions</span> <span class="o">=</span> <span class="p">[]</span>
+            
+            <span class="c1"># Check motor 1 error</span>
+            <span class="k">if</span> <span class="n">error_type</span> <span class="ow">in</span> <span class="p">[</span><span class="n">BoardError</span><span class="o">.</span><span class="n">MOTOR1_ERROR</span><span class="p">,</span> <span class="n">BoardError</span><span class="o">.</span><span class="n">BOTH_MOTORS_ERROR</span><span class="p">]</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">3</span><span class="p">:</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">motor1_code</span> <span class="o">=</span> <span class="n">ErrorCode</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
+                    <span class="n">descriptions</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Motor 1: </span><span class="si">{</span><span class="n">motor1_code</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+                    <span class="n">descriptions</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Motor 1: unknown error code 0x</span><span class="si">{</span><span class="n">data</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="si">:</span><span class="s2">02x</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            
+            <span class="c1"># Check motor 2 error</span>
+            <span class="k">if</span> <span class="n">error_type</span> <span class="ow">in</span> <span class="p">[</span><span class="n">BoardError</span><span class="o">.</span><span class="n">MOTOR2_ERROR</span><span class="p">,</span> <span class="n">BoardError</span><span class="o">.</span><span class="n">BOTH_MOTORS_ERROR</span><span class="p">]</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">4</span><span class="p">:</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">motor2_code</span> <span class="o">=</span> <span class="n">ErrorCode</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="mi">3</span><span class="p">])</span>
+                    <span class="n">descriptions</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Motor 2: </span><span class="si">{</span><span class="n">motor2_code</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+                    <span class="n">descriptions</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Motor 2: unknown error code 0x</span><span class="si">{</span><span class="n">data</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span><span class="si">:</span><span class="s2">02x</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            
+            <span class="n">description</span> <span class="o">=</span> <span class="s2">&quot;; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">descriptions</span><span class="p">)</span> <span class="k">if</span> <span class="n">descriptions</span> <span class="k">else</span> <span class="s2">&quot;Unknown motor error&quot;</span>
+            
+        <span class="c1"># Warning message format (0xEF)</span>
+        <span class="k">elif</span> <span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">ErrorMessageType</span><span class="o">.</span><span class="n">WARNING</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">3</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Invalid warning message format&quot;</span><span class="p">)</span>
+                
+            <span class="n">error_type</span> <span class="o">=</span> <span class="n">BoardError</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+            <span class="n">error_data</span> <span class="o">=</span> <span class="nb">bytes</span><span class="p">([</span><span class="n">data</span><span class="p">[</span><span class="mi">2</span><span class="p">]])</span>
+            
+            <span class="k">if</span> <span class="n">data</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">==</span> <span class="mh">0x01</span><span class="p">:</span>
+                <span class="n">description</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;Warning: Motor temperature high&quot;</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">description</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;Warning: Unknown code 0x</span><span class="si">{</span><span class="n">data</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="si">:</span><span class="s2">02x</span><span class="si">}</span><span class="s2">&quot;</span>
+            
+        <span class="c1"># Overheat error format (0xFF sequence)</span>
+        <span class="k">elif</span> <span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">ErrorMessageType</span><span class="o">.</span><span class="n">OVERHEATING</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">6</span> <span class="ow">and</span> <span class="nb">all</span><span class="p">(</span><span class="n">b</span> <span class="o">==</span> <span class="mh">0xFF</span> <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">6</span><span class="p">]):</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Warning: Overheating detected. Please power off the device and let it rest.&quot;</span><span class="p">)</span>
+            <span class="n">error_type</span> <span class="o">=</span> <span class="n">BoardError</span><span class="o">.</span><span class="n">BOTH_MOTORS_ERROR</span>
+            <span class="n">error_data</span> <span class="o">=</span> <span class="sa">b</span><span class="s1">&#39;</span><span class="se">\xFF\xFF</span><span class="s1">&#39;</span>
+            <span class="n">description</span> <span class="o">=</span> <span class="s2">&quot;Critical error: System overheated&quot;</span>
+            
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">error_data</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span> <span class="k">else</span> <span class="sa">b</span><span class="s1">&#39;&#39;</span>
+            <span class="n">description</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;Unknown error message type: 0x</span><span class="si">{</span><span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">:</span><span class="s2">02x</span><span class="si">}</span><span class="s2">&quot;</span>
+            
+    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="c1"># Fallback for any errors in parsing</span>
+        <span class="n">error_data</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span> <span class="k">else</span> <span class="sa">b</span><span class="s1">&#39;&#39;</span>
+        <span class="n">description</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;Error parsing message: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span>
 
     <span class="k">return</span> <span class="n">ErrorInfo</span><span class="p">(</span>
         <span class="n">error_type</span><span class="o">=</span><span class="n">error_type</span><span class="p">,</span>
-        <span class="n">error_code</span><span class="o">=</span><span class="n">error_code</span><span class="p">,</span>
+        <span class="n">error_data</span><span class="o">=</span><span class="n">error_data</span><span class="p">,</span>
         <span class="n">description</span><span class="o">=</span><span class="n">description</span><span class="p">,</span>
     <span class="p">)</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">decode_write</span><span class="p">(</span><span class="n">can_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="nb">bytes</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">WriteMessage</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Decode a write command response</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        can_id: CAN ID of the response</span>
+<span class="sd">        data: Raw response bytes</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        Tuple of boolean indicating success and command type (if applicable)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">sender_id</span> <span class="o">=</span> <span class="n">can_id</span> <span class="o">-</span> <span class="mh">0x80</span>
+    <span class="k">if</span> <span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="n">MessageType</span><span class="o">.</span><span class="n">COMMAND_WRITE</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Invalid write command response: </span><span class="si">{data[0]}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">MessageType</span><span class="o">.</span><span class="n">COMMAND_WRITE</span> <span class="ow">and</span> <span class="n">data</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span> <span class="o">==</span> <span class="mh">0x01</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">WriteMessage</span><span class="p">(</span>
+            <span class="n">sender_id</span><span class="o">=</span><span class="n">sender_id</span><span class="p">,</span>
+            <span class="n">msg_type</span><span class="o">=</span><span class="n">MessageType</span><span class="o">.</span><span class="n">COMMAND_WRITE</span><span class="p">,</span>
+            <span class="n">feedback</span><span class="o">=</span><span class="kc">True</span>  <span class="c1"># Success response for write commands</span>
+        <span class="p">)</span>
+    <span class="k">elif</span> <span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">MessageType</span><span class="o">.</span><span class="n">COMMAND_WRITE</span> <span class="ow">and</span> <span class="n">data</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span> <span class="o">==</span> <span class="mh">0x00</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">WriteMessage</span><span class="p">(</span>
+            <span class="n">sender_id</span><span class="o">=</span><span class="n">sender_id</span><span class="p">,</span>
+            <span class="n">msg_type</span><span class="o">=</span><span class="n">MessageType</span><span class="o">.</span><span class="n">COMMAND_WRITE</span><span class="p">,</span>
+            <span class="n">feedback</span><span class="o">=</span><span class="kc">False</span>  <span class="c1"># Failure response for write commands</span>
+        <span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Invalid write type/code: </span><span class="si">{</span><span class="n">data</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
 <span class="k">def</span><span class="w"> </span><span class="nf">verify_config_response</span><span class="p">(</span><span class="n">msg_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="nb">bytes</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">bool</span><span class="p">,</span> <span class="n">Optional</span><span class="p">[</span><span class="n">CommandType</span><span class="p">]]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Verify a command response</span>

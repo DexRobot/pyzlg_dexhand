@@ -1,0 +1,217 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Joint Control Options &mdash; pyzlg_dexhand 0.1.3 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=360bc84d"></script>
+      <script src="_static/doctools.js?v=9bcbadda"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            pyzlg_dexhand
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quickstart Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="control_modes.html">Control Modes and Advanced Options</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ros_integration.html">ROS Integration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/index.html">API Reference</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">pyzlg_dexhand</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Joint Control Options</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/command_options.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="joint-control-options">
+<h1>Joint Control Options<a class="headerlink" href="#joint-control-options" title="Link to this heading"></a></h1>
+<p>The DexHand interface provides flexible ways to control the robotic hand, with options to optimize for different use cases.</p>
+<section id="move-joints-function">
+<h2>move_joints Function<a class="headerlink" href="#move-joints-function" title="Link to this heading"></a></h2>
+<p>The primary interface for controlling the DexHand is the <code class="docutils literal notranslate"><span class="pre">move_joints()</span></code> function, which allows you to control specific joints with precise parameters:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Standard joint control</span>
+<span class="n">hand</span><span class="o">.</span><span class="n">move_joints</span><span class="p">(</span>
+    <span class="n">th_rot</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span>     <span class="c1"># Thumb rotation</span>
+    <span class="n">th_mcp</span><span class="o">=</span><span class="mi">45</span><span class="p">,</span>     <span class="c1"># Thumb MCP flexion</span>
+    <span class="n">ff_mcp</span><span class="o">=</span><span class="mi">60</span><span class="p">,</span>     <span class="c1"># Index finger MCP</span>
+    <span class="n">control_mode</span><span class="o">=</span><span class="n">ControlMode</span><span class="o">.</span><span class="n">IMPEDANCE_GRASP</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="jointcommand-parameters">
+<h2>JointCommand Parameters<a class="headerlink" href="#jointcommand-parameters" title="Link to this heading"></a></h2>
+<p>The <code class="docutils literal notranslate"><span class="pre">move_joints()</span></code> function now supports the <code class="docutils literal notranslate"><span class="pre">JointCommand</span></code> type, which gives you more granular control over position, current, and velocity for each joint:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pyzlg_dexhand</span><span class="w"> </span><span class="kn">import</span> <span class="n">JointCommand</span>
+
+<span class="c1"># Move a single joint with position only</span>
+<span class="n">hand</span><span class="o">.</span><span class="n">move_joints</span><span class="p">(</span><span class="n">th_rot</span><span class="o">=</span><span class="mi">45</span><span class="p">)</span>
+
+<span class="c1"># Move a joint with full control (position, current, velocity)</span>
+<span class="n">hand</span><span class="o">.</span><span class="n">move_joints</span><span class="p">(</span>
+    <span class="n">th_rot</span><span class="o">=</span><span class="n">JointCommand</span><span class="p">(</span><span class="n">position</span><span class="o">=</span><span class="mi">45</span><span class="p">,</span> <span class="n">current</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span> <span class="n">velocity</span><span class="o">=</span><span class="mi">10000</span><span class="p">)</span>
+<span class="p">)</span>
+
+<span class="c1"># Mix and match parameter styles for different joints</span>
+<span class="n">hand</span><span class="o">.</span><span class="n">move_joints</span><span class="p">(</span>
+    <span class="n">th_rot</span><span class="o">=</span><span class="mi">45</span><span class="p">,</span>  <span class="c1"># Position only (using defaults for current and velocity)</span>
+    <span class="n">ff_mcp</span><span class="o">=</span><span class="n">JointCommand</span><span class="p">(</span><span class="n">position</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span> <span class="n">current</span><span class="o">=</span><span class="mi">50</span><span class="p">),</span>  <span class="c1"># Position and current</span>
+    <span class="n">mf_dip</span><span class="o">=</span><span class="n">JointCommand</span><span class="p">(</span><span class="n">position</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">velocity</span><span class="o">=</span><span class="mi">5000</span><span class="p">)</span>  <span class="c1"># Position and velocity</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p>This approach is more flexible than the older style of using <code class="docutils literal notranslate"><span class="pre">speeds</span></code> and <code class="docutils literal notranslate"><span class="pre">currents</span></code> parameters, which are still supported for backward compatibility.</p>
+<section id="control-mode-selection">
+<h3>Control Mode Selection<a class="headerlink" href="#control-mode-selection" title="Link to this heading"></a></h3>
+<p>Control the behavior of the motors using different control strategies:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Using specific control mode</span>
+<span class="n">hand</span><span class="o">.</span><span class="n">move_joints</span><span class="p">(</span>
+    <span class="n">th_mcp</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span>
+    <span class="n">ff_mcp</span><span class="o">=</span><span class="mi">45</span><span class="p">,</span>
+    <span class="n">control_mode</span><span class="o">=</span><span class="n">ControlMode</span><span class="o">.</span><span class="n">MIT_TORQUE</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="broadcast-mode-default">
+<h2>Broadcast Mode (Default)<a class="headerlink" href="#broadcast-mode-default" title="Link to this heading"></a></h2>
+<p>The <code class="docutils literal notranslate"><span class="pre">move_joints()</span></code> function uses an efficient broadcast mode by default that optimizes communication with the hand:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Broadcast mode is used by default (more efficient)</span>
+<span class="n">hand</span><span class="o">.</span><span class="n">move_joints</span><span class="p">(</span>
+    <span class="n">th_mcp</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span>
+    <span class="n">ff_mcp</span><span class="o">=</span><span class="mi">45</span>
+<span class="p">)</span>
+
+<span class="c1"># Explicitly disable broadcast mode if needed</span>
+<span class="n">hand</span><span class="o">.</span><span class="n">move_joints</span><span class="p">(</span>
+    <span class="n">th_mcp</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span>
+    <span class="n">ff_mcp</span><span class="o">=</span><span class="mi">45</span><span class="p">,</span>
+    <span class="n">use_broadcast</span><span class="o">=</span><span class="kc">False</span>  <span class="c1"># Use per-board commands instead</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p><strong>Benefits of broadcast mode:</strong></p>
+<ul class="simple">
+<li><p>More efficient: Sends a single message instead of multiple per-board commands</p></li>
+<li><p>Lower latency: All motors receive commands simultaneously</p></li>
+<li><p>Recommended for applications requiring high update rates</p></li>
+<li><p>Better synchronization of multi-joint movements</p></li>
+</ul>
+<p><strong>When to use per-board commands (disable broadcast):</strong></p>
+<ul class="simple">
+<li><p>When you need to control specific boards individually</p></li>
+<li><p>In rare cases where broadcast causes timing issues</p></li>
+<li><p>When debugging specific boards or motors</p></li>
+<li><p>When very fine-grained control timing is required</p></li>
+</ul>
+<p><strong>Implementation note:</strong></p>
+<p>With broadcast mode (default), the system uses a more efficient communication protocol internally that sends one command affecting all motors, rather than individual commands to each board.</p>
+</section>
+<section id="additional-options">
+<h2>Additional Options<a class="headerlink" href="#additional-options" title="Link to this heading"></a></h2>
+<p>The <code class="docutils literal notranslate"><span class="pre">move_joints()</span></code> function supports several additional parameters:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">hand</span><span class="o">.</span><span class="n">move_joints</span><span class="p">(</span>
+    <span class="n">th_rot</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span>
+    <span class="n">th_mcp</span><span class="o">=</span><span class="mi">45</span><span class="p">,</span>
+    <span class="n">control_mode</span><span class="o">=</span><span class="n">ControlMode</span><span class="o">.</span><span class="n">IMPEDANCE_GRASP</span><span class="p">,</span>
+    <span class="n">use_broadcast</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>          <span class="c1"># More efficient communication (default)</span>
+    <span class="n">clear_error</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>            <span class="c1"># Clear any errors during command (broadcast only)</span>
+    <span class="n">request_feedback</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>       <span class="c1"># Request feedback after command (broadcast only)</span>
+    <span class="n">log_level</span><span class="o">=</span><span class="n">LogLevel</span><span class="o">.</span><span class="n">INFO</span>      <span class="c1"># Logging level for this operation</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="error-handling">
+<h2>Error Handling<a class="headerlink" href="#error-handling" title="Link to this heading"></a></h2>
+<p>The <code class="docutils literal notranslate"><span class="pre">clear_errors()</span></code> function accepts a <code class="docutils literal notranslate"><span class="pre">use_broadcast</span></code> parameter that also enables more efficient communication:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Efficiently clear all errors with a single command</span>
+<span class="n">hand</span><span class="o">.</span><span class="n">clear_errors</span><span class="p">(</span><span class="n">use_broadcast</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>  <span class="c1"># Recommended</span>
+
+<span class="c1"># Or clear specific error states</span>
+<span class="n">hand</span><span class="o">.</span><span class="n">clear_errors</span><span class="p">(</span><span class="n">clear_all</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">use_broadcast</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Using this optimized approach is recommended in most cases for better performance.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, DexRobot.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

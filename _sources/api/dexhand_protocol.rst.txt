@@ -85,7 +85,7 @@ Feedback Classes
     :members:
     :undoc-members:
 
-.. autoclass:: pyzlg_dexhand.dexhand_protocol.messages.TactileFeedback
+.. autoclass:: pyzlg_dexhand.dexhand_protocol.messages.TouchFeedback
     :members:
     :undoc-members:
 

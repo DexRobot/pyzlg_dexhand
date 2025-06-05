@@ -5,14 +5,14 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>pyzlg_dexhand.dexhand_protocol.commands &mdash; pyzlg_dexhand 0.1.0 documentation</title>
+  <title>pyzlg_dexhand.dexhand_protocol.commands &mdash; pyzlg_dexhand 0.1.3 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
 
   
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=01f34227"></script>
+      <script src="../../../_static/documentation_options.js?v=360bc84d"></script>
       <script src="../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../_static/js/theme.js"></script>
@@ -42,6 +42,8 @@
               <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../quickstart.html">Quickstart Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../control_modes.html">Control Modes and Advanced Options</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../ros_integration.html">ROS Integration</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../api/index.html">API Reference</a></li>
 </ul>
 
@@ -75,7 +77,7 @@
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">enum</span><span class="w"> </span><span class="kn">import</span> <span class="n">IntEnum</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataclass</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Union</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Union</span><span class="p">,</span> <span class="n">List</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">.</span><span class="w"> </span><span class="kn">import</span> <span class="n">MessageType</span>
 
 <div class="viewcode-block" id="CommandType">
@@ -96,7 +98,9 @@
     <span class="n">SPEED</span> <span class="o">=</span> <span class="mh">0x22</span>
     <span class="n">HALL_POSITION</span> <span class="o">=</span> <span class="mh">0x33</span>
     <span class="n">CASCADED_PID</span> <span class="o">=</span> <span class="mh">0x44</span>
-    <span class="n">PROTECT_HALL_POSITION</span> <span class="o">=</span> <span class="mh">0x55</span></div>
+    <span class="n">PROTECT_HALL_POSITION</span> <span class="o">=</span> <span class="mh">0x55</span>
+    <span class="n">MIT_TORQUE</span> <span class="o">=</span> <span class="mh">0x66</span>
+    <span class="n">IMPEDANCE_GRASP</span> <span class="o">=</span> <span class="mh">0x77</span></div>
 
 
 <div class="viewcode-block" id="FeedbackMode">
@@ -108,15 +112,33 @@
     <span class="n">ON_CHANGE</span> <span class="o">=</span> <span class="mh">0x03</span>  <span class="c1"># Send feedback when values change</span></div>
 
 
+<span class="k">class</span><span class="w"> </span><span class="nc">GlobalFunctionCode</span><span class="p">(</span><span class="n">IntEnum</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Global function codes for broadcast commands&quot;&quot;&quot;</span>
+    <span class="c1"># Global function codes</span>
+    <span class="n">CAN_CANFD_SWITCH</span> <span class="o">=</span> <span class="mh">0x70</span>        <span class="c1"># CAN/CANFD switch(CAN：0x00 CANFD：0x01)</span>
+    <span class="n">FACTORY_RESET</span> <span class="o">=</span> <span class="mh">0x71</span>           <span class="c1"># reset to factory settings</span>
+    <span class="n">SENSOR_POWER</span> <span class="o">=</span> <span class="mh">0x72</span>            <span class="c1"># on/off sensor power</span>
+    <span class="n">LOW_POWER_MODE</span> <span class="o">=</span> <span class="mh">0x73</span>          <span class="c1"># low power mode</span>
+    <span class="n">SENSOR_RESPONSE_MODE</span> <span class="o">=</span> <span class="mh">0x74</span>    <span class="c1"># sensor response mode</span>
+    <span class="n">REBOOT</span> <span class="o">=</span> <span class="mh">0x75</span>                  <span class="c1"># reboot</span>
+    <span class="n">IAP_UPGRADE</span> <span class="o">=</span> <span class="mh">0x76</span>             <span class="c1"># IAP upgrade</span>
+    <span class="n">PID_RESET</span> <span class="o">=</span> <span class="mh">0xA2</span>               <span class="c1"># PID reset</span>
+    <span class="n">CLEAR_ERROR</span> <span class="o">=</span> <span class="mh">0xA4</span>             <span class="c1"># clear error</span>
+    <span class="n">PRESSURE_LIMIT_ENABLE</span> <span class="o">=</span> <span class="mh">0xA6</span>   <span class="c1"># pressure limit enable</span>
+
 <div class="viewcode-block" id="MotorCommand">
 <a class="viewcode-back" href="../../../api/dexhand_protocol.html#pyzlg_dexhand.dexhand_interface.MotorCommand">[docs]</a>
 <span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">MotorCommand</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Command for a pair of motors&quot;&quot;&quot;</span>
-    <span class="n">control_mode</span><span class="p">:</span> <span class="n">ControlMode</span>  <span class="c1"># Control mode (e.g., CASCADED_PID)</span>
+    <span class="n">control_mode</span><span class="p">:</span> <span class="n">ControlMode</span>  <span class="c1"># Control mode (e.g., IMPEDANCE_GRASP)</span>
     <span class="n">motor_enable</span><span class="p">:</span> <span class="nb">int</span>         <span class="c1"># Motor enable flags (0x01, 0x02, 0x03)</span>
     <span class="n">motor1_pos</span><span class="p">:</span> <span class="nb">int</span>          <span class="c1"># Position command for motor 1 (-32768 to 32767)</span>
-    <span class="n">motor2_pos</span><span class="p">:</span> <span class="nb">int</span>          <span class="c1"># Position command for motor 2 (-32768 to 32767)</span></div>
+    <span class="n">motor2_pos</span><span class="p">:</span> <span class="nb">int</span>          <span class="c1"># Position command for motor 2 (-32768 to 32767)</span>
+    <span class="n">motor1_speed</span><span class="p">:</span> <span class="nb">int</span>  <span class="c1"># Speed command for motor 1 (0-32767)</span>
+    <span class="n">motor2_speed</span><span class="p">:</span> <span class="nb">int</span>  <span class="c1"># Speed command for motor 2 (0-32767)</span>
+    <span class="n">motor1_current</span><span class="p">:</span> <span class="nb">int</span>  <span class="c1"># Current command for motor 1 (10-599mA)</span>
+    <span class="n">motor2_current</span><span class="p">:</span> <span class="nb">int</span>  <span class="c1"># Current command for motor 2 (10-599mA)</span></div>
 
 
 <div class="viewcode-block" id="ClearErrorCommand">
@@ -137,7 +159,26 @@
     <span class="n">enable</span><span class="p">:</span> <span class="nb">bool</span>          <span class="c1"># Enable flag</span></div>
 
 
-<span class="n">Command</span> <span class="o">=</span> <span class="n">Union</span><span class="p">[</span><span class="n">MotorCommand</span><span class="p">,</span> <span class="n">ClearErrorCommand</span><span class="p">,</span> <span class="n">FeedbackConfigCommand</span><span class="p">]</span>
+<span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">BroadcastCommand</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Command for broadcasting to all motors at once&quot;&quot;&quot;</span>
+    <span class="n">control_mode</span><span class="p">:</span> <span class="n">ControlMode</span>               <span class="c1"># Control mode</span>
+    <span class="n">enable_motors</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span>               <span class="c1"># 12 boolean flags for motor enable</span>
+    <span class="n">clear_error</span><span class="p">:</span> <span class="nb">bool</span>                       <span class="c1"># Flag to clear errors</span>
+    <span class="n">request_feedback</span><span class="p">:</span> <span class="nb">bool</span>                  <span class="c1"># Flag to request feedback</span>
+    <span class="n">is_right_hand</span><span class="p">:</span> <span class="nb">bool</span>                     <span class="c1"># Whether this is for right hand</span>
+    <span class="n">positions</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span>                    <span class="c1"># 12 positions for each motor</span>
+    <span class="n">speeds</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span>                       <span class="c1"># 12 speeds for each motor</span>
+    <span class="n">currents</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span>                     <span class="c1"># 12 currents for each motor</span>
+
+<span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">GlobalCommand</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Command for global broadcast operations&quot;&quot;&quot;</span>
+    <span class="n">function_code</span><span class="p">:</span> <span class="n">GlobalFunctionCode</span>  <span class="c1"># global function code</span>
+    <span class="n">data</span><span class="p">:</span> <span class="nb">bytes</span>                <span class="c1"># additional data (if any)</span>
+
+
+<span class="n">Command</span> <span class="o">=</span> <span class="n">Union</span><span class="p">[</span><span class="n">MotorCommand</span><span class="p">,</span> <span class="n">ClearErrorCommand</span><span class="p">,</span> <span class="n">FeedbackConfigCommand</span><span class="p">,</span> <span class="n">BroadcastCommand</span><span class="p">,</span> <span class="n">GlobalCommand</span><span class="p">]</span>
 
 <div class="viewcode-block" id="encode_command">
 <a class="viewcode-back" href="../../../api/dexhand_protocol.html#pyzlg_dexhand.dexhand_interface.encode_command">[docs]</a>
@@ -159,6 +200,8 @@
         <span class="k">return</span> <span class="p">(</span><span class="n">MessageType</span><span class="o">.</span><span class="n">CONFIG_COMMAND</span><span class="p">,</span> <span class="nb">bytes</span><span class="p">([</span><span class="mh">0x03</span><span class="p">,</span> <span class="n">CommandType</span><span class="o">.</span><span class="n">CLEAR_ERROR</span><span class="p">]))</span>
     <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">command</span><span class="p">,</span> <span class="n">FeedbackConfigCommand</span><span class="p">):</span>
         <span class="k">return</span> <span class="p">(</span><span class="n">MessageType</span><span class="o">.</span><span class="n">CONFIG_COMMAND</span><span class="p">,</span> <span class="n">_encode_feedback_config</span><span class="p">(</span><span class="n">command</span><span class="p">))</span>
+    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">command</span><span class="p">,</span> <span class="n">GlobalCommand</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">(</span><span class="n">MessageType</span><span class="o">.</span><span class="n">GLOBAL_COMMAND</span><span class="p">,</span> <span class="n">encode_global_command</span><span class="p">(</span><span class="n">command</span><span class="p">))</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unknown command type: </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">command</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
 
@@ -174,6 +217,18 @@
 
     <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="o">-</span><span class="mi">32768</span> <span class="o">&lt;=</span> <span class="n">command</span><span class="o">.</span><span class="n">motor2_pos</span> <span class="o">&lt;=</span> <span class="mi">32767</span><span class="p">):</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Motor 2 position out of range: </span><span class="si">{</span><span class="n">command</span><span class="o">.</span><span class="n">motor2_pos</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    
+    <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="mi">0</span> <span class="o">&lt;=</span> <span class="n">command</span><span class="o">.</span><span class="n">motor1_speed</span> <span class="o">&lt;=</span> <span class="mi">32767</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Motor 1 speed out of range: </span><span class="si">{</span><span class="n">command</span><span class="o">.</span><span class="n">motor1_speed</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    
+    <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="mi">0</span> <span class="o">&lt;=</span> <span class="n">command</span><span class="o">.</span><span class="n">motor2_speed</span> <span class="o">&lt;=</span> <span class="mi">32767</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Motor 2 speed out of range: </span><span class="si">{</span><span class="n">command</span><span class="o">.</span><span class="n">motor2_speed</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    
+    <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="mi">10</span> <span class="o">&lt;=</span> <span class="n">command</span><span class="o">.</span><span class="n">motor1_current</span> <span class="o">&lt;=</span> <span class="mi">599</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Motor 1 current out of range: </span><span class="si">{</span><span class="n">command</span><span class="o">.</span><span class="n">motor1_current</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    
+    <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="mi">10</span> <span class="o">&lt;=</span> <span class="n">command</span><span class="o">.</span><span class="n">motor2_current</span> <span class="o">&lt;=</span> <span class="mi">599</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Motor 2 current out of range: </span><span class="si">{</span><span class="n">command</span><span class="o">.</span><span class="n">motor2_current</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
     <span class="k">return</span> <span class="nb">bytes</span><span class="p">([</span>
         <span class="n">command</span><span class="o">.</span><span class="n">control_mode</span> <span class="o">&amp;</span> <span class="mh">0xFF</span><span class="p">,</span>
@@ -181,7 +236,13 @@
         <span class="n">command</span><span class="o">.</span><span class="n">motor1_pos</span> <span class="o">&amp;</span> <span class="mh">0xFF</span><span class="p">,</span>
         <span class="p">(</span><span class="n">command</span><span class="o">.</span><span class="n">motor1_pos</span> <span class="o">&gt;&gt;</span> <span class="mi">8</span><span class="p">)</span> <span class="o">&amp;</span> <span class="mh">0xFF</span><span class="p">,</span>
         <span class="n">command</span><span class="o">.</span><span class="n">motor2_pos</span> <span class="o">&amp;</span> <span class="mh">0xFF</span><span class="p">,</span>
-        <span class="p">(</span><span class="n">command</span><span class="o">.</span><span class="n">motor2_pos</span> <span class="o">&gt;&gt;</span> <span class="mi">8</span><span class="p">)</span> <span class="o">&amp;</span> <span class="mh">0xFF</span>
+        <span class="p">(</span><span class="n">command</span><span class="o">.</span><span class="n">motor2_pos</span> <span class="o">&gt;&gt;</span> <span class="mi">8</span><span class="p">)</span> <span class="o">&amp;</span> <span class="mh">0xFF</span><span class="p">,</span>
+        <span class="n">command</span><span class="o">.</span><span class="n">motor1_speed</span> <span class="o">&amp;</span> <span class="mh">0xFF</span><span class="p">,</span>
+        <span class="p">(</span><span class="n">command</span><span class="o">.</span><span class="n">motor1_speed</span> <span class="o">&gt;&gt;</span> <span class="mi">8</span><span class="p">)</span> <span class="o">&amp;</span> <span class="mh">0xFF</span><span class="p">,</span>
+        <span class="n">command</span><span class="o">.</span><span class="n">motor2_speed</span> <span class="o">&amp;</span> <span class="mh">0xFF</span><span class="p">,</span>
+        <span class="p">(</span><span class="n">command</span><span class="o">.</span><span class="n">motor2_speed</span> <span class="o">&gt;&gt;</span> <span class="mi">8</span><span class="p">)</span> <span class="o">&amp;</span> <span class="mh">0xFF</span><span class="p">,</span>
+        <span class="n">command</span><span class="o">.</span><span class="n">motor1_current</span> <span class="o">&amp;</span> <span class="mh">0xFF</span><span class="p">,</span>
+        <span class="n">command</span><span class="o">.</span><span class="n">motor2_current</span> <span class="o">&amp;</span> <span class="mh">0xFF</span><span class="p">,</span>
     <span class="p">])</span>
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_encode_feedback_config</span><span class="p">(</span><span class="n">command</span><span class="p">:</span> <span class="n">FeedbackConfigCommand</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bytes</span><span class="p">:</span>
@@ -199,6 +260,135 @@
         <span class="n">period_units</span><span class="p">,</span>
         <span class="mh">0x01</span> <span class="k">if</span> <span class="n">command</span><span class="o">.</span><span class="n">enable</span> <span class="k">else</span> <span class="mh">0x00</span>
     <span class="p">])</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">encode_broadcast_command</span><span class="p">(</span><span class="n">command</span><span class="p">:</span> <span class="n">BroadcastCommand</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bytes</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Encode a broadcast command for transmission with CAN ID 0x100</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        command: BroadcastCommand to encode</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        Encoded bytes ready for transmission</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">        ValueError: If command parameters are invalid</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Validate positions, speeds, currents</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">command</span><span class="o">.</span><span class="n">enable_motors</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">12</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Invalid enable_motors length, must be 12&quot;</span><span class="p">)</span>
+        
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">command</span><span class="o">.</span><span class="n">positions</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">12</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Invalid positions length, must be 12&quot;</span><span class="p">)</span>
+        
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">command</span><span class="o">.</span><span class="n">speeds</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">12</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Invalid speeds length, must be 12&quot;</span><span class="p">)</span>
+        
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">command</span><span class="o">.</span><span class="n">currents</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">12</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Invalid currents length, must be 12&quot;</span><span class="p">)</span>
+    
+    <span class="c1"># Validate position ranges</span>
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">pos</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">command</span><span class="o">.</span><span class="n">positions</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="o">-</span><span class="mi">32768</span> <span class="o">&lt;=</span> <span class="n">pos</span> <span class="o">&lt;=</span> <span class="mi">32767</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Position </span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2"> out of range: </span><span class="si">{</span><span class="n">pos</span><span class="si">}</span><span class="s2">, must be -32768 to 32767&quot;</span><span class="p">)</span>
+            
+    <span class="c1"># Validate speed ranges</span>
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">speed</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">command</span><span class="o">.</span><span class="n">speeds</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="mi">0</span> <span class="o">&lt;=</span> <span class="n">speed</span> <span class="o">&lt;=</span> <span class="mi">32767</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Speed </span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2"> out of range: </span><span class="si">{</span><span class="n">speed</span><span class="si">}</span><span class="s2">, must be 0 to 32767&quot;</span><span class="p">)</span>
+            
+    <span class="c1"># Validate current ranges</span>
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">current</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">command</span><span class="o">.</span><span class="n">currents</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="mi">10</span> <span class="o">&lt;=</span> <span class="n">current</span> <span class="o">&lt;=</span> <span class="mi">599</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Current </span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2"> out of range: </span><span class="si">{</span><span class="n">current</span><span class="si">}</span><span class="s2">, must be 10 to 599 mA&quot;</span><span class="p">)</span>
+    
+    <span class="c1"># Build control field</span>
+    <span class="n">byte0</span> <span class="o">=</span> <span class="n">command</span><span class="o">.</span><span class="n">control_mode</span><span class="o">.</span><span class="n">value</span>  <span class="c1"># Use the enum value</span>
+    
+    <span class="c1"># Build enable bits (Byte 1-2)</span>
+    <span class="n">byte1</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">byte2</span> <span class="o">=</span> <span class="mi">0</span>
+    
+    <span class="c1"># Byte 1 (MSB to LSB): th_dip, th_mcp, th_rot, ff_spr, ff_dip, ff_mcp, mf_dip, mf_mcp</span>
+    <span class="n">byte1</span> <span class="o">|=</span> <span class="p">(</span><span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="mi">7</span><span class="p">)</span> <span class="k">if</span> <span class="n">command</span><span class="o">.</span><span class="n">enable_motors</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">else</span> <span class="mi">0</span>  <span class="c1"># th_dip</span>
+    <span class="n">byte1</span> <span class="o">|=</span> <span class="p">(</span><span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="mi">6</span><span class="p">)</span> <span class="k">if</span> <span class="n">command</span><span class="o">.</span><span class="n">enable_motors</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="k">else</span> <span class="mi">0</span>  <span class="c1"># th_mcp</span>
+    <span class="n">byte1</span> <span class="o">|=</span> <span class="p">(</span><span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="mi">5</span><span class="p">)</span> <span class="k">if</span> <span class="n">command</span><span class="o">.</span><span class="n">enable_motors</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="k">else</span> <span class="mi">0</span>  <span class="c1"># th_rot</span>
+    <span class="n">byte1</span> <span class="o">|=</span> <span class="p">(</span><span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="mi">4</span><span class="p">)</span> <span class="k">if</span> <span class="n">command</span><span class="o">.</span><span class="n">enable_motors</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="k">else</span> <span class="mi">0</span>  <span class="c1"># ff_spr</span>
+    <span class="n">byte1</span> <span class="o">|=</span> <span class="p">(</span><span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="mi">3</span><span class="p">)</span> <span class="k">if</span> <span class="n">command</span><span class="o">.</span><span class="n">enable_motors</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span> <span class="k">else</span> <span class="mi">0</span>  <span class="c1"># ff_dip</span>
+    <span class="n">byte1</span> <span class="o">|=</span> <span class="p">(</span><span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="mi">2</span><span class="p">)</span> <span class="k">if</span> <span class="n">command</span><span class="o">.</span><span class="n">enable_motors</span><span class="p">[</span><span class="mi">5</span><span class="p">]</span> <span class="k">else</span> <span class="mi">0</span>  <span class="c1"># ff_mcp</span>
+    <span class="n">byte1</span> <span class="o">|=</span> <span class="p">(</span><span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="mi">1</span><span class="p">)</span> <span class="k">if</span> <span class="n">command</span><span class="o">.</span><span class="n">enable_motors</span><span class="p">[</span><span class="mi">6</span><span class="p">]</span> <span class="k">else</span> <span class="mi">0</span>  <span class="c1"># mf_dip</span>
+    <span class="n">byte1</span> <span class="o">|=</span> <span class="p">(</span><span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="mi">0</span><span class="p">)</span> <span class="k">if</span> <span class="n">command</span><span class="o">.</span><span class="n">enable_motors</span><span class="p">[</span><span class="mi">7</span><span class="p">]</span> <span class="k">else</span> <span class="mi">0</span>  <span class="c1"># mf_mcp</span>
+    
+    <span class="c1"># Byte 2 (MSB to LSB): rf_dip, rf_mcp, lf_dip, lf_mcp, unused...</span>
+    <span class="n">byte2</span> <span class="o">|=</span> <span class="p">(</span><span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="mi">7</span><span class="p">)</span> <span class="k">if</span> <span class="n">command</span><span class="o">.</span><span class="n">enable_motors</span><span class="p">[</span><span class="mi">8</span><span class="p">]</span> <span class="k">else</span> <span class="mi">0</span>   <span class="c1"># rf_dip</span>
+    <span class="n">byte2</span> <span class="o">|=</span> <span class="p">(</span><span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="mi">6</span><span class="p">)</span> <span class="k">if</span> <span class="n">command</span><span class="o">.</span><span class="n">enable_motors</span><span class="p">[</span><span class="mi">9</span><span class="p">]</span> <span class="k">else</span> <span class="mi">0</span>   <span class="c1"># rf_mcp</span>
+    <span class="n">byte2</span> <span class="o">|=</span> <span class="p">(</span><span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="mi">5</span><span class="p">)</span> <span class="k">if</span> <span class="n">command</span><span class="o">.</span><span class="n">enable_motors</span><span class="p">[</span><span class="mi">10</span><span class="p">]</span> <span class="k">else</span> <span class="mi">0</span>  <span class="c1"># lf_dip</span>
+    <span class="n">byte2</span> <span class="o">|=</span> <span class="p">(</span><span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="mi">4</span><span class="p">)</span> <span class="k">if</span> <span class="n">command</span><span class="o">.</span><span class="n">enable_motors</span><span class="p">[</span><span class="mi">11</span><span class="p">]</span> <span class="k">else</span> <span class="mi">0</span>  <span class="c1"># lf_mcp</span>
+    
+    <span class="c1"># Build settings byte</span>
+    <span class="n">byte3</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">byte3</span> <span class="o">|=</span> <span class="p">(</span><span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="mi">2</span><span class="p">)</span> <span class="k">if</span> <span class="n">command</span><span class="o">.</span><span class="n">clear_error</span> <span class="k">else</span> <span class="mi">0</span>
+    <span class="n">byte3</span> <span class="o">|=</span> <span class="p">(</span><span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="mi">1</span><span class="p">)</span> <span class="k">if</span> <span class="n">command</span><span class="o">.</span><span class="n">request_feedback</span> <span class="k">else</span> <span class="mi">0</span>
+    <span class="n">byte3</span> <span class="o">|=</span> <span class="p">(</span><span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="mi">0</span><span class="p">)</span> <span class="k">if</span> <span class="n">command</span><span class="o">.</span><span class="n">is_right_hand</span> <span class="k">else</span> <span class="mi">0</span>  <span class="c1"># 0 for left hand, 1 for right hand</span>
+    
+    <span class="c1"># Build control field</span>
+    <span class="n">control_field</span> <span class="o">=</span> <span class="nb">bytes</span><span class="p">([</span><span class="n">byte0</span><span class="p">,</span> <span class="n">byte1</span><span class="p">,</span> <span class="n">byte2</span><span class="p">,</span> <span class="n">byte3</span><span class="p">])</span>
+    
+    <span class="c1"># Build data field (60 bytes total, 6 fingers × 10 bytes each)</span>
+    <span class="n">data_field</span> <span class="o">=</span> <span class="nb">bytearray</span><span class="p">(</span><span class="mi">60</span><span class="p">)</span>  <span class="c1"># Initialize with zeros</span>
+    
+    <span class="c1"># Define finger groups that map motor indices to finger data fields</span>
+    <span class="n">finger_groups</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span>    <span class="c1"># Thumb: th_dip, th_mcp</span>
+        <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span>    <span class="c1"># Rotation &amp; spread: th_rot, ff_spr</span>
+        <span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">),</span>    <span class="c1"># First finger: ff_dip, ff_mcp</span>
+        <span class="p">(</span><span class="mi">6</span><span class="p">,</span> <span class="mi">7</span><span class="p">),</span>    <span class="c1"># Middle finger: mf_dip, mf_mcp</span>
+        <span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="mi">9</span><span class="p">),</span>    <span class="c1"># Ring finger: rf_dip, rf_mcp</span>
+        <span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">11</span><span class="p">)</span>   <span class="c1"># Little finger: lf_dip, lf_mcp</span>
+    <span class="p">]</span>
+    
+    <span class="c1"># Fill data field for each finger group</span>
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="p">(</span><span class="n">idx1</span><span class="p">,</span> <span class="n">idx2</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">finger_groups</span><span class="p">):</span>
+        <span class="n">offset</span> <span class="o">=</span> <span class="n">i</span> <span class="o">*</span> <span class="mi">10</span>  <span class="c1"># Each finger data is 10 bytes</span>
+        
+        <span class="c1"># Pack position data (2 bytes each, little-endian)</span>
+        <span class="n">data_field</span><span class="p">[</span><span class="n">offset</span><span class="p">:</span><span class="n">offset</span><span class="o">+</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="n">command</span><span class="o">.</span><span class="n">positions</span><span class="p">[</span><span class="n">idx1</span><span class="p">]</span><span class="o">.</span><span class="n">to_bytes</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="n">byteorder</span><span class="o">=</span><span class="s1">&#39;little&#39;</span><span class="p">,</span> <span class="n">signed</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">data_field</span><span class="p">[</span><span class="n">offset</span><span class="o">+</span><span class="mi">2</span><span class="p">:</span><span class="n">offset</span><span class="o">+</span><span class="mi">4</span><span class="p">]</span> <span class="o">=</span> <span class="n">command</span><span class="o">.</span><span class="n">positions</span><span class="p">[</span><span class="n">idx2</span><span class="p">]</span><span class="o">.</span><span class="n">to_bytes</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="n">byteorder</span><span class="o">=</span><span class="s1">&#39;little&#39;</span><span class="p">,</span> <span class="n">signed</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        
+        <span class="c1"># Pack speed data (2 bytes each, little-endian)</span>
+        <span class="n">data_field</span><span class="p">[</span><span class="n">offset</span><span class="o">+</span><span class="mi">4</span><span class="p">:</span><span class="n">offset</span><span class="o">+</span><span class="mi">6</span><span class="p">]</span> <span class="o">=</span> <span class="n">command</span><span class="o">.</span><span class="n">speeds</span><span class="p">[</span><span class="n">idx1</span><span class="p">]</span><span class="o">.</span><span class="n">to_bytes</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="n">byteorder</span><span class="o">=</span><span class="s1">&#39;little&#39;</span><span class="p">,</span> <span class="n">signed</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="n">data_field</span><span class="p">[</span><span class="n">offset</span><span class="o">+</span><span class="mi">6</span><span class="p">:</span><span class="n">offset</span><span class="o">+</span><span class="mi">8</span><span class="p">]</span> <span class="o">=</span> <span class="n">command</span><span class="o">.</span><span class="n">speeds</span><span class="p">[</span><span class="n">idx2</span><span class="p">]</span><span class="o">.</span><span class="n">to_bytes</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="n">byteorder</span><span class="o">=</span><span class="s1">&#39;little&#39;</span><span class="p">,</span> <span class="n">signed</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        
+        <span class="c1"># Pack current data (1 byte each)</span>
+        <span class="n">data_field</span><span class="p">[</span><span class="n">offset</span><span class="o">+</span><span class="mi">8</span><span class="p">]</span> <span class="o">=</span> <span class="n">command</span><span class="o">.</span><span class="n">currents</span><span class="p">[</span><span class="n">idx1</span><span class="p">]</span>
+        <span class="n">data_field</span><span class="p">[</span><span class="n">offset</span><span class="o">+</span><span class="mi">9</span><span class="p">]</span> <span class="o">=</span> <span class="n">command</span><span class="o">.</span><span class="n">currents</span><span class="p">[</span><span class="n">idx2</span><span class="p">]</span>
+    
+    <span class="c1"># Combine control field and data field</span>
+    <span class="k">return</span> <span class="n">control_field</span> <span class="o">+</span> <span class="n">data_field</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">encode_global_command</span><span class="p">(</span><span class="n">command</span><span class="p">:</span> <span class="n">GlobalCommand</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bytes</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Encode a global broadcast command</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        command: GlobalCommand to encode</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        Encoded bytes (8 bytes total)</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">        ValueError: If command data is invalid</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">command</span><span class="o">.</span><span class="n">data</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">6</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Global command data too long: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">command</span><span class="o">.</span><span class="n">data</span><span class="p">)</span><span class="si">}</span><span class="s2"> bytes (max 6)&quot;</span><span class="p">)</span>
+        
+    <span class="c1"># Build command data</span>
+    <span class="n">cmd_data</span> <span class="o">=</span> <span class="nb">bytearray</span><span class="p">([</span><span class="mh">0x03</span><span class="p">,</span> <span class="n">command</span><span class="o">.</span><span class="n">function_code</span><span class="p">])</span>
+    <span class="n">cmd_data</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">command</span><span class="o">.</span><span class="n">data</span><span class="p">)</span>
+    
+    <span class="c1"># Pad to 8 bytes if necessary</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">cmd_data</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">8</span><span class="p">:</span>
+        <span class="n">cmd_data</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="p">(</span><span class="mi">8</span> <span class="o">-</span> <span class="nb">len</span><span class="p">(</span><span class="n">cmd_data</span><span class="p">)))</span>
+        
+    <span class="k">return</span> <span class="nb">bytes</span><span class="p">(</span><span class="n">cmd_data</span><span class="p">)</span>
 </pre></div>
 
            </div>
